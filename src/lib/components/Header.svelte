@@ -11,7 +11,7 @@
 </script>
 
 
-<header class="sticky grid grid-cols-3 h-14 items-center px-4 shadow w-full lg:px-12 mb-4">
+<header class="sticky grid grid-cols-3 h-14 items-center px-4 shadow w-full lg:px-12 mb-6">
     <button onclick={() => menuOpen = !menuOpen} class="grow lg:hidden">
         {@html menu}
     </button>

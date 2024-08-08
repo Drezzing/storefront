@@ -3,7 +3,7 @@
     import instagram from "$lib/images/instagram.svg?raw"
 </script>
 
-<div class="w-full bg-dblack text-white flex flex-col items-center text-base py-6 gap-8 lg:py-12 lg:gap-16">
+<div class="w-full bg-dblack text-white flex flex-col items-center text-base py-6 gap-8 mt-6 lg:py-12 lg:gap-16">
     <div class="flex flex-row gap-16 lg:gap-64">
         <div class="justify-self-end">
             <div class="flex flex-col gap-8 ">
