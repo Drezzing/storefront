@@ -1,5 +1,3 @@
-<!-- <h1 class="h-6 m-auto">Hello world</h1> -->
-
 <script lang="ts">
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import { Button } from "$lib/components/ui/button";
@@ -12,7 +10,7 @@
 </svelte:head>
 
 <div class="max-w-[1024px] justify-center md:px-8 lg:m-auto lg:space-y-16">
-    <section class="-mt-4 mb-12 md:mt-0 lg:mb-0">
+    <section class="-mt-6 mb-12 md:mt-0 lg:mb-0">
         <Carousel.Root class="w-full">
             <Carousel.Content>
                 <!-- TODO: replace each item with a snippet -->
