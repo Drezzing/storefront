@@ -1,6 +1,4 @@
-import { medusa } from "$lib/medusa/medusa";
-import type { PageServerLoad } from "./$types";
-import { PUBLIC_REGION_ID } from "$env/static/public";
+import type { StoreProductsRes } from "@medusajs/medusa";
 
 const SIZE_MAP: Record<string, number> = {
     xs: 1,
@@ -10,10 +8,7 @@ const SIZE_MAP: Record<string, number> = {
     xl: 5,
 };
 
-export const load: PageServerLoad = async ({ params }) => {
-    const products = await medusa.products.list({ handle: params.id, region_id: PUBLIC_REGION_ID });
-    const product = products.products[0];
-
+export const getProductOptions = (product: StoreProductsRes["product"]) => {
     const optionMap = new Map<string, string[]>();
 
     for (const option of product.options ?? []) {
@@ -28,11 +23,5 @@ export const load: PageServerLoad = async ({ params }) => {
         optionMap.get("taille")?.sort((a, b) => SIZE_MAP[a] - SIZE_MAP[b]);
     }
 
-    return {
-        product: products.products[0],
-        options: {
-            taille: optionMap.get("taille"),
-            couleur: optionMap.get("couleur"),
-        },
-    };
+    return optionMap;
 };
