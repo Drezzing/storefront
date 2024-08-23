@@ -26,8 +26,9 @@
                     {@html close}
                 </button>
                 <ul>
-                    <li>Acceuil</li>
-                    <li>Collections</li>
+                    <li><a href="/">Acceuil</a></li>
+                    <li><a href="/collections">Collections</a></li>
+                    <li><a href="/categories">Catégories</a></li>
                 </ul>
             </div>
         </nav>
@@ -35,13 +36,14 @@
             
 
     <div class="justify-self-center lg:justify-self-start">
-        <img src={drezzing} alt="logo-drezzing" class="h-12" />
+        <a href="/"><img src={drezzing} alt="logo-drezzing" class="h-12" /></a>
     </div>
 
     <nav class="hidden lg:block justify-self-center">
         <ul class="flex flex-row gap-8">
-            <li>Collections</li>
+            <li><a href="/collections">Collections</a></li>
             <li>A propos</li>
+            <li><a href="/categories">Catégories</a></li>
         </ul>    
     </nav>
 
