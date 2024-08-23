@@ -1,12 +1,12 @@
 <script lang="ts">
-    import AddToCart from "$lib/components/AddToCart.svelte";
     import OptionPicker from "$lib/components/OptionPicker.svelte";
     import QuantitySelector from "$lib/components/QuantitySelector.svelte";
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import { Separator } from "$lib/components/ui/separator";
-    import { CartButtonState } from "$lib/medusa/cart.js";
 
     import AddToCartSVG from "$lib/images/add-to-cart.svg?raw";
+    import StateButton from "$lib/components/StateButton/StateButton.svelte";
+    import { ButtonState, type StateButtonContent } from "$lib/components/StateButton/stateButton.js";
 
     let { data } = $props();
     const { product, options } = data;
@@ -15,8 +15,13 @@
     let couleur = $state("");
     let itemQuantity = $state(1);
 
-    let cartButtonState = $state<CartButtonState>(CartButtonState.Idle);
-    $inspect(cartButtonState);
+    const cartButtonStates: StateButtonContent = {
+        Idle: "Ajouter au panier",
+        Updating: "Ajout en cours",
+        Success: "Ajouté au panier",
+        Fail: "Echec de l'ajout",
+    };
+    let cartButtonState = $state<ButtonState>(ButtonState.Idle);
 
     if (options.couleur) couleur = options.couleur[0];
     if (options.taille) taille = options.taille[0];
@@ -36,7 +41,7 @@
     });
 
     const addToCart = async () => {
-        cartButtonState = CartButtonState.Updating;
+        cartButtonState = ButtonState.Updating;
 
         const req = await fetch("/api/cart", {
             method: "POST",
@@ -49,12 +54,8 @@
 
         const response: { success: boolean; message: string; cart_id: string | null } = await req.json();
 
-        if (response.success && response.cart_id !== null) {
-            localStorage.setItem("cart_id", response.cart_id);
-        }
-
-        cartButtonState = response.success ? CartButtonState.Success : CartButtonState.Fail;
-        setTimeout(() => (cartButtonState = CartButtonState.Idle), 2500);
+        cartButtonState = response.success ? ButtonState.Success : ButtonState.Fail;
+        setTimeout(() => (cartButtonState = ButtonState.Idle), 2500);
     };
 
     const variant = $derived(product.variants.find((variant) => variant.title === variantTitle))!;
@@ -91,7 +92,7 @@
             <Separator class="my-4" />
 
             {#if options.couleur}
-                <div class="grid grid-cols-[20%_80%] items-center">
+                <div class="grid grid-cols-[25%_auto] items-center gap-4">
                     <h2>Couleur</h2>
                     <OptionPicker choices={options.couleur} bind:value={couleur} />
                 </div>
@@ -99,21 +100,23 @@
             {/if}
 
             {#if options.taille}
-                <div class="grid grid-cols-[20%_80%] items-center">
+                <div class="grid grid-cols-[25%_auto] items-center gap-4">
                     <h2>Taille</h2>
                     <OptionPicker choices={options.taille} bind:value={taille} />
                 </div>
                 <Separator class="my-4" />
             {/if}
 
-            <div class="flex flex-row gap-4">
+            <div class="grid grid-cols-[25%_auto] gap-4">
                 <QuantitySelector bind:value={itemQuantity} min={1} max={99} />
-                <AddToCart buttonState={cartButtonState} on:click={addToCart}>
-                    <div class="size-4 fill-white text-white">
-                        {@html AddToCartSVG}
-                    </div>
-                    <p>{cartButtonState}</p>
-                </AddToCart>
+                <div class="w-full">
+                    <StateButton buttonState={cartButtonState} on:click={addToCart}>
+                        <div class="size-4 fill-white text-white">
+                            {@html AddToCartSVG}
+                        </div>
+                        <p>{cartButtonStates[cartButtonState]}</p>
+                    </StateButton>
+                </div>
             </div>
         </div>
     </div>

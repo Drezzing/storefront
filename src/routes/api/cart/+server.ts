@@ -1,9 +1,28 @@
 import { json } from "@sveltejs/kit";
 import { medusa } from "$lib/medusa/medusa";
 import type { RequestHandler } from "./$types";
-import { CartAdd } from "$lib/medusa/cart";
+import { CartAdd, CartDelete } from "$lib/cart/cart.js";
 import { checkCartExists, checkVariantExists } from "$lib/medusa/medusa";
 import { dev } from "$app/environment";
+
+export const DELETE: RequestHandler = async ({ request, cookies }) => {
+    const reqJson = await request.json();
+
+    const defaultErrorResponse = json({ success: false }, { status: 400 });
+
+    const { success } = CartDelete.safeParse(reqJson);
+    if (!success) return defaultErrorResponse;
+
+    const { item_id }: CartDelete = reqJson;
+
+    const cartID = cookies.get("cart_id");
+    const cartInfo = await checkCartExists(cartID);
+
+    if (cartInfo.err) return defaultErrorResponse;
+
+    await medusa.carts.lineItems.delete(cartInfo.cart.id, item_id);
+    return json({ success: true }, { status: 200 });
+};
 
 export const POST: RequestHandler = async ({ request, getClientAddress, cookies }) => {
     const reqJson = await request.json();
@@ -15,21 +34,24 @@ export const POST: RequestHandler = async ({ request, getClientAddress, cookies 
 
     const { product_id, quantity }: CartAdd = reqJson;
 
-    console.log(reqJson);
-
     const variantInfo = await checkVariantExists(product_id);
-    if (variantInfo.exist === false) return defaultErrorResponse;
+    if (variantInfo.err) return defaultErrorResponse;
 
     const cartID = cookies.get("cart_id");
     const cartInfo = await checkCartExists(cartID);
 
     let cart;
-    if (cartInfo.exist) {
+
+    // The cart exist and has not been completed yet
+    if (!cartInfo.err && !cartInfo.cart.completed_at) {
         ({ cart } = await medusa.carts.lineItems.create(cartInfo.cart.id, {
             variant_id: product_id,
             quantity,
         }));
-    } else {
+    }
+
+    // The cart doesn't exist or is completed so we need to create a new cart
+    else {
         ({ cart } = await medusa.carts.create({
             items: [{ variant_id: product_id, quantity: quantity }],
             sales_channel_id: "sc_01J4M81SYPHDB5PS61DYEQR7XN",
@@ -40,6 +62,6 @@ export const POST: RequestHandler = async ({ request, getClientAddress, cookies 
         }));
     }
 
-    cookies.set("cart_id", cart.id, { path: "/", secure: !dev, httpOnly: true });
+    cookies.set("cart_id", cart.id, { path: "/", secure: !dev, httpOnly: true, sameSite: "strict" });
     return json({ success: true, cart_id: cart.id }, { status: 200 });
 };
