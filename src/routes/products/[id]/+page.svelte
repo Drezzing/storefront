@@ -1,19 +1,53 @@
 <script lang="ts">
-    import OptionPicker from "$lib/components/OptionPicker.svelte";
-    import QuantitySelector from "$lib/components/QuantitySelector.svelte";
+    import { ShoppingBag } from "lucide-svelte";
+    import { error } from "@sveltejs/kit";
+
     import * as Carousel from "$lib/components/ui/carousel/index.js";
+    import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import { Separator } from "$lib/components/ui/separator";
 
-    import AddToCartSVG from "$lib/images/add-to-cart.svg?raw";
+    import { SIZE_MAP } from "$lib/medusa/product";
+    import OptionPicker from "$lib/components/OptionPicker.svelte";
+    import QuantitySelector from "$lib/components/QuantitySelector.svelte";
     import StateButton from "$lib/components/StateButton/StateButton.svelte";
     import { ButtonState, type StateButtonContent } from "$lib/components/StateButton/stateButton.js";
 
     let { data } = $props();
-    const { product, options } = data;
+    const { title, description, images, collection, options, variants } = data;
 
-    let taille = $state("");
-    let couleur = $state("");
+    let api: CarouselAPI | undefined = $state(undefined);
+    let currentImage = $state(1);
+
+    $effect(() => {
+        if (api) {
+            api.on("select", (api) => {
+                currentImage = api.selectedScrollSnap() + 1;
+            });
+        }
+    });
+
     let itemQuantity = $state(1);
+
+    if (options.has("Taille")) {
+        options.get("Taille")!.sort((a, b) => SIZE_MAP[a.toLowerCase()] - SIZE_MAP[b.toLowerCase()]);
+    }
+
+    let selectedOptions = $state<{ option: string; value: string }[]>([]);
+    options.forEach((values, key) => {
+        selectedOptions.push({ option: key, value: values[0] });
+    });
+
+    let variant = $derived.by(() => {
+        const optionsSet = new Set(selectedOptions.map((option) => option.value));
+        const v = variants.find((variant) => {
+            return (
+                variant.options.size === optionsSet.size && [...variant.options].every((value) => optionsSet.has(value))
+            );
+        });
+        if (v === undefined) error(500);
+
+        return v;
+    });
 
     const cartButtonStates: StateButtonContent = {
         Idle: "Ajouter au panier",
@@ -22,23 +56,6 @@
         Fail: "Echec de l'ajout",
     };
     let cartButtonState = $state<ButtonState>(ButtonState.Idle);
-
-    if (options.couleur) couleur = options.couleur[0];
-    if (options.taille) taille = options.taille[0];
-
-    const variantTitle = $derived.by(() => {
-        let variantTitle = `${product.handle}-normal`;
-
-        if (couleur) {
-            variantTitle = variantTitle.concat(`-${couleur}`);
-        }
-
-        if (taille) {
-            variantTitle = variantTitle.concat(`-${taille}`);
-        }
-
-        return variantTitle;
-    });
 
     const addToCart = async () => {
         cartButtonState = ButtonState.Updating;
@@ -57,63 +74,57 @@
         cartButtonState = response.success ? ButtonState.Success : ButtonState.Fail;
         setTimeout(() => (cartButtonState = ButtonState.Idle), 2500);
     };
-
-    const variant = $derived(product.variants.find((variant) => variant.title === variantTitle))!;
 </script>
 
-<div class="flex w-screen justify-center px-4">
-    <div class="justify-left flex flex-col gap-4">
-        <div>
-            <a href="/collections">Collections</a> /
-            <a href="/collections/{product.collection?.handle}">{product.collection?.title}</a> /
-            <span class="font-bold">{product.title}</span>
-        </div>
+<div class="mx-auto max-w-[1350px] px-4">
+    <div class="mb-4 lg:mb-8">
+        <a href="/collections">Collections</a> /
+        <a href="/collections/{collection.handle}">{collection.title}</a> /
+        <span class="font-bold">{title}</span>
+    </div>
 
-        <div>
-            <Carousel.Root class="m-auto w-11/12 md:w-[600px]">
-                <Carousel.Content>
-                    {#each product.images! as image}
-                        <Carousel.Item>
-                            <img src={image.url} alt="mljqsmlf" class="m-auto w-10/12 object-scale-down md:w-[600px]" />
-                        </Carousel.Item>
-                    {/each}
-                </Carousel.Content>
-                <Carousel.Previous class="hover:bg-dgray -left-2 border-0 bg-transparent" />
-                <Carousel.Next class="hover:bg-dgray -right-2 border-0 bg-transparent" />
-            </Carousel.Root>
-        </div>
+    <div class="flex flex-col items-center gap-12 lg:flex-row lg:items-start lg:justify-center xl:gap-24">
+        <Carousel.Root bind:api class="max-w-[600px]">
+            <Carousel.Content>
+                {#each images as image, i}
+                    <Carousel.Item>
+                        <img
+                            src={image.url}
+                            alt={title}
+                            class="m-auto size-[min(90vw,600px)] rounded-lg object-scale-down md:h-[600px] md:w-[600px]"
+                            loading={i === 0 ? "eager" : "lazy"}
+                        />
+                        <div
+                            class="bg-dgray/15 relative -top-[min(90vw,600px)] left-0 h-full w-full rounded-lg mix-blend-multiply"
+                        ></div>
+                    </Carousel.Item>
+                {/each}
+            </Carousel.Content>
+            <Carousel.Previous class="hover:bg-dgray left-2 border-0 bg-transparent" />
+            <Carousel.Next class="hover:bg-dgray right-2 border-0 bg-transparent" />
+            <p class="text-d-darkgray text-center text-xs">Image {currentImage} sur {images.length}</p>
+        </Carousel.Root>
 
-        <div>
-            <div>
-                <h1 class="font-bold">{product.title}</h1>
-                <p>{(variant.original_price! / 100).toFixed(2)}€</p>
-            </div>
+        <div class="w-full max-w-[850px] lg:w-auto lg:grow">
+            <h1 class="text-xl font-bold">{title}</h1>
+            <p>{(variant.price / 100).toFixed(2)}€</p>
+            <p class="mt-2">{description}</p>
 
             <Separator class="my-4" />
 
-            {#if options.couleur}
-                <div class="grid grid-cols-[25%_auto] items-center gap-4">
-                    <h2>Couleur</h2>
-                    <OptionPicker choices={options.couleur} bind:value={couleur} />
+            {#each selectedOptions as option}
+                <div class="grid grid-cols-[100px_auto] items-center gap-4 lg:grid-cols-[125px_auto] lg:gap-6">
+                    <h2>{option.option}</h2>
+                    <OptionPicker choices={options.get(option.option) ?? []} bind:value={option.value} />
                 </div>
                 <Separator class="my-4" />
-            {/if}
+            {/each}
 
-            {#if options.taille}
-                <div class="grid grid-cols-[25%_auto] items-center gap-4">
-                    <h2>Taille</h2>
-                    <OptionPicker choices={options.taille} bind:value={taille} />
-                </div>
-                <Separator class="my-4" />
-            {/if}
-
-            <div class="grid grid-cols-[25%_auto] gap-4">
+            <div class="grid grid-cols-[100px_auto] gap-4 lg:grid-cols-[125px_auto] lg:gap-6">
                 <QuantitySelector bind:value={itemQuantity} min={1} max={99} />
                 <div class="w-full">
                     <StateButton buttonState={cartButtonState} on:click={addToCart}>
-                        <div class="size-4 fill-white text-white">
-                            {@html AddToCartSVG}
-                        </div>
+                        <ShoppingBag strokeWidth={2.25} class="size-4" />
                         <p>{cartButtonStates[cartButtonState]}</p>
                     </StateButton>
                 </div>

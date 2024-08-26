@@ -1,14 +1,21 @@
 <script lang="ts">
-    import * as ToggleGroup from "$lib/components/ui/toggle-group/index.js";
-    let { choices, value = $bindable() }: {choices: string[], value: string} = $props()
+    import * as RadioGroup from "$lib/components/ui/radio-group";
+    import { Label } from "$lib/components/ui/label";
 
-    value = choices[0]
+    let { choices, value = $bindable() }: { choices: Array<string>; value: string } = $props();
 </script>
 
-<ToggleGroup.Root type="single" bind:value={value} class="justify-start gap-4">
+<RadioGroup.Root class="flex flex-row justify-start gap-4" bind:value>
     {#each choices as choice}
-        <ToggleGroup.Item value={choice} class="ring-1 bg-transparent ring-black data-[state=on]:ring-2 data-[state=on]:bg-gray-200 hover:bg-gray-200 hover:text-black">
-            {choice.slice(0, 1).toUpperCase() + choice.slice(1).toLowerCase()}
-        </ToggleGroup.Item>
+        <RadioGroup.Item id={choice} value={choice} class="hidden">
+            {choice}
+        </RadioGroup.Item>
+        <Label
+            class="hover:bg-d-darkgray cursor-pointer rounded-md bg-transparent px-4 py-3 text-center ring-1 ring-black transition-colors hover:text-white {choice ===
+            value
+                ? 'bg-d-darkgray text-white'
+                : 'bg-transparent ring-1'}"
+            for={choice}>{choice}</Label
+        >
     {/each}
-</ToggleGroup.Root>
+</RadioGroup.Root>

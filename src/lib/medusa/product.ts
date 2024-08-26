@@ -1,6 +1,6 @@
 import type { StoreProductsRes } from "@medusajs/medusa";
 
-const SIZE_MAP: Record<string, number> = {
+export const SIZE_MAP: Record<string, number> = {
     xs: 1,
     s: 2,
     m: 3,

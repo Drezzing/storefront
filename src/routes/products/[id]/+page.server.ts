@@ -1,38 +1,32 @@
 import { medusa } from "$lib/medusa/medusa";
-import type { PageServerLoad } from "./$types";
 import { PUBLIC_REGION_ID } from "$env/static/public";
 
-const SIZE_MAP: Record<string, number> = {
-    xs: 1,
-    s: 2,
-    m: 3,
-    l: 4,
-    xl: 5,
-};
-
-export const load: PageServerLoad = async ({ params }) => {
+export const load = async ({ params }) => {
     const products = await medusa.products.list({ handle: params.id, region_id: PUBLIC_REGION_ID });
     const product = products.products[0];
 
-    const optionMap = new Map<string, string[]>();
+    const optionMap = new Map<string, Array<string>>();
 
     for (const option of product.options ?? []) {
         const optionValues = new Set<string>();
         for (const value of option.values) {
             optionValues.add(value.value);
         }
-        optionMap.set(option.title, Array.from(optionValues));
+        optionMap.set(option.title, Array.from(optionValues).sort());
     }
 
-    if (optionMap.has("taille")) {
-        optionMap.get("taille")?.sort((a, b) => SIZE_MAP[a] - SIZE_MAP[b]);
+    const variantMap = new Array<{ id: string; options: Set<string>; price: number }>();
+    for (const variant of product.variants) {
+        const variantOptions = new Set<string>(variant.options?.map((option) => option.value));
+        variantMap.push({ id: variant.id!, options: variantOptions, price: variant.original_price || 0.42 });
     }
 
     return {
-        product: products.products[0],
-        options: {
-            taille: optionMap.get("taille"),
-            couleur: optionMap.get("couleur"),
-        },
+        title: product.title || "Placeholder title",
+        description: product.description || "Placeholder description blabla",
+        images: product.images || [{ url: "" }],
+        collection: product.collection || { handle: "placeholder", title: "Placeholder" },
+        options: optionMap,
+        variants: variantMap,
     };
 };
