@@ -9,9 +9,10 @@ export type CartItemType = {
     options?: string[];
 };
 
+export const CartName = z.string().regex(/^([a-zA-Zà-žÀ-Ž\- ']+)$/g);
+
 export type CartType = {
-    items: CartItemType[];
-    mail: string;
+    items: CartItemType[] | null;
 };
 
 export const CartAdd = z.object({

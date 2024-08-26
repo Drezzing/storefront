@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Separator } from "$lib/components/ui/separator/index.js";
     import { z } from "zod";
+    import { CartName } from "./cart";
 
     import { PUBLIC_STRIPE_API_KEY, PUBLIC_BASE_URL } from "$env/static/public";
     import { loadStripe, type Stripe, type StripeElements } from "@stripe/stripe-js";
@@ -8,8 +9,7 @@
     import StateButton from "$lib/components/StateButton/StateButton.svelte";
     import { ButtonState, type StateButtonContent } from "$lib/components/StateButton/stateButton";
     import { onMount } from "svelte";
-
-    let { mail }: { mail: string | null } = $props();
+    import { slide } from "svelte/transition";
 
     let stripe: Stripe | null = $state(null);
     onMount(async () => {
@@ -19,8 +19,8 @@
     let client_secret = $state("");
     let elements: StripeElements | undefined = $state();
 
-    let userMail = $state(mail ?? "");
-    let userMailError = $state(false);
+    let userData = $state({ firstName: "", lastName: "", mail: "" });
+    let userDataError = $state({ firstName: false, lastName: false, mail: false });
 
     let checkoutStep = $state(0);
     let buttonState = $state(ButtonState.Idle);
@@ -38,17 +38,32 @@
     const initCheckout = async () => {
         buttonState = ButtonState.Updating;
 
-        if (userMailError || !userMail) {
-            if (!userMail) userMailError = true;
+        let validateFail = false;
+        Object.entries(userData).forEach(([key, value]) => {
+            const objKey = key as "mail" | "firstName" | "lastName";
+            switch (objKey) {
+                case "mail":
+                    validateMail();
+                    break;
+                case "firstName":
+                case "lastName":
+                    validateName(objKey);
+                    break;
+            }
+            if (value === "" || userDataError[objKey]) {
+                userDataError[objKey] = true;
+                validateFail = true;
+            }
+        });
+
+        if (validateFail) {
             buttonState = ButtonState.Idle;
             return;
         }
 
         let req = await fetch("/api/checkout", {
             method: "POST",
-            body: JSON.stringify({
-                mail: userMail,
-            }),
+            body: JSON.stringify(userData),
             headers: {
                 "Content-Type": "application/json",
             },
@@ -77,8 +92,10 @@
             elements,
             confirmParams: {
                 return_url: PUBLIC_BASE_URL + "/cart/complete",
-                receipt_email: userMail,
-                payment_method_data: { billing_details: { email: userMail } },
+                receipt_email: userData.mail,
+                payment_method_data: {
+                    billing_details: { email: userData.mail, name: userData.firstName + " " + userData.lastName },
+                },
             },
             redirect: "always",
         });
@@ -94,9 +111,12 @@
         }
     };
 
-    const validateMail = async () => {
-        const { success } = z.string().email().safeParse(userMail);
-        userMailError = !success && userMail.length > 0;
+    const validateName = (key: "lastName" | "firstName") => {
+        userDataError[key] = !CartName.safeParse(userData[key]).success && userData[key].length > 0;
+    };
+
+    const validateMail = () => {
+        userDataError.mail = !z.string().email().min(1).safeParse(userData.mail).success && userData.mail.length > 0;
     };
 </script>
 
@@ -108,21 +128,69 @@
     <Separator class="my-4 w-full" />
 
     <form onsubmit={initCheckout}>
-        <div class="mb-4 flex w-full flex-col pl-[1px] font-['Segoe_UI'] transition-all">
-            <label class="mb-1 leading-[17.1px] text-[#30313D]" for="stripe-email">Adresse mail</label>
-            <input
-                class="rounded-xl bg-[#F1F1F1] p-4 leading-[18.4px] placeholder:text-[#6c6d79]
-                    {userMailError ? 'text-[#df1b41] ring-2 ring-[#df1b41]' : 'ring-0 focus:ring-2 focus:ring-black'}"
-                type="email"
-                id="stripe-email"
-                placeholder="john.doe@domain.com"
-                bind:value={userMail}
-                onblur={validateMail}
-                oninput={() => (userMailError = false)}
-            />
-            {#if userMailError}
-                <p class="text-[#df1b41]">Veuillez entrer une adresse mail valide.</p>
-            {/if}
+        <div class="mb-4 flex w-full flex-col gap-4 pl-[1px] font-['Segoe_UI']">
+            <div class="space-y-1">
+                <label class="mb-1 block leading-[17.1px] text-[#30313D]" for="stripe-lastname">Nom</label>
+                <input
+                    class="w-full rounded-xl bg-[#F1F1F1] p-4 leading-[18.4px] placeholder:text-[#6c6d79]
+                        {userDataError.lastName
+                        ? 'text-[#df1b41] ring-2 ring-[#df1b41]'
+                        : 'ring-0 focus:ring-2 focus:ring-black'}"
+                    type="text"
+                    id="stripe-lastname"
+                    placeholder="Doe"
+                    bind:value={userData.lastName}
+                    onblur={() => validateName("lastName")}
+                    oninput={() => (userDataError.lastName = false)}
+                />
+                {#if userDataError.lastName}
+                    <p class="text-[#df1b41]" transition:slide={{ axis: "y", duration: 250 }}>
+                        Veuillez entrer un nom valide.
+                    </p>
+                {/if}
+            </div>
+
+            <div class="space-y-1">
+                <label class="mb-1 block leading-[17.1px] text-[#30313D]" for="stripe-firstname">Prénom</label>
+                <input
+                    class="w-full rounded-xl bg-[#F1F1F1] p-4 leading-[18.4px] placeholder:text-[#6c6d79]
+                        {userDataError.firstName
+                        ? 'text-[#df1b41] ring-2 ring-[#df1b41]'
+                        : 'ring-0 focus:ring-2 focus:ring-black'}"
+                    type="text"
+                    id="stripe-firstname"
+                    placeholder="John"
+                    bind:value={userData.firstName}
+                    onblur={() => validateName("firstName")}
+                    oninput={() => (userDataError.firstName = false)}
+                />
+                {#if userDataError.firstName}
+                    <p class="text-[#df1b41]" transition:slide={{ axis: "y", duration: 250 }}>
+                        Veuillez entrer un prénom valide.
+                    </p>
+                {/if}
+            </div>
+
+            <div class="space-y-1">
+                <label class="mb-1 block leading-[17.1px] text-[#30313D]" for="stripe-firstname">Adresse Mail</label>
+                <input
+                    class="w-full rounded-xl bg-[#F1F1F1] p-4 leading-[18.4px] placeholder:text-[#6c6d79]
+                        {userDataError.mail
+                        ? 'text-[#df1b41] ring-2 ring-[#df1b41]'
+                        : 'ring-0 focus:ring-2 focus:ring-black'}"
+                    type="email"
+                    id="stripe-email"
+                    placeholder="john.doe@domain.com"
+                    bind:value={userData.mail}
+                    onblur={validateMail}
+                    oninput={() => (userDataError.mail = false)}
+                />
+                {#if userDataError.mail}
+                    <p class="text-[#df1b41]" transition:slide={{ axis: "y", duration: 250 }}>
+                        Veuillez entrer une adresse mail valide.
+                    </p>
+                {/if}
+            </div>
 
             <div class="mt-4">
                 <StateButton type="submit" {buttonState}>{mailButtonContent[buttonState]}</StateButton>
@@ -143,7 +211,12 @@
             theme="flat"
             bind:elements
         >
-            <Address fields={{ phone: "never" }} mode="billing" autocomplete={{ mode: "disabled" }} />
+            <Address
+                fields={{ phone: "never" }}
+                mode="billing"
+                autocomplete={{ mode: "disabled" }}
+                defaultValues={{ name: userData.firstName + " " + userData.lastName, address: { country: "France" } }}
+            />
 
             <PaymentElement
                 options={{

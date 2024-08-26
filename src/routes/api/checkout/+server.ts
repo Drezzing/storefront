@@ -2,6 +2,13 @@ import type { RequestHandler } from "./$types";
 import { json } from "@sveltejs/kit";
 import { z } from "zod";
 import { checkCartExists, medusa } from "$lib/medusa/medusa";
+import { CartName } from "$lib/cart/cart";
+
+const UserData = z.object({
+    firstName: CartName,
+    lastName: CartName,
+    mail: z.string().email(),
+});
 
 export const POST: RequestHandler = async ({ cookies, request }) => {
     const cartInfo = await checkCartExists(cookies.get("cart_id"));
@@ -14,13 +21,15 @@ export const POST: RequestHandler = async ({ cookies, request }) => {
     }
 
     const reqJson = await request.json();
-    const userMail = reqJson["mail"] as string;
-
-    const mailParse = z.string().email().safeParse(userMail);
-    if (!mailParse.success) return json({ success: false, client_secret: null }, { status: 400 });
+    const userDataValid = UserData.safeParse(reqJson);
+    if (!userDataValid.success) return json({ success: false, client_secret: null }, { status: 400 });
 
     const { cart } = await medusa.carts.update(cartInfo.cart.id, {
-        email: userMail,
+        email: userDataValid.data.mail,
+        billing_address: {
+            first_name: userDataValid.data.firstName,
+            last_name: userDataValid.data.lastName,
+        },
     });
 
     await medusa.carts.createPaymentSessions(cart.id);
@@ -29,8 +38,6 @@ export const POST: RequestHandler = async ({ cookies, request }) => {
     if (!final.payment_session) {
         return json({ success: false, client_secret: null }, { status: 500 });
     }
-
-    console.log(cartInfo.cart.id, cart.id, final.id);
 
     return json({ success: true, client_secret: final.payment_session.data.client_secret as string });
 };

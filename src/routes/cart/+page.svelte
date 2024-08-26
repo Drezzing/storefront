@@ -1,6 +1,6 @@
 <script lang="ts">
     let { data } = $props();
-    let { items, mail } = $state(data);
+    let { items } = $state(data);
 
     import { Separator } from "$lib/components/ui/separator/index.js";
     import CartItem from "$lib/cart/CartItem.svelte";
@@ -54,7 +54,7 @@
 
                 <p>La réception de votre achat se fera en main propre au BDE ISIMA.</p>
 
-                <CartStripe {mail} />
+                <CartStripe />
             </div>
         </div>
     {:else}

@@ -54,7 +54,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress, cookies 
     else {
         ({ cart } = await medusa.carts.create({
             items: [{ variant_id: product_id, quantity: quantity }],
-            sales_channel_id: "sc_01J4M81SYPHDB5PS61DYEQR7XN",
+            sales_channel_id: "sc_01J5ZW52WTV7JFKGR8VECNWTQ2",
             context: {
                 ip: getClientAddress(),
                 user_agent: request.headers.get("user-agent"),
