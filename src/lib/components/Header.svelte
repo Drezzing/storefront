@@ -1,154 +1,70 @@
 <script>
-    import drezzing from '$lib/images/drezzing.png';
-    import cart from "$lib/images/cart.svg?raw"
-    import profile from "$lib/images/profile.svg?raw"
-    import menu from "$lib/images/menu.svg?raw"
-    import close from "$lib/images/close.svg?raw"
-    import { fly } from 'svelte/transition';
+    import drezzing from "$lib/images/drezzing.png";
+    import cart from "$lib/images/cart.svg?raw";
+    import profile from "$lib/images/profile.svg?raw";
+    import { fly } from "svelte/transition";
+    import { X, Menu } from "lucide-svelte";
+
+    import { afterNavigate } from "$app/navigation";
+
+    //  le menu se ferme a chaque fois qu'on change de page
+    afterNavigate(() => {
+        menuOpen = false;
+    });
 
     let menuOpen = $state(false);
-
 </script>
 
+<svelte:head>
+    <link rel="shortcut icon" href={drezzing} type="image/x-icon" />
+</svelte:head>
 
-<header class="sticky grid grid-cols-3 h-14 items-center px-4 shadow w-full lg:px-12 mb-6">
-    <button onclick={() => menuOpen = !menuOpen} class="grow lg:hidden">
-        {@html menu}
+<header class="sticky z-50 mb-6 grid h-14 w-full grid-cols-3 items-center px-4 shadow lg:px-12">
+    <button onclick={() => (menuOpen = !menuOpen)} class="grow lg:hidden">
+        <Menu strokeWidth={2} size={28} class="stroke-d-darkgray" />
     </button>
-    
-    {#if menuOpen}  
-        <nav class="fixed left-0 top-0 w-[200px] h-screen shadow bg-white" transition:fly={{x: -200, duration: 350}}>
-            <div class="flex flex-row items-center h-14 pl-[12px]">
-                <button
-                    class="transition-colors duration-100 ease-in-out bg-white hover:bg-dgray rounded-full size-[32px] flex items-center justify-center"
-                    onclick={() => menuOpen = !menuOpen}
-                >
-                    {@html close}
-                </button>
-                <ul>
+
+    {#if menuOpen}
+        <nav class="fixed left-0 top-0 h-screen w-[200px] bg-white shadow" transition:fly={{ x: -200, duration: 350 }}>
+            <button
+                class="hover:bg-dgray ml-3 mt-3 flex size-[32px] items-center justify-center rounded-full bg-white transition-colors duration-100 ease-in-out"
+                onclick={() => (menuOpen = !menuOpen)}
+            >
+                <X stroke-width={1} class="stroke-d-darkgray" />
+            </button>
+
+            <div class="ml-4 mt-6 space-y-16 text-lg">
+                <ul class="space-y-4">
                     <li><a href="/">Acceuil</a></li>
                     <li><a href="/collections">Collections</a></li>
                     <li><a href="/categories">Catégories</a></li>
                 </ul>
+                <ul class="space-y-4">
+                    <li><a href="/about">À propos</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
             </div>
         </nav>
     {/if}
-            
 
     <div class="justify-self-center lg:justify-self-start">
-        <a href="/"><img src={drezzing} alt="logo-drezzing" class="h-12" /></a>
+        <a href="/">
+            <img src={drezzing} alt="logo-drezzing" class="h-12" />
+        </a>
     </div>
 
-    <nav class="hidden lg:block justify-self-center">
+    <nav class="hidden justify-self-center lg:block">
         <ul class="flex flex-row gap-8">
             <li><a href="/collections">Collections</a></li>
-            <li>A propos</li>
+            <li><a href="/about">A propos</a></li>
             <li><a href="/categories">Catégories</a></li>
-        </ul>    
+        </ul>
     </nav>
-
 
     <div class="justify-self-end">
         <div class="flex flex-row gap-2 lg:gap-8">
-            {@html profile}
-            {@html cart}
+            <a href="/profile">{@html profile}</a>
+            <a href="/cart">{@html cart}</a>
         </div>
     </div>
-
 </header>
-
-<style>
-    /* 
-    .corner {
-        width: 32px;
-        height: 32px;
-    } */
-
-    /* ul {
-        list-style: none;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        gap: 32px;
-        padding-left: 16px;
-        padding-right: 16px;
-    } */
-
-    /* .corner a {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-    }
-
-    .corner img {
-        width: 2em;
-        height: 2em;
-        object-fit: contain;
-    }
-
-    nav {
-        display: flex;
-        justify-content: center;
-        --background: rgba(255, 255, 255, 0.7);
-    }
-
-    svg {
-        width: 2em;
-        height: 3em;
-        display: block;
-    }
-
-    path {
-        fill: var(--background);
-    }
-
-    ul {
-        position: relative;
-        padding: 0;
-        margin: 0;
-        height: 3em;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        list-style: none;
-        background: var(--background);
-        background-size: contain;
-    }
-
-    li {
-        position: relative;
-        height: 100%;
-    }
-
-    li[aria-current='page']::before {
-        --size: 6px;
-        content: '';
-        width: 0;
-        height: 0;
-        position: absolute;
-        top: 0;
-        left: calc(50% - var(--size));
-        border: var(--size) solid transparent;
-        border-top: var(--size) solid var(--color-theme-1);
-    }
-
-    nav a {
-        display: flex;
-        height: 100%;
-        align-items: center;
-        padding: 0 0.5rem;
-        color: var(--color-text);
-        font-weight: 700;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        text-decoration: none;
-        transition: color 0.2s linear;
-    }
-
-    a:hover {
-        color: var(--color-theme-1);
-    } */
-</style>
