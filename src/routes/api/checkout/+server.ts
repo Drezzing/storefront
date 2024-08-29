@@ -1,43 +1,59 @@
-import type { RequestHandler } from "./$types";
 import { json } from "@sveltejs/kit";
-import { z } from "zod";
 import { checkCartExists, medusa } from "$lib/medusa/medusa";
-import { CartName } from "$lib/cart/cart";
+import { CartUserData } from "$lib/cart/cart";
+import { handleError } from "$lib/error.js";
 
-const UserData = z.object({
-    firstName: CartName,
-    lastName: CartName,
-    mail: z.string().email(),
-});
-
-export const POST: RequestHandler = async ({ cookies, request }) => {
+export const POST = async ({ cookies, request }) => {
     const cartInfo = await checkCartExists(cookies.get("cart_id"));
+    if (cartInfo.err) {
+        return handleError(400, "CHECKOUT_POST.CART_INVALID", { cart_id: cookies.get("cart_id") });
+    }
 
-    if (cartInfo.err) return json({ success: false, client_secret: null }, { status: 400 });
-    if (cartInfo.cart.completed_at) return json({ success: false, client_secret: null }, { status: 400 });
+    if (cartInfo.cart.completed_at) {
+        cookies.delete("cart_id", { path: "/" });
+        return handleError(423, "CHECKOUT_POST.CART_ALREADY_COMPLETED", { cart_id: cartInfo.cart.id });
+    }
 
     if (cartInfo.cart.payment_session) {
-        return json({ success: true, client_secret: cartInfo.cart.payment_session.data.client_secret as string });
+        return json({ client_secret: cartInfo.cart.payment_session.data.client_secret as string });
     }
 
-    const reqJson = await request.json();
-    const userDataValid = UserData.safeParse(reqJson);
-    if (!userDataValid.success) return json({ success: false, client_secret: null }, { status: 400 });
-
-    const { cart } = await medusa.carts.update(cartInfo.cart.id, {
-        email: userDataValid.data.mail,
-        billing_address: {
-            first_name: userDataValid.data.firstName,
-            last_name: userDataValid.data.lastName,
-        },
+    const reqJson = await request.json().catch(async () => {
+        return handleError(400, "CHECKOUT_POST.INVALID_BODY", { body: await request.text() });
     });
 
-    await medusa.carts.createPaymentSessions(cart.id);
-    const { cart: final } = await medusa.carts.setPaymentSession(cartInfo.cart.id, { provider_id: "stripe" });
-
-    if (!final.payment_session) {
-        return json({ success: false, client_secret: null }, { status: 500 });
+    const userDataValid = CartUserData.safeParse(reqJson);
+    if (!userDataValid.success) {
+        return handleError(422, "CHECKOUT_POST.INVALID_DATA", { data: reqJson });
     }
 
-    return json({ success: true, client_secret: final.payment_session.data.client_secret as string });
+    const { cart } = await medusa.carts
+        .update(cartInfo.cart.id, {
+            email: userDataValid.data.mail,
+            billing_address: {
+                first_name: userDataValid.data.firstName,
+                last_name: userDataValid.data.lastName,
+            },
+        })
+        .catch((err) => {
+            return handleError(500, "CHECKOUT_POST.UPDATE_CART_FAILED", { error: err.response.data });
+        });
+
+    await medusa.carts.createPaymentSessions(cart.id).catch((err) => {
+        return handleError(500, "CHECKOUT_POST.CREATE_PAYMENT_FAILED", { error: err.response.data });
+    });
+
+    const { cart: final } = await medusa.carts
+        .setPaymentSession(cartInfo.cart.id, { provider_id: "stripe" })
+        .catch((err) => {
+            return handleError(500, "CHECKOUT_POST.SET_SESSION_FAILED", { error: err.response.data });
+        });
+
+    if (!final.payment_session) {
+        return handleError(500, "CHECKOUT_POST.PAYEMENT_SESSION_MISSING", {
+            error: `Payment session missing on cart ${final.id}`,
+        });
+    }
+
+    return json({ client_secret: final.payment_session.data.client_secret as string });
 };

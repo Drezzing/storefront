@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { ShoppingBag } from "lucide-svelte";
     import { error } from "@sveltejs/kit";
+    import { ShoppingBag } from "lucide-svelte";
+    import { toast } from "svelte-sonner";
 
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
@@ -11,6 +12,7 @@
     import QuantitySelector from "$lib/components/QuantitySelector.svelte";
     import StateButton from "$lib/components/StateButton/StateButton.svelte";
     import { ButtonState, type StateButtonContent } from "$lib/components/StateButton/stateButton.js";
+    import { clientRequest, displayClientError } from "$lib/error.js";
 
     let { data } = $props();
     const { title, description, images, collection, options, variants } = data;
@@ -60,7 +62,7 @@
     const addToCart = async () => {
         cartButtonState = ButtonState.Updating;
 
-        const req = await fetch("/api/cart", {
+        const response = await clientRequest("PRODUCT_CART_POST", "/api/cart", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -69,7 +71,9 @@
             }),
         });
 
-        const response: { success: boolean; message: string; cart_id: string | null } = await req.json();
+        if (!response.success) {
+            displayClientError(response);
+        }
 
         cartButtonState = response.success ? ButtonState.Success : ButtonState.Fail;
         setTimeout(() => (cartButtonState = ButtonState.Idle), 2500);

@@ -1,21 +1,25 @@
 <script>
-	import Header from '../lib/components/Header.svelte';
-	import Footer from '$lib/components/Footer.svelte';
-	import '../app.css';
+    import { Toaster } from "$lib/components/ui/sonner";
+
+    import Header from "../lib/components/Header.svelte";
+    import Footer from "$lib/components/Footer.svelte";
+    import "../app.css";
 </script>
 
 <div class="app">
-	<Header></Header>
+    <Header></Header>
 
-	<main class="min-h-screen">
-		<slot></slot>
-	</main>
+    <Toaster richColors closeButton duration={2500} />
 
-	<Footer></Footer>
+    <main class="min-h-screen">
+        <slot></slot>
+    </main>
+
+    <Footer></Footer>
 </div>
 
 <style>
-	.app {
-		font-family: "Inter";
-	}
+    .app {
+        font-family: "Inter";
+    }
 </style>

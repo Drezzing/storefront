@@ -5,6 +5,7 @@
     import { Separator } from "$lib/components/ui/separator/index.js";
     import CartItem from "$lib/cart/CartItem.svelte";
     import CartStripe from "$lib/cart/CartStripe.svelte";
+    import { clientRequest, displayClientError } from "$lib/error.js";
 
     let itemCount = $derived.by(() => (items ? items.length : 0));
 
@@ -21,10 +22,14 @@
 
         items = items.filter((item) => item.id !== itemID);
 
-        const req = await fetch("/api/cart", { method: "DELETE", body: JSON.stringify({ item_id: itemID }) });
-        const res = await req.json();
+        const response = await clientRequest("CART_CART_DELETE", "/api/cart", {
+            method: "DELETE",
+            body: JSON.stringify({ item_id: itemID }),
+        });
 
-        // TODO: show user message if error when removing from cart
+        if (!response.success) {
+            displayClientError(response);
+        }
     };
 </script>
 

@@ -1,21 +1,24 @@
 import type { CartType } from "$lib/cart/cart";
+import { handleError } from "$lib/error.js";
 import { checkCartExists, medusa } from "$lib/medusa/medusa";
 
 export const load = async ({ cookies }) => {
     const cartInfo = await checkCartExists(cookies.get("cart_id"));
 
     if (cartInfo.err) {
-        return { items: null } satisfies CartType;
+        return handleError(404, "CART_LOAD.CART_NOT_FOUND", { error: cartInfo.err });
     }
 
     const { cart } = cartInfo;
     if (cart.completed_at) {
         cookies.delete("cart_id", { path: "/" });
-        return { items: null } satisfies CartType;
+        return handleError(423, "CART_LOAD.CART_ALREADY_COMPLETED");
     }
 
     const cartVariants = cart.items.map((item) => item.variant_id!);
-    const { variants } = await medusa.products.variants.list({ id: cartVariants });
+    const { variants } = await medusa.products.variants.list({ id: cartVariants }).catch((err) => {
+        return handleError(404, "CART_LOAD.PRODUCT_VARIANTS_NOT_FOUND", { error: err.response.data });
+    });
 
     const variantOptions = new Map<string, string[]>();
     for (const variant of variants) {

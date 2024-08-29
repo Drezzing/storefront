@@ -11,6 +11,12 @@ export type CartItemType = {
 
 export const CartName = z.string().regex(/^([a-zA-Zà-žÀ-Ž\- ']+)$/g);
 
+export const CartUserData = z.object({
+    firstName: CartName,
+    lastName: CartName,
+    mail: z.string().email(),
+});
+
 export type CartType = {
     items: CartItemType[] | null;
 };

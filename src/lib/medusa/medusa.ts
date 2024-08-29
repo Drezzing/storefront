@@ -1,8 +1,10 @@
 import Medusa from "@medusajs/medusa-js";
-import { type StoreCartsRes, type StoreVariantsRes, type StoreOrdersRes } from "@medusajs/medusa";
+import type { StoreCartsRes, StoreVariantsRes, StoreOrdersRes } from "@medusajs/medusa";
 import { MEDUSA_PKEY, MEDUSA_API_TOKEN } from "$env/static/private";
 
-type EntityExist<K extends string, V> = ({ [P in K]: V } & { err: false }) | ({ [P in K]: null } & { err: true });
+type EntityExist<K extends string, V> =
+    | ({ [P in K]: V } & { err: false })
+    | ({ [P in K]: null } & { err: Record<string, unknown> });
 
 export const medusa = new Medusa({
     baseUrl: "http://localhost:9000",
@@ -16,13 +18,14 @@ const checkEntityExist = async <K extends string, V>(
     key: string,
     getterFunc: CallableFunction,
 ): Promise<EntityExist<K, V>> => {
-    if (id === undefined) return { [key]: null, err: true };
+    if (id === undefined) return { [key]: null, err: { type: "not_found", message: key + "undefined was not found" } };
 
     try {
         const req = await getterFunc(id);
         return { [key]: req[key], err: false };
-    } catch {
-        return { [key]: null, err: true };
+    } catch (err) {
+        // @ts-expect-error err is not typed but medusa error always have the same structure
+        return { [key]: null, err: err.response.data };
     }
 };
 

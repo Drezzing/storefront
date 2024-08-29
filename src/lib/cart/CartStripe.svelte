@@ -3,6 +3,7 @@
     import { z } from "zod";
     import { CartName } from "./cart";
 
+    import { toast } from "svelte-sonner";
     import { PUBLIC_STRIPE_API_KEY, PUBLIC_BASE_URL } from "$env/static/public";
     import { loadStripe, type Stripe, type StripeElements } from "@stripe/stripe-js";
     import { Elements, PaymentElement, Address } from "svelte-stripe";
@@ -10,6 +11,7 @@
     import { ButtonState, type StateButtonContent } from "$lib/components/StateButton/stateButton";
     import { onMount } from "svelte";
     import { slide } from "svelte/transition";
+    import { clientRequest, displayClientError } from "$lib/error";
 
     let stripe: Stripe | null = $state(null);
     onMount(async () => {
@@ -61,17 +63,20 @@
             return;
         }
 
-        let req = await fetch("/api/checkout", {
+        const response = await clientRequest<{ client_secret: string }>("CART_CHECKOUT_POST", "/api/checkout", {
             method: "POST",
             body: JSON.stringify(userData),
             headers: {
                 "Content-Type": "application/json",
             },
         });
-        const res = await req.json();
 
-        if (res.success && stripe) {
-            client_secret = res.client_secret;
+        if (!response.success) {
+            displayClientError(response);
+        }
+
+        if (response.success && stripe) {
+            client_secret = response.data.client_secret;
             checkoutStep += 1;
             buttonState = ButtonState.Idle;
         } else {
@@ -102,6 +107,7 @@
 
         if (result.error) {
             if (result.error.type !== "validation_error") {
+                toast.error("Une erreur est survenue.", { description: `Code erreur : stripe_${result.error.code}` });
                 buttonState = ButtonState.Fail;
             } else {
                 buttonState = ButtonState.Idle;

@@ -1,22 +1,23 @@
 import { medusa } from "$lib/medusa/medusa";
 import type { StoreProductsRes } from "@medusajs/medusa";
 import type { PageServerLoad } from "./$types";
+import { handleError } from "$lib/error";
 
 export const load: PageServerLoad = async () => {
-    const { collections } = await medusa.collections.list();
+    const { collections } = await medusa.collections.list().catch((err) => {
+        return handleError(500, "COLLECTIONS_LOAD.COLLECTIONS_LIST_FAILED", { error: err.response.data });
+    });
 
     // List all of the front page products
     const frontPageIds = collections.map((collections) => collections.metadata?.["front_page_product"] as string);
 
     const frontPageProducts = new Map<string, StoreProductsRes["product"]>();
-    try {
-        // TODO: handle pagination
-        // Get product from previous list and map them with id for faster lookup
-        const { products } = await medusa.products.list({ id: frontPageIds });
-        products.forEach((product) => frontPageProducts.set(product.id!, product));
-    } catch (e) {
-        console.error(e);
-    }
+
+    // TODO: handle pagination
+    const { products } = await medusa.products.list({ id: frontPageIds }).catch((err) => {
+        return handleError(500, "COLLECTIONS_LOAD.COLLECTIONS_LIST_FAILED", { error: err.response.data });
+    });
+    products.forEach((product) => frontPageProducts.set(product.id!, product));
 
     return {
         collections: collections.map((collection) => {
@@ -31,7 +32,7 @@ export const load: PageServerLoad = async () => {
                 id: collection.id,
                 title: collection.title,
                 handle: collection.handle,
-                thumbnail: frontPageProduct?.thumbnail || "https://via.placeholder.com/600x600", // Récupérer le thumbnail du produit
+                thumbnail: frontPageProduct?.thumbnail || "https://via.placeholder.com/600x600",
             };
         }),
     };

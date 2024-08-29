@@ -1,65 +1,85 @@
 import { json } from "@sveltejs/kit";
+import { handleError } from "$lib/error.js";
 import { medusa } from "$lib/medusa/medusa";
-import type { RequestHandler } from "./$types";
 import { CartAdd, CartDelete } from "$lib/cart/cart.js";
 import { checkCartExists, checkVariantExists } from "$lib/medusa/medusa";
 import { dev } from "$app/environment";
 
-export const DELETE: RequestHandler = async ({ request, cookies }) => {
-    const reqJson = await request.json();
+export const DELETE = async ({ request, cookies }) => {
+    const reqJson = await request.json().catch(async () => {
+        return handleError(400, "CART_DELETE.INVALID_BODY", { body: await request.text() });
+    });
 
-    const defaultErrorResponse = json({ success: false }, { status: 400 });
+    const cartDeleteValid = CartDelete.safeParse(reqJson);
+    if (!cartDeleteValid.success) {
+        return handleError(422, "CART_DELETE.INVALID_DATA", { data: reqJson });
+    }
 
-    const { success } = CartDelete.safeParse(reqJson);
-    if (!success) return defaultErrorResponse;
+    const cartInfo = await checkCartExists(cookies.get("cart_id"));
+    if (cartInfo.err) {
+        return handleError(404, "CART_DELETE.CART_NOT_FOUND", { error: cartInfo.err });
+    }
 
-    const { item_id }: CartDelete = reqJson;
+    await medusa.carts.lineItems.delete(cartInfo.cart.id, cartDeleteValid.data.item_id).catch((err) => {
+        return handleError(500, "CART_DELETE.ITEM_DELETE_FAIL", { error: err.response.data });
+    });
 
-    const cartID = cookies.get("cart_id");
-    const cartInfo = await checkCartExists(cartID);
-
-    if (cartInfo.err) return defaultErrorResponse;
-
-    await medusa.carts.lineItems.delete(cartInfo.cart.id, item_id);
-    return json({ success: true }, { status: 200 });
+    return json(null, { status: 200 });
 };
 
-export const POST: RequestHandler = async ({ request, getClientAddress, cookies }) => {
-    const reqJson = await request.json();
+export const POST = async ({ request, getClientAddress, cookies }) => {
+    const reqJson = await request.json().catch(async () => {
+        return handleError(400, "CART_POST.INVALID_BODY", { body: await request.text() });
+    });
 
-    const defaultErrorResponse = json({ success: false }, { status: 400 });
+    const cartAddValid = CartAdd.safeParse(reqJson);
+    if (!cartAddValid.success) {
+        return handleError(422, "CART_POST.INVALID_DATA", { data: reqJson });
+    }
 
-    const { success } = CartAdd.safeParse(reqJson);
-    if (!success) return defaultErrorResponse;
-
-    const { product_id, quantity }: CartAdd = reqJson;
-
-    const variantInfo = await checkVariantExists(product_id);
-    if (variantInfo.err) return defaultErrorResponse;
-
-    const cartID = cookies.get("cart_id");
-    const cartInfo = await checkCartExists(cartID);
+    const variantInfo = await checkVariantExists(cartAddValid.data.product_id);
+    if (variantInfo.err) {
+        return handleError(404, "CART_POST.VARIANT_NOT_FOUND", { error: variantInfo.err });
+    }
 
     let cart;
+    const cartID = cookies.get("cart_id");
+    if (cartID) {
+        const cartInfo = await checkCartExists(cartID);
+        if (cartInfo.err) {
+            return handleError(404, "CART_POST.CART_NOT_FOUND", { error: cartInfo.err });
+        }
 
-    // The cart exist and has not been completed yet
-    if (!cartInfo.err && !cartInfo.cart.completed_at) {
-        ({ cart } = await medusa.carts.lineItems.create(cartInfo.cart.id, {
-            variant_id: product_id,
-            quantity,
-        }));
+        // The cart exist and has not been completed yet
+        if (!cartInfo.cart.completed_at) {
+            ({ cart } = await medusa.carts.lineItems
+                .create(cartInfo.cart.id, {
+                    variant_id: cartAddValid.data.product_id,
+                    quantity: cartAddValid.data.quantity,
+                })
+                .catch((err) => {
+                    return handleError(500, "CART_POST.CART_ADD_ITEM_FAIL", { error: err.response.data });
+                }));
+        } else {
+            cookies.delete("cart_id", { path: "/" });
+            return handleError(423, "CART_POST.CART_ALREADY_COMPLETED", { cart_id: cartInfo.cart.id });
+        }
     }
 
     // The cart doesn't exist or is completed so we need to create a new cart
     else {
-        ({ cart } = await medusa.carts.create({
-            items: [{ variant_id: product_id, quantity: quantity }],
-            sales_channel_id: "sc_01J5ZW52WTV7JFKGR8VECNWTQ2",
-            context: {
-                ip: getClientAddress(),
-                user_agent: request.headers.get("user-agent"),
-            },
-        }));
+        ({ cart } = await medusa.carts
+            .create({
+                items: [{ variant_id: cartAddValid.data.product_id, quantity: cartAddValid.data.quantity }],
+                sales_channel_id: "sc_01J5ZW52WTV7JFKGR8VECNWTQ2",
+                context: {
+                    ip: getClientAddress(),
+                    user_agent: request.headers.get("user-agent"),
+                },
+            })
+            .catch((err) => {
+                return handleError(500, "CART_POST.CART_CREATE_FAIL", { error: err.response.data });
+            }));
     }
 
     cookies.set("cart_id", cart.id, { path: "/", secure: !dev, httpOnly: true, sameSite: "strict" });
