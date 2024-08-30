@@ -63,7 +63,7 @@
 
     <div class="justify-self-end">
         <div class="flex flex-row gap-2 lg:gap-8">
-            <a href="/profile">{@html profile}</a>
+            <!-- <a href="/profile">{@html profile}</a> -->
             <a href="/cart">{@html cart}</a>
         </div>
     </div>

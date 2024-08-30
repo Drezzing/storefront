@@ -15,17 +15,17 @@
             <Carousel.Content>
                 <!-- TODO: replace each item with a snippet -->
                 <Carousel.Item>
-                    <a href="/test">
+                    <a href="/">
                         <img src="https://via.placeholder.com/600x300" alt="Carousel 1" class="w-full md:rounded" />
                     </a>
                 </Carousel.Item>
                 <Carousel.Item>
-                    <a href="/test2">
+                    <a href="/">
                         <img src="https://via.placeholder.com/600x300" alt="Carousel 2" class="w-full md:rounded" />
                     </a>
                 </Carousel.Item>
                 <Carousel.Item>
-                    <a href="/test3">
+                    <a href="/">
                         <img src="https://via.placeholder.com/600x300" alt="Carousel 3" class="w-full md:rounded" />
                     </a>
                 </Carousel.Item>
