@@ -1,7 +1,6 @@
 <script lang="ts">
     import { error } from "@sveltejs/kit";
     import { ShoppingBag } from "lucide-svelte";
-    import { toast } from "svelte-sonner";
 
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
@@ -80,10 +79,15 @@
     };
 </script>
 
+<svelte:head>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+</svelte:head>
+
 <div class="mx-auto max-w-[1350px] px-4">
     <div class="mb-4 lg:mb-8">
         <a href="/collections">Collections</a> /
-        <a href="/collections/{collection.handle}">{collection.title}</a> /
+        <a href="/collection/{collection.handle}">{collection.title}</a> /
         <span class="font-bold">{title}</span>
     </div>
 

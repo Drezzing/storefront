@@ -83,7 +83,7 @@
 
 <svelte:head>
     <title>{title}</title>
-    <meta name="description" content="Collection {title}" />
+    <meta name="description" content={description} />
 </svelte:head>
 
 {#if menufilter}

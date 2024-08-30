@@ -33,6 +33,11 @@
     };
 </script>
 
+<svelte:head>
+    <title>Panier</title>
+    <meta name="description" content="Voir le contenu de mon panier" />
+</svelte:head>
+
 <div class="px-4 md:mx-auto md:max-w-[1350px]">
     <div>
         <h1 class="text-2xl font-bold">Mon panier</h1>

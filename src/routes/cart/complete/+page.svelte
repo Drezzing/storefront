@@ -31,6 +31,11 @@
     };
 </script>
 
+<svelte:head>
+    <title>Commande</title>
+    <meta name="description" content="Status de votre commande" />
+</svelte:head>
+
 <div class="max-w-[1024px] space-y-12 px-4 md:px-8 lg:m-auto">
     <h1 class="text-center text-3xl font-bold">{contentMap[status].title}</h1>
     <p class="text-justify">{contentMap[status].content}</p>

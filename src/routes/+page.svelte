@@ -6,7 +6,7 @@
 
 <svelte:head>
     <title>Acceuil</title>
-    <meta name="description" content="Home page" />
+    <meta name="description" content="Page d'acceuil" />
 </svelte:head>
 
 <div class="max-w-[1024px] justify-center md:px-8 lg:m-auto lg:space-y-16">
@@ -16,28 +16,23 @@
                 <!-- TODO: replace each item with a snippet -->
                 <Carousel.Item>
                     <a href="/test">
-                        <img src="https://via.placeholder.com/600x300" alt="mljqsmlf" class="w-full md:rounded" />
+                        <img src="https://via.placeholder.com/600x300" alt="Carousel 1" class="w-full md:rounded" />
                     </a>
                 </Carousel.Item>
                 <Carousel.Item>
                     <a href="/test2">
-                        <img src="https://via.placeholder.com/600x300" alt="mljqsmlf" class="w-full md:rounded" />
+                        <img src="https://via.placeholder.com/600x300" alt="Carousel 2" class="w-full md:rounded" />
                     </a>
                 </Carousel.Item>
                 <Carousel.Item>
                     <a href="/test3">
-                        <img src="https://via.placeholder.com/600x300" alt="mljqsmlf" class="w-full md:rounded" />
+                        <img src="https://via.placeholder.com/600x300" alt="Carousel 3" class="w-full md:rounded" />
                     </a>
                 </Carousel.Item>
             </Carousel.Content>
             <Carousel.Previous class="hover:bg-dgray left-4 border-0 bg-transparent" />
             <Carousel.Next class="hover:bg-dgray right-4 border-0 bg-transparent" />
         </Carousel.Root>
-
-        <!-- Not really needed since we can just make the images clickable -->
-        <!-- <div class="relative z-[1] -mt-[60px] flex justify-center">
-            <Button class="h-3 rounded-full bg-white px-16 py-4 text-black">Découvrir</Button>
-        </div> -->
     </section>
 
     <section class="justify-center space-y-8 text-center">
@@ -46,27 +41,27 @@
             <!-- TODO: replace each item with a snippet -->
             <!-- TODO: SM: 4 items, MD: 6 items, LG: 8 itms -->
             <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="mljqsmlf" class="rounded-full" />
+                <img src="https://via.placeholder.com/600x600" alt="derniere sortie 1" class="rounded-full" />
                 <p>Hoodie 30 ans</p>
             </div>
             <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="mljqsmlf" class="rounded-full" />
+                <img src="https://via.placeholder.com/600x600" alt="derniere sortie 2" class="rounded-full" />
                 <p>Polo Isima</p>
             </div>
             <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="mljqsmlf" class="rounded-full" />
+                <img src="https://via.placeholder.com/600x600" alt="placeholder 1" class="rounded-full" />
                 <p>Polo Isima</p>
             </div>
             <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="mljqsmlf" class="rounded-full" />
+                <img src="https://via.placeholder.com/600x600" alt="placeholder 2" class="rounded-full" />
                 <p>Polo Isima</p>
             </div>
             <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="mljqsmlf" class="rounded-full" />
+                <img src="https://via.placeholder.com/600x600" alt="placeholder 3" class="rounded-full" />
                 <p>Polo Isima</p>
             </div>
             <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="mljqsmlf" class="rounded-full" />
+                <img src="https://via.placeholder.com/600x600" alt="placeholder 4" class="rounded-full" />
                 <p>Polo Isima</p>
             </div>
         </div>
@@ -78,10 +73,10 @@
         <h2 class="text-center font-bold">Nos partenaires</h2>
         <div class="grid grid-cols-2 items-center gap-2 px-4">
             <div class="justify-self-end">
-                <img src="https://via.placeholder.com/500x400" alt="mljqsmlf" />
+                <img src="https://via.placeholder.com/500x400" alt="partenaire 1" />
             </div>
             <div class="justify-self-start">
-                <img src="https://via.placeholder.com/600x300" alt="mljqsmlf" />
+                <img src="https://via.placeholder.com/600x300" alt="partenaire 2" />
             </div>
         </div>
     </section>

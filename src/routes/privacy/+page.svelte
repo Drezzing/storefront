@@ -1,6 +1,6 @@
 <svelte:head>
-    <title>Politiques de confidentialités</title>
-    <meta name="description" content="Politiques de confidentialités" />
+    <title>Politiques de confidentialité</title>
+    <meta name="description" content="Politiques de confidentialité" />
 </svelte:head>
 
 <article class="max-w-[1024px] space-y-10 px-4 md:px-8 lg:m-auto">

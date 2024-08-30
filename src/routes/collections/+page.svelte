@@ -5,7 +5,7 @@
 
 <svelte:head>
     <title>Collections</title>
-    <meta name="description" content="Collections page" />
+    <meta name="description" content="Liste de toutes les collections" />
 </svelte:head>
 
 <div class="max-w-[1024px] justify-center md:px-8 lg:m-auto lg:space-y-16">
