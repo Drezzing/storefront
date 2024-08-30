@@ -1,13 +1,13 @@
 import Medusa from "@medusajs/medusa-js";
 import type { StoreCartsRes, StoreVariantsRes, StoreOrdersRes } from "@medusajs/medusa";
-import { MEDUSA_PKEY, MEDUSA_API_TOKEN } from "$env/static/private";
+import { MEDUSA_PKEY, MEDUSA_API_TOKEN, MEDUSA_BACKEND_URL } from "$env/static/private";
 
 type EntityExist<K extends string, V> =
     | ({ [P in K]: V } & { err: false })
     | ({ [P in K]: null } & { err: Record<string, unknown> });
 
 export const medusa = new Medusa({
-    baseUrl: "http://localhost:9000",
+    baseUrl: MEDUSA_BACKEND_URL,
     maxRetries: 3,
     publishableApiKey: MEDUSA_PKEY,
     apiKey: MEDUSA_API_TOKEN,
