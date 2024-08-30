@@ -4,6 +4,7 @@ import { medusa } from "$lib/medusa/medusa";
 import { CartAdd, CartDelete } from "$lib/cart/cart.js";
 import { checkCartExists, checkVariantExists } from "$lib/medusa/medusa";
 import { dev } from "$app/environment";
+import { MEDUSA_SALES_CHANNEL } from "$env/static/private";
 
 export const DELETE = async ({ request, cookies }) => {
     const reqJson = await request.json().catch(async () => {
@@ -71,7 +72,7 @@ export const POST = async ({ request, getClientAddress, cookies }) => {
         ({ cart } = await medusa.carts
             .create({
                 items: [{ variant_id: cartAddValid.data.product_id, quantity: cartAddValid.data.quantity }],
-                sales_channel_id: "sc_01J5ZW52WTV7JFKGR8VECNWTQ2",
+                sales_channel_id: MEDUSA_SALES_CHANNEL,
                 context: {
                     ip: getClientAddress(),
                     user_agent: request.headers.get("user-agent"),
