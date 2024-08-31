@@ -91,7 +91,7 @@
         <span class="font-bold">{title}</span>
     </div>
 
-    <div class="flex flex-col items-center gap-12 lg:flex-row lg:items-start lg:justify-center xl:gap-24">
+    <div class="flex flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center xl:gap-24">
         <Carousel.Root bind:api class="max-w-[600px]">
             <Carousel.Content>
                 {#each images as image, i}
@@ -99,36 +99,39 @@
                         <img
                             src={image.url}
                             alt={title}
-                            class="m-auto size-[min(90vw,600px)] rounded-lg object-scale-down md:h-[600px] md:w-[600px]"
+                            class="bg-dgray/10 m-auto size-[min(90vw,600px)] rounded-lg object-scale-down md:h-[600px] md:w-[600px]"
                             loading={i === 0 ? "eager" : "lazy"}
                         />
-                        <div
-                            class="bg-dgray/15 relative -top-[min(90vw,600px)] left-0 h-full w-full rounded-lg mix-blend-multiply"
-                        ></div>
                     </Carousel.Item>
                 {/each}
             </Carousel.Content>
             <Carousel.Previous class="hover:bg-dgray left-2 border-0 bg-transparent" />
             <Carousel.Next class="hover:bg-dgray right-2 border-0 bg-transparent" />
-            <p class="text-d-darkgray text-center text-xs">Image {currentImage} sur {images.length}</p>
+            <p class="text-d-darkgray mt-2 text-center text-xs">Image {currentImage} sur {images.length}</p>
         </Carousel.Root>
 
-        <div class="w-full max-w-[850px] lg:w-auto lg:grow">
-            <h1 class="text-xl font-bold">{title}</h1>
-            <p>{(variant.price / 100).toFixed(2)}€</p>
-            <p class="mt-2">{description}</p>
+        <div class="flex w-full max-w-[850px] flex-col gap-4 lg:w-auto lg:grow lg:gap-16">
+            <div>
+                <h1 class="text-xl font-bold">{title}</h1>
+                <p>{(variant.price / 100).toFixed(2)}€</p>
+                <p class="mt-2">{description}</p>
+            </div>
 
-            <Separator class="my-4" />
+            <div>
+                <Separator class="mb-4 lg:hidden" />
+                {#each selectedOptions as option, i}
+                    {#if i > 0}
+                        <Separator class="my-4" />
+                    {/if}
+                    <div class="grid grid-cols-[100px_auto] items-center gap-4 lg:grid-cols-[125px_auto] lg:gap-6">
+                        <h2>{option.option}</h2>
+                        <OptionPicker choices={options.get(option.option) ?? []} bind:value={option.value} />
+                    </div>
+                {/each}
+                <Separator class="mt-4 lg:hidden" />
+            </div>
 
-            {#each selectedOptions as option}
-                <div class="grid grid-cols-[100px_auto] items-center gap-4 lg:grid-cols-[125px_auto] lg:gap-6">
-                    <h2>{option.option}</h2>
-                    <OptionPicker choices={options.get(option.option) ?? []} bind:value={option.value} />
-                </div>
-                <Separator class="my-4" />
-            {/each}
-
-            <div class="grid grid-cols-[100px_auto] gap-4 lg:grid-cols-[125px_auto] lg:gap-6">
+            <div class="mt-2 grid grid-cols-[100px_auto] gap-4 lg:grid-cols-[125px_auto] lg:gap-6">
                 <QuantitySelector bind:value={itemQuantity} min={1} max={99} />
                 <div class="w-full">
                     <StateButton buttonState={cartButtonState} on:click={addToCart}>

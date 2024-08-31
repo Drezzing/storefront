@@ -5,7 +5,7 @@
     let { choices, value = $bindable() }: { choices: Array<string>; value: string } = $props();
 </script>
 
-<RadioGroup.Root class="flex flex-row justify-start gap-4" bind:value>
+<RadioGroup.Root class="flex flex-row flex-wrap justify-start gap-4" bind:value>
     {#each choices as choice}
         <RadioGroup.Item id={choice} value={choice} class="hidden">
             {choice}
