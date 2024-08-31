@@ -17,7 +17,7 @@
         </div>
 
         <div>
-            <h2 class="mb-4 text-xl font-bold">Notre objetif</h2>
+            <h2 class="mb-4 text-xl font-bold">Notre objectif</h2>
             <p>
                 Notre objectif est de permettre aux étudiants mais aussi aux différents clubs et associations de l'ISIMA
                 de trouver des produits au meilleur prix. Nous travaillons avec différents fournisseurs pour trouver les

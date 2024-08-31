@@ -35,7 +35,7 @@
 
             <div class="ml-4 mt-6 space-y-16 text-lg">
                 <ul class="space-y-4">
-                    <li><a href="/">Acceuil</a></li>
+                    <li><a href="/">Accueil</a></li>
                     <li><a href="/collections">Collections</a></li>
                     <li><a href="/categories">Catégories</a></li>
                 </ul>
@@ -56,8 +56,8 @@
     <nav class="hidden justify-self-center lg:block">
         <ul class="flex flex-row gap-8">
             <li><a href="/collections">Collections</a></li>
-            <li><a href="/about">A propos</a></li>
             <li><a href="/categories">Catégories</a></li>
+            <li><a href="/about">À propos</a></li>
         </ul>
     </nav>
 
