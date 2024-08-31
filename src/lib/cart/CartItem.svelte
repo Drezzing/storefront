@@ -3,6 +3,7 @@
 
     import { Button } from "$lib/components/ui/button/index.js";
     import type { CartItemType } from "./cart";
+    import { PUBLIC_BASE_URL } from "$env/static/public";
 
     let {
         item,
@@ -12,13 +13,17 @@
 
 <div class="grid grid-cols-[30%_1fr] grid-rows-2 gap-x-4 lg:grid-cols-[auto_1fr_auto] lg:grid-rows-1">
     <div class="row-span-2 max-h-48">
-        <img src={item.thumbnail} alt={item.title} class="max-h-48" />
+        <a href="{PUBLIC_BASE_URL}/products/{item.handle}" target="_blank">
+            <img src={item.thumbnail} alt={item.title} class="max-h-48" />
+        </a>
     </div>
     <div class="self-center">
-        <p class="font-bold">
-            {item.title}
-            {item.options ? " - " + item.options.join(" - ") : ""}
-        </p>
+        <a href="{PUBLIC_BASE_URL}/products/{item.handle}" target="_blank" class="block w-fit">
+            <p class="w-fit font-bold">
+                {item.title}
+                {item.options ? " - " + item.options.join(" - ") : ""}
+            </p>
+        </a>
         <p>{((item.price * item.quantity) / 100).toFixed(2)}€</p>
     </div>
     <div class="flex w-full items-center gap-4 self-center">

@@ -3,8 +3,13 @@ import { handleError } from "$lib/error.js";
 import { checkCartExists, medusa } from "$lib/medusa/medusa";
 
 export const load = async ({ cookies }) => {
-    const cartInfo = await checkCartExists(cookies.get("cart_id"));
+    const cartId = cookies.get("cart_id");
 
+    if (cartId === undefined) {
+        return { items: null } satisfies CartType;
+    }
+
+    const cartInfo = await checkCartExists(cartId);
     if (cartInfo.err) {
         return handleError(404, "CART_LOAD.CART_NOT_FOUND", { error: cartInfo.err });
     }
@@ -12,7 +17,7 @@ export const load = async ({ cookies }) => {
     const { cart } = cartInfo;
     if (cart.completed_at) {
         cookies.delete("cart_id", { path: "/" });
-        return handleError(423, "CART_LOAD.CART_ALREADY_COMPLETED");
+        return { items: null } satisfies CartType;
     }
 
     const cartVariants = cart.items.map((item) => item.variant_id!);
@@ -30,6 +35,7 @@ export const load = async ({ cookies }) => {
             return {
                 id: item.id,
                 title: item.title,
+                handle: item.variant.product.handle ?? "/",
                 thumbnail: item.thumbnail ?? "https://via.placeholder.com/600x600",
                 quantity: item.quantity,
                 price: item.unit_price,
