@@ -134,7 +134,7 @@
     <Separator class="my-4 w-full" />
 
     <form onsubmit={initCheckout}>
-        <div class="mb-4 flex w-full flex-col gap-4 pl-[1px] font-['Segoe_UI']">
+        <div class="mb-4 flex w-full flex-col gap-4 pl-[1px] font-[-apple-system,BlinkMacSystemFont,'Segoe_UI']">
             <div class="space-y-1">
                 <label class="mb-1 block leading-[17.1px] text-[#30313D]" for="stripe-lastname">Nom</label>
                 <input
