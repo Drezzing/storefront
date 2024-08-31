@@ -209,6 +209,7 @@
     <form onsubmit={submitCheckout}>
         <Elements
             {stripe}
+            locale="fr-FR"
             rules={{
                 ".Input": { border: "none" },
                 ".Input:focus": { outline: "solid 2px black", boxShadow: "none" },
@@ -221,7 +222,7 @@
                 fields={{ phone: "never" }}
                 mode="billing"
                 autocomplete={{ mode: "disabled" }}
-                defaultValues={{ name: userData.firstName + " " + userData.lastName, address: { country: "France" } }}
+                defaultValues={{ name: userData.firstName + " " + userData.lastName, address: { country: "FR" } }}
             />
 
             <PaymentElement
