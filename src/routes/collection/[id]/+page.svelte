@@ -88,7 +88,7 @@
 
 {#if menufilter}
     <div
-        class="fixed left-0 top-0 h-screen w-[200px] bg-white shadow md:w-[300px]"
+        class="fixed left-0 top-0 z-[100] h-screen w-[200px] bg-white shadow md:w-[300px]"
         transition:fly={{ x: -250, duration: 350 }}
     >
         <button
