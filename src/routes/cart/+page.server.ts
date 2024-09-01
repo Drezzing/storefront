@@ -2,6 +2,8 @@ import type { CartType } from "$lib/cart/cart";
 import { handleError } from "$lib/error.js";
 import { checkCartExists, medusa } from "$lib/medusa/medusa";
 
+export const csr = false;
+
 export const load = async ({ cookies }) => {
     const cartId = cookies.get("cart_id");
 
