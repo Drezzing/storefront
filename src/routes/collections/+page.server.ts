@@ -29,7 +29,6 @@ export const load: PageServerLoad = async () => {
             }
 
             return {
-                id: collection.id,
                 title: collection.title,
                 handle: collection.handle,
                 thumbnail: frontPageProduct?.thumbnail || "https://via.placeholder.com/600x600",

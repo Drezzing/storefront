@@ -1,20 +1,10 @@
 <script lang="ts">
+    import ProductDisplay from "$lib/components/ProductDisplay.svelte";
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import { Separator } from "$lib/components/ui/separator/index.js";
     import PartnerIsima from "$lib/images/partners/inp_isima.jpg";
 
     const { data } = $props();
-
-    const getVisibility = (i: number) => {
-        let visibility = "";
-        if (i > 4 && i <= 6) {
-            visibility = "hidden sm:block";
-        } else if (i > 6 && i <= 8) {
-            visibility = "hidden lg:block";
-        }
-
-        return visibility;
-    };
 </script>
 
 <svelte:head>
@@ -42,21 +32,14 @@
         </Carousel.Root>
     </section>
 
-    <section class="justify-center space-y-8 text-center">
-        <h2 class="text-xl font-bold">Dernière sortie</h2>
-        <div class="grid grid-cols-2 items-center justify-center gap-6 px-4 sm:grid-cols-3 lg:grid-cols-4">
-            {#each data.products as product, i}
-                <a href="/products/{product.handle}" class="space-y-4 {getVisibility(i)}">
-                    <img src={product.thumbnail} alt={product.title} class="size-full rounded-full" />
-                    <p>{product.title}</p>
-                </a>
-            {/each}
-        </div>
+    <section class="justify-center space-y-8 px-4">
+        <h2 class="text-center text-xl font-bold">Dernière sortie</h2>
+        <ProductDisplay elements={data.products} limitNumber={true} />
     </section>
 
     <Separator class="my-8 h-8 bg-[#EEEEEE] md:h-4 md:rounded-full lg:hidden" />
 
-    <section class="justify-center space-y-8">
+    <section class="justify-center space-y-8 px-4">
         <h2 class="text-center font-bold">Nos partenaires</h2>
         <div class="flex flex-row items-center justify-center gap-2 px-4">
             <img src={PartnerIsima} alt="Clermont Auvergne INP - ISIMA" width="300" height="128" />

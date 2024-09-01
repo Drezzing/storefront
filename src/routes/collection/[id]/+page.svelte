@@ -8,6 +8,7 @@
     import { fly } from "svelte/transition";
 
     import { SvelteMap, SvelteSet } from "svelte/reactivity";
+    import ProductDisplay from "$lib/components/ProductDisplay.svelte";
 
     let { data } = $props();
     const { title, products, thumbnail, description, allOptions } = data;
@@ -162,13 +163,6 @@
             </div>
         </section>
 
-        <section class="grid grid-cols-2 items-center justify-center gap-6 md:grid-cols-3 lg:grid-cols-4">
-            {#each filteredProducts ?? products as product}
-                <a href={`/products/${product.handle}`} class="space-y-2">
-                    <img src={product.thumbnail} alt={product.title} />
-                    <p class="text-center">{product.title}</p>
-                </a>
-            {/each}
-        </section>
+        <ProductDisplay elements={filteredProducts ?? products} />
     </div>
 </div>

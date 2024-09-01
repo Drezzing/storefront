@@ -26,9 +26,9 @@ export const load: PageServerLoad = async ({ params }) => {
 
     const products = medusaProduct.map((product) => {
         return {
-            title: product.title,
-            handle: product.handle,
-            thumbnail: product.thumbnail,
+            title: product.title || "placeholder",
+            handle: product.handle || "placeholder",
+            thumbnail: product.thumbnail || "placeholder",
             options: getProductOptions(product),
             prices: new Set(product.variants.map((variant) => variant.original_price)),
         };
