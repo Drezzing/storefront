@@ -21,10 +21,10 @@
     };
 </script>
 
-<div class="grid grid-cols-2 items-center justify-center gap-6 sm:grid-cols-3 lg:grid-cols-4">
+<div class="grid grid-cols-2 items-center justify-center gap-6 sm:grid-cols-3 md:grid-cols-4 lg:gap-8">
     {#each elements as element, i}
         <a href="/{route}/{element.handle}" class="space-y-2 rounded-lg {limitNumber ? getVisibility(i) : ''}">
-            <img src={element.thumbnail} alt={element.title} class="aspect-square size-full" />
+            <img src={element.thumbnail} alt={element.title} class="aspect-square size-full object-contain" />
             <p class="pb-2 text-center">{element.title}</p>
         </a>
     {/each}
