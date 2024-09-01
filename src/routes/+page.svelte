@@ -1,7 +1,20 @@
 <script lang="ts">
     import * as Carousel from "$lib/components/ui/carousel/index.js";
-    import { Button } from "$lib/components/ui/button";
     import { Separator } from "$lib/components/ui/separator/index.js";
+    import PartnerIsima from "$lib/images/partners/inp_isima.jpg";
+
+    const { data } = $props();
+
+    const getVisibility = (i: number) => {
+        let visibility = "";
+        if (i > 4 && i <= 6) {
+            visibility = "hidden sm:block";
+        } else if (i > 6 && i <= 8) {
+            visibility = "hidden lg:block";
+        }
+
+        return visibility;
+    };
 </script>
 
 <svelte:head>
@@ -16,17 +29,11 @@
                 <!-- TODO: replace each item with a snippet -->
                 <Carousel.Item>
                     <a href="/">
-                        <img src="https://via.placeholder.com/600x300" alt="Carousel 1" class="w-full md:rounded" />
-                    </a>
-                </Carousel.Item>
-                <Carousel.Item>
-                    <a href="/">
-                        <img src="https://via.placeholder.com/600x300" alt="Carousel 2" class="w-full md:rounded" />
-                    </a>
-                </Carousel.Item>
-                <Carousel.Item>
-                    <a href="/">
-                        <img src="https://via.placeholder.com/600x300" alt="Carousel 3" class="w-full md:rounded" />
+                        <img
+                            src="https://via.placeholder.com/600x300"
+                            alt="Carousel 1"
+                            class="aspect-[2/1] w-full md:rounded"
+                        />
                     </a>
                 </Carousel.Item>
             </Carousel.Content>
@@ -37,33 +44,13 @@
 
     <section class="justify-center space-y-8 text-center">
         <h2 class="text-xl font-bold">Dernière sortie</h2>
-        <div class="grid grid-cols-2 items-center justify-center gap-6 px-4 md:grid-cols-3 lg:grid-cols-4">
-            <!-- TODO: replace each item with a snippet -->
-            <!-- TODO: SM: 4 items, MD: 6 items, LG: 8 itms -->
-            <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="derniere sortie 1" class="rounded-full" />
-                <p>Hoodie 30 ans</p>
-            </div>
-            <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="derniere sortie 2" class="rounded-full" />
-                <p>Polo Isima</p>
-            </div>
-            <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="placeholder 1" class="rounded-full" />
-                <p>Polo Isima</p>
-            </div>
-            <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="placeholder 2" class="rounded-full" />
-                <p>Polo Isima</p>
-            </div>
-            <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="placeholder 3" class="rounded-full" />
-                <p>Polo Isima</p>
-            </div>
-            <div class="space-y-4">
-                <img src="https://via.placeholder.com/600x600" alt="placeholder 4" class="rounded-full" />
-                <p>Polo Isima</p>
-            </div>
+        <div class="grid grid-cols-2 items-center justify-center gap-6 px-4 sm:grid-cols-3 lg:grid-cols-4">
+            {#each data.products as product, i}
+                <a href="/products/{product.handle}" class="space-y-4 {getVisibility(i)}">
+                    <img src={product.thumbnail} alt={product.title} class="size-full rounded-full" />
+                    <p>{product.title}</p>
+                </a>
+            {/each}
         </div>
     </section>
 
@@ -71,13 +58,8 @@
 
     <section class="justify-center space-y-8">
         <h2 class="text-center font-bold">Nos partenaires</h2>
-        <div class="grid grid-cols-2 items-center gap-2 px-4">
-            <div class="justify-self-end">
-                <img src="https://via.placeholder.com/500x400" alt="partenaire 1" />
-            </div>
-            <div class="justify-self-start">
-                <img src="https://via.placeholder.com/600x300" alt="partenaire 2" />
-            </div>
+        <div class="flex flex-row items-center justify-center gap-2 px-4">
+            <img src={PartnerIsima} alt="Clermont Auvergne INP - ISIMA" width="300" height="128" />
         </div>
     </section>
 </div>
