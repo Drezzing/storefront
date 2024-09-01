@@ -12,7 +12,7 @@
 
 <div class="max-w-[1024px] justify-center px-4 md:px-8 lg:m-auto lg:space-y-16">
     <section class="justify-center space-y-8 text-center">
-        <h2 class="mb-8 text-3xl font-bold">Collections</h2>
+        <h2 class="mb-8 text-3xl font-bold lg:mb-16">Collections</h2>
         <ProductDisplay elements={collections} route="collection" />
     </section>
 </div>
