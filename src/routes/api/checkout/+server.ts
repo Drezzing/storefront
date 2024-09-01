@@ -4,13 +4,13 @@ import { CartUserData } from "$lib/cart/cart";
 import { handleError } from "$lib/error.js";
 
 export const POST = async ({ cookies, request }) => {
-    const cartInfo = await checkCartExists(cookies.get("cart_id"));
+    const cartInfo = await checkCartExists(cookies.get("panier"));
     if (cartInfo.err) {
-        return handleError(400, "CHECKOUT_POST.CART_INVALID", { cart_id: cookies.get("cart_id") });
+        return handleError(400, "CHECKOUT_POST.CART_INVALID", { cart_id: cookies.get("panier") });
     }
 
     if (cartInfo.cart.completed_at) {
-        cookies.delete("cart_id", { path: "/" });
+        cookies.delete("panier", { path: "/" });
         return handleError(423, "CHECKOUT_POST.CART_ALREADY_COMPLETED", { cart_id: cartInfo.cart.id });
     }
 

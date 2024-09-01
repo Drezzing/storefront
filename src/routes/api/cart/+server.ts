@@ -16,7 +16,7 @@ export const DELETE = async ({ request, cookies }) => {
         return handleError(422, "CART_DELETE.INVALID_DATA", { data: reqJson });
     }
 
-    const cartInfo = await checkCartExists(cookies.get("cart_id"));
+    const cartInfo = await checkCartExists(cookies.get("panier"));
     if (cartInfo.err) {
         return handleError(404, "CART_DELETE.CART_NOT_FOUND", { error: cartInfo.err });
     }
@@ -44,7 +44,7 @@ export const POST = async ({ request, getClientAddress, cookies }) => {
     }
 
     let cart;
-    const cartID = cookies.get("cart_id");
+    const cartID = cookies.get("panier");
     if (cartID) {
         const cartInfo = await checkCartExists(cartID);
         if (cartInfo.err) {
@@ -62,7 +62,7 @@ export const POST = async ({ request, getClientAddress, cookies }) => {
                     return handleError(500, "CART_POST.CART_ADD_ITEM_FAIL", { error: err.response.data });
                 }));
         } else {
-            cookies.delete("cart_id", { path: "/" });
+            cookies.delete("panier", { path: "/" });
             return handleError(423, "CART_POST.CART_ALREADY_COMPLETED", { cart_id: cartInfo.cart.id });
         }
     }
@@ -83,6 +83,12 @@ export const POST = async ({ request, getClientAddress, cookies }) => {
             }));
     }
 
-    cookies.set("cart_id", cart.id, { path: "/", secure: !dev, httpOnly: true, sameSite: "strict" });
+    cookies.set("panier", cart.id, {
+        path: "/",
+        secure: !dev,
+        httpOnly: true,
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24 * 30, // 1 mounth
+    });
     return json({ success: true, cart_id: cart.id }, { status: 200 });
 };

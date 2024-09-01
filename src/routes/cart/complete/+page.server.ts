@@ -9,7 +9,7 @@ export const load = async ({ url, cookies }) => {
     }
 
     if (redirectStatus === "succeeded") {
-        cookies.delete("cart_id", { path: "/" });
+        cookies.delete("panier", { path: "/" });
     }
 
     return {

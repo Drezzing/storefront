@@ -5,7 +5,7 @@ import { checkCartExists, medusa } from "$lib/medusa/medusa";
 export const csr = false;
 
 export const load = async ({ cookies }) => {
-    const cartId = cookies.get("cart_id");
+    const cartId = cookies.get("panier");
 
     if (cartId === undefined) {
         return { items: null } satisfies CartType;
@@ -18,7 +18,7 @@ export const load = async ({ cookies }) => {
 
     const { cart } = cartInfo;
     if (cart.completed_at) {
-        cookies.delete("cart_id", { path: "/" });
+        cookies.delete("panier", { path: "/" });
         return { items: null } satisfies CartType;
     }
 
