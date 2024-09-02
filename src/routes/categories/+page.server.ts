@@ -3,6 +3,8 @@ import type { StoreProductsRes } from "@medusajs/medusa";
 
 import { medusa } from "$lib/medusa/medusa.js";
 
+export const prerender = false;
+
 export const load = async () => {
     const { product_categories: categories } = await medusa.productCategories
         .list({ parent_category_id: "null" })

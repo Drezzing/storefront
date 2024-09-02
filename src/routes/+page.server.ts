@@ -1,6 +1,8 @@
 import { handleError } from "$lib/error";
 import { medusa } from "$lib/medusa/medusa";
 
+export const prerender = false;
+
 export const load = async () => {
     const products = await medusa.products.list({ order: "-created_at", limit: 8 });
 

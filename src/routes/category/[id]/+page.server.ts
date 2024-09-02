@@ -3,6 +3,8 @@ import type { PageServerLoad } from "./$types";
 import { PUBLIC_REGION_ID } from "$env/static/public";
 import { handleError } from "$lib/error";
 
+export const prerender = false;
+
 export const load: PageServerLoad = async ({ params }) => {
     const categories = await medusa.productCategories.list({ handle: params.id }).catch((err) => {
         return handleError(500, "CATEGORY_LOAD.COLLECTION_LIST_FAILED", { err: err.response.data });

@@ -2,6 +2,8 @@ import { medusa } from "$lib/medusa/medusa";
 import { PUBLIC_REGION_ID } from "$env/static/public";
 import { handleError } from "$lib/error.js";
 
+export const prerender = false;
+
 export const load = async ({ params }) => {
     const products = await medusa.products.list({ handle: params.id, region_id: PUBLIC_REGION_ID }).catch((err) => {
         return handleError(500, "PRODUCT_LOAD.PRODUCTS_LIST_FAILED", { err: err.response.data });

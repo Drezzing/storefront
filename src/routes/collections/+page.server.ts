@@ -3,6 +3,8 @@ import type { StoreProductsRes } from "@medusajs/medusa";
 import type { PageServerLoad } from "./$types";
 import { handleError } from "$lib/error";
 
+export const prerender = false;
+
 export const load: PageServerLoad = async () => {
     const { collections } = await medusa.collections.list().catch((err) => {
         return handleError(500, "COLLECTIONS_LOAD.COLLECTIONS_LIST_FAILED", { error: err.response.data });
