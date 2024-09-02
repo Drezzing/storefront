@@ -4,10 +4,9 @@
 </svelte:head>
 
 <article class="max-w-[1024px] px-4 md:px-8 lg:m-auto">
-    <div class="mb-8 mt-8 text-center md:mb-12 md:mt-12 lg:mb-16 lg:mt-16">
-        <h1 class="text-3xl font-bold">À propos</h1>
-    </div>
-    <div class="mt-0 space-y-8 text-justify md:space-y-12 lg:space-y-16">
+    <h1 class="mb-8 text-center text-3xl font-bold">À propos</h1>
+
+    <div class="space-y-8 text-justify md:space-y-12 lg:space-y-16">
         <div>
             <h2 class="mb-4 text-xl font-bold">Qui sommes-nous ?</h2>
             <p>
