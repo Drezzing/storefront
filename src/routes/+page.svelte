@@ -12,11 +12,10 @@
     <meta name="description" content="Page d'accueil" />
 </svelte:head>
 
-<div class="max-w-[1024px] justify-center md:px-8 lg:m-auto lg:space-y-16">
-    <section class="-mt-6 mb-12 md:mt-0 lg:mb-0">
+<div class="max-w-[1024px] justify-center space-y-8 md:px-8 lg:m-auto lg:space-y-16">
+    <!-- <section class="-mt-6 mb-12 md:mt-0 lg:mb-0">
         <Carousel.Root class="w-full">
             <Carousel.Content>
-                <!-- TODO: replace each item with a snippet -->
                 <Carousel.Item>
                     <a href="/">
                         <img
@@ -30,11 +29,16 @@
             <Carousel.Previous class="hover:bg-dgray left-4 border-0 bg-transparent" />
             <Carousel.Next class="hover:bg-dgray right-4 border-0 bg-transparent" />
         </Carousel.Root>
+    </section> -->
+
+    <section class="justify-center space-y-8 px-4">
+        <h2 class="text-center text-xl font-bold">Dernières sorties</h2>
+        <ProductDisplay elements={data.products} limitNumber={true} />
     </section>
 
     <section class="justify-center space-y-8 px-4">
-        <h2 class="text-center text-xl font-bold">Dernière sortie</h2>
-        <ProductDisplay elements={data.products} limitNumber={true} />
+        <h2 class="text-center text-xl font-bold">Dernières collections</h2>
+        <ProductDisplay elements={data.collections} route="collection" limitNumber={true} />
     </section>
 
     <Separator class="my-8 h-8 bg-[#EEEEEE] md:h-4 md:rounded-full lg:hidden" />
