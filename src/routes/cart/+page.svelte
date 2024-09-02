@@ -4,7 +4,7 @@
 
     import { Separator } from "$lib/components/ui/separator/index.js";
     import CartItem from "$lib/cart/CartItem.svelte";
-    import CartStripe from "$lib/cart/CartStripe.svelte";
+    // import CartStripe from "$lib/cart/CartStripe.svelte";
     import { clientRequest, displayClientError } from "$lib/error.js";
 
     let itemCount = $derived.by(() => (items ? items.length : 0));
@@ -64,7 +64,14 @@
 
                 <p>La réception de votre achat se fera en main propre au BDE ISIMA.</p>
 
-                <CartStripe />
+                <!-- <CartStripe /> -->
+                <div class="mt-4">
+                    <p
+                        class="rounded-lg bg-[#363636] py-4 text-center text-white opacity-50 ring-[#363636] hover:bg-[#363636]"
+                    >
+                        Ouverture prochaine
+                    </p>
+                </div>
             </div>
         </div>
     {:else}
