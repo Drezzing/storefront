@@ -1,23 +1,21 @@
 <script lang="ts">
-    // import discord from "$lib/images/discord.svg?raw";
-    import instagram from "$lib/images/instagram.svg?raw";
+    import Discord from "$lib/images/discord.svg?raw";
+    import Instagram from "$lib/images/instagram.svg?raw";
 
-    import { Mail, Instagram } from "lucide-svelte";
+    import { Mail } from "lucide-svelte";
 </script>
 
-<div class="bg-dblack mt-6 flex w-full flex-col items-center gap-8 py-6 text-white lg:gap-16 lg:py-12">
+<footer class="bg-dblack mt-6 flex w-full flex-col items-center gap-8 py-6 text-white lg:gap-16 lg:py-12">
     <div class="grid grid-cols-2 gap-16 lg:gap-64">
         <div class="justify-self-end">
             <div class="flex flex-col gap-8">
                 <p>Association<br />Drezzing</p>
-                <div class="flex h-6 flex-row items-center gap-4 fill-white">
-                    <a href="mailto:contact@drezzing.fr" target="_blank">
-                        <Mail size="28" />
+                <div class="flex h-8 flex-row items-center gap-4 fill-white">
+                    <a href="https://discord.gg/9SSX6z3Z" target="_blank" class="size-7 fill-white">
+                        {@html Discord}
                     </a>
-                    <a href="https://www.instagram.com/drezzing_isima" target="_blank">
-                        <div class="size-6 fill-white">
-                            {@html instagram}
-                        </div>
+                    <a href="https://www.instagram.com/drezzing_isima" target="_blank" class="size-7 fill-white">
+                        {@html Instagram}
                     </a>
                 </div>
             </div>
@@ -41,4 +39,4 @@
         >
         <a href="/legal" class="lg:justify-self-start">Mentions légales</a>
     </div>
-</div>
+</footer>
