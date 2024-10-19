@@ -66,7 +66,7 @@
             </p>
         </section>
 
-        <section class="space-y-4">
+        <section class="space-y-4" id="privacy">
             <h2 class="text-xl font-bold">Données personnelles</h2>
             <p>Le DreZZing collecte et traite des données personnelles pour satisfaire aux objectifs suivants :</p>
             <ul>

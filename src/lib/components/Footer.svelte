@@ -24,8 +24,8 @@
         <div class="space-y-8 justify-self-start">
             <p class="font-medium">Liens utiles</p>
             <div class="flex flex-col gap-y-2">
-                <a href="/">FAQ</a>
-                <a href="/">Contact</a>
+                <a href="/faq">FAQ</a>
+                <a href="/contact">Contact</a>
                 <a href="https://isima.fr">Site de l'ISIMA</a>
             </div>
         </div>
