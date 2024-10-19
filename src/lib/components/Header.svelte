@@ -15,10 +15,6 @@
     let menuOpen = $state(false);
 </script>
 
-<svelte:head>
-    <link rel="shortcut icon" href={drezzing} type="image/x-icon" />
-</svelte:head>
-
 <header class="sticky z-50 mb-6 grid h-14 w-full grid-cols-3 items-center px-4 shadow lg:px-12">
     <button onclick={() => (menuOpen = !menuOpen)} class="grow lg:hidden">
         <Menu strokeWidth={2} size={28} class="stroke-d-darkgray" />
