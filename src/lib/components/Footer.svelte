@@ -11,7 +11,7 @@
             <div class="flex flex-col gap-8">
                 <p>Association<br />Drezzing</p>
                 <div class="flex h-8 flex-row items-center gap-4 fill-white">
-                    <a href="https://discord.gg/9SSX6z3Z" target="_blank" class="size-7 fill-white">
+                    <a href="https://discord.gg/cpZCgnkCBx" target="_blank" class="size-7 fill-white">
                         {@html Discord}
                     </a>
                     <a href="https://www.instagram.com/drezzing_isima" target="_blank" class="size-7 fill-white">
