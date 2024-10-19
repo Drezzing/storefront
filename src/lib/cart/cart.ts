@@ -24,7 +24,7 @@ export type CartType = {
 
 export const CartAdd = z.object({
     product_id: z.string().startsWith("variant_"),
-    quantity: z.number().min(1).max(99),
+    quantity: z.number().int().min(1).max(99),
 });
 
 export type CartAdd = z.infer<typeof CartAdd>;
