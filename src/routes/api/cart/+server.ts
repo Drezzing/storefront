@@ -4,7 +4,8 @@ import { medusa } from "$lib/medusa/medusa";
 import { CartAdd, CartDelete } from "$lib/cart/cart.js";
 import { checkCartExists, checkVariantExists } from "$lib/medusa/medusa";
 import { dev } from "$app/environment";
-import { MEDUSA_SALES_CHANNEL } from "$env/static/private";
+import { DEFAULT_SHIPPING_ID, MEDUSA_SALES_CHANNEL } from "$env/static/private";
+import { PUBLIC_REGION_ID } from "$env/static/public";
 
 export const DELETE = async ({ request, cookies }) => {
     const reqJson = await request.json().catch(async () => {
@@ -73,6 +74,7 @@ export const POST = async ({ request, getClientAddress, cookies }) => {
             .create({
                 items: [{ variant_id: cartAddValid.data.product_id, quantity: cartAddValid.data.quantity }],
                 sales_channel_id: MEDUSA_SALES_CHANNEL,
+                region_id: PUBLIC_REGION_ID,
                 context: {
                     ip: getClientAddress(),
                     user_agent: request.headers.get("user-agent"),
@@ -81,6 +83,9 @@ export const POST = async ({ request, getClientAddress, cookies }) => {
             .catch((err) => {
                 return handleError(500, "CART_POST.CART_CREATE_FAIL", { error: err.response.data });
             }));
+        await medusa.carts.addShippingMethod(cart.id, {
+            option_id: DEFAULT_SHIPPING_ID,
+        });
     }
 
     cookies.set("panier", cart.id, {
