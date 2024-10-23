@@ -109,6 +109,7 @@
             if (result.error.type !== "validation_error") {
                 toast.error("Une erreur est survenue.", { description: `Code erreur : stripe_${result.error.code}` });
                 buttonState = ButtonState.Fail;
+                setTimeout(() => (buttonState = ButtonState.Idle), 2500);
             } else {
                 buttonState = ButtonState.Idle;
             }
