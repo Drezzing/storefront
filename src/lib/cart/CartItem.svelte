@@ -6,20 +6,26 @@
     import { PUBLIC_BASE_URL } from "$env/static/public";
     import { clientRequest, displayClientError } from "$lib/error";
 
-    let { items = $bindable(), item }: { items: CartItemType[]; item: CartItemType } = $props();
+    let {
+        total = $bindable(),
+        items = $bindable(),
+        item,
+    }: { total: number; items: CartItemType[]; item: CartItemType } = $props();
 
     const deleteCartItem = async (itemID: string) => {
         if (!items) return;
 
         items = items.filter((item) => item.id !== itemID);
 
-        const response = await clientRequest("CART_CART_DELETE", "/api/cart", {
+        const response = await clientRequest<{ total: number }>("CART_CART_DELETE", "/api/cart", {
             method: "DELETE",
             body: JSON.stringify({ item_id: itemID }),
         });
 
         if (!response.success) {
             displayClientError(response);
+        } else {
+            total = response.data.total;
         }
     };
 </script>
