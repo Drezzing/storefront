@@ -4,11 +4,24 @@
     import { Button } from "$lib/components/ui/button/index.js";
     import type { CartItemType } from "./cart";
     import { PUBLIC_BASE_URL } from "$env/static/public";
+    import { clientRequest, displayClientError } from "$lib/error";
 
-    let {
-        item,
-        deleteCartItem = $bindable(),
-    }: { item: CartItemType; deleteCartItem: (itemID: string) => Promise<void> } = $props();
+    let { items = $bindable(), item }: { items: CartItemType[]; item: CartItemType } = $props();
+
+    const deleteCartItem = async (itemID: string) => {
+        if (!items) return;
+
+        items = items.filter((item) => item.id !== itemID);
+
+        const response = await clientRequest("CART_CART_DELETE", "/api/cart", {
+            method: "DELETE",
+            body: JSON.stringify({ item_id: itemID }),
+        });
+
+        if (!response.success) {
+            displayClientError(response);
+        }
+    };
 </script>
 
 <div class="grid grid-cols-[30%_1fr] grid-rows-2 gap-x-4 lg:grid-cols-[auto_1fr_auto] lg:grid-rows-1">
