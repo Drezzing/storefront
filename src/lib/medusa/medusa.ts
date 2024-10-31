@@ -1,5 +1,5 @@
 import Medusa from "@medusajs/medusa-js";
-import type { StoreCartsRes, StoreVariantsRes, StoreOrdersRes } from "@medusajs/medusa";
+import type { StoreCartsRes, StoreVariantsRes, StoreOrdersRes, AdminDiscountsRes } from "@medusajs/medusa";
 import { MEDUSA_PKEY, MEDUSA_API_TOKEN, MEDUSA_BACKEND_URL } from "$env/static/private";
 
 type EntityExist<K extends string, V> =
@@ -27,6 +27,16 @@ const checkEntityExist = async <K extends string, V>(
         // @ts-expect-error err is not typed but medusa error always have the same structure
         return { [key]: null, err: err.response.data };
     }
+};
+
+export const checkDiscountExist = async (id?: string) => {
+    return checkEntityExist<"discount", AdminDiscountsRes["discount"]>(id, "discount", (id: string) => {
+        if (id?.startsWith("disc_")) {
+            return medusa.admin.discounts.retrieve(id);
+        } else {
+            return medusa.admin.discounts.retrieveByCode(id);
+        }
+    });
 };
 
 export const checkCartExists = async (id?: string) => {

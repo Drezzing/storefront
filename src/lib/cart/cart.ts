@@ -1,3 +1,4 @@
+import type { DiscountType } from "$lib/medusa/discount";
 import { z } from "zod";
 
 export type CartItemType = {
@@ -20,6 +21,8 @@ export const CartUserData = z.object({
 
 export type CartType = {
     items: CartItemType[] | null;
+    discount: DiscountType | null;
+    total: number;
 };
 
 export const CartAdd = z.object({

@@ -1,4 +1,5 @@
 import type { CartType } from "$lib/cart/cart";
+import type { DiscountType } from "$lib/medusa/discount.js";
 import { handleError } from "$lib/error.js";
 import { checkCartExists, medusa } from "$lib/medusa/medusa";
 
@@ -6,7 +7,7 @@ export const load = async ({ cookies }) => {
     const cartId = cookies.get("panier");
 
     if (cartId === undefined) {
-        return { items: null } satisfies CartType;
+        return { items: null, discount: null, total: 0 } satisfies CartType;
     }
 
     const cartInfo = await checkCartExists(cartId);
@@ -17,7 +18,7 @@ export const load = async ({ cookies }) => {
     const { cart } = cartInfo;
     if (cart.completed_at) {
         cookies.delete("panier", { path: "/" });
-        return { items: null } satisfies CartType;
+        return { items: null, discount: null, total: 0 } satisfies CartType;
     }
 
     const cartVariants = cart.items.map((item) => item.variant_id!);
@@ -28,6 +29,15 @@ export const load = async ({ cookies }) => {
     const variantOptions = new Map<string, string[]>();
     for (const variant of variants) {
         variantOptions.set(variant.id!, variant.options?.map((option) => option.value) ?? []);
+    }
+
+    let discoutInfo: DiscountType | null = null;
+    if (cart.discounts.length >= 1) {
+        discoutInfo = {
+            code: cart.discounts[0].code,
+            amount: cart.discounts[0].rule.value,
+            type: cart.discounts[0].rule.type,
+        };
     }
 
     return {
@@ -42,5 +52,7 @@ export const load = async ({ cookies }) => {
                 options: variantOptions.get(item.variant_id!),
             };
         }),
+        discount: discoutInfo,
+        total: cart.total || 0,
     } satisfies CartType;
 };
