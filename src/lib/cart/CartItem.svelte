@@ -1,9 +1,7 @@
 <script lang="ts">
-    import trash from "$lib/images/trash.svg?raw";
-
-    import { Button } from "$lib/components/ui/button/index.js";
-    import type { CartItemType } from "./cart";
     import { PUBLIC_BASE_URL } from "$env/static/public";
+    import type { CartItemType } from "$lib/cart/cart";
+    import CartDeleteButton from "$lib/cart/CartDeleteButton.svelte";
     import { clientRequest, displayClientError } from "$lib/error";
 
     let {
@@ -15,8 +13,6 @@
     const deleteCartItem = async (itemID: string) => {
         if (!items) return;
 
-        items = items.filter((item) => item.id !== itemID);
-
         const response = await clientRequest<{ total: number }>("CART_CART_DELETE", "/api/cart", {
             method: "DELETE",
             body: JSON.stringify({ item_id: itemID }),
@@ -25,6 +21,7 @@
         if (!response.success) {
             displayClientError(response);
         } else {
+            items = items.filter((item) => item.id !== itemID);
             total = response.data.total;
         }
     };
@@ -50,13 +47,7 @@
             Quantité :
             <span class="ml-1 rounded-md px-4 py-1 ring-[1.5px] ring-black">{item.quantity}</span>
         </div>
-        <Button
-            class="h-auto flex-wrap gap-x-1 gap-y-2 bg-transparent stroke-black py-1 font-normal text-black ring-[1.5px] ring-black transition-all duration-75 hover:bg-transparent hover:stroke-red-600 hover:ring-red-600"
-            onclick={() => deleteCartItem(item.id)}
-        >
-            <div class="h-5 w-4 fill-none text-transparent">
-                {@html trash}
-            </div>
-        </Button>
+
+        <CartDeleteButton onclick={() => deleteCartItem(item.id)} />
     </div>
 </div>

@@ -1,23 +1,17 @@
 <script lang="ts">
     let { total = $bindable(), discount = $bindable() }: { total: number; discount: DiscountType | null } = $props();
 
-    import { LoaderCircle } from "lucide-svelte";
-    import { SendHorizontal } from "lucide-svelte";
-    import { Check } from "lucide-svelte";
-    import { X } from "lucide-svelte";
-    import { Tag } from "lucide-svelte";
-    import trash from "$lib/images/trash.svg?raw";
+    import { Check, LoaderCircle, SendHorizontal, Tag, X } from "lucide-svelte";
+    import { toast } from "svelte-sonner";
 
-    import { Separator } from "$lib/components/ui/separator/index.js";
-    import { clientRequest, displayClientError } from "$lib/error.js";
-    import Input from "$lib/components/ui/input/input.svelte";
-    import Button from "$lib/components/ui/button/button.svelte";
-
+    import CartDeleteButton from "$lib/cart/CartDeleteButton.svelte";
     import StateButton from "$lib/components/StateButton/StateButton.svelte";
     import { ButtonState } from "$lib/components/StateButton/stateButton";
-    import { toast } from "svelte-sonner";
-    import type { DiscountType } from "$lib/medusa/discount.js";
+    import Input from "$lib/components/ui/input/input.svelte";
     import Label from "$lib/components/ui/label/label.svelte";
+    import { Separator } from "$lib/components/ui/separator/index.js";
+    import { clientRequest, displayClientError } from "$lib/error.js";
+    import type { DiscountType } from "$lib/medusa/discount.js";
 
     let discountState = $state(ButtonState.Idle);
     let discountCode = $state("");
@@ -58,21 +52,18 @@
             return;
         }
 
-        const code = discount.code;
-
-        discountState = ButtonState.Idle;
-        discountCode = "";
-        discount = null;
-
         const response = await clientRequest<{ total: number }>("CART_CART_DELETE", "/api/discount", {
             method: "DELETE",
-            body: JSON.stringify({ discount_code: code }),
+            body: JSON.stringify({ discount_code: discount.code }),
         });
 
         if (!response.success) {
             displayClientError(response);
         } else {
             total = response.data.total;
+            discount = null;
+            discountState = ButtonState.Idle;
+            discountCode = "";
         }
     };
 </script>
@@ -111,11 +102,6 @@
                 {/if}
             </div>
         </div>
-        <Button
-            class="h-7 bg-transparent stroke-black py-1 font-normal text-black ring-[1.5px] ring-black transition-all duration-75 hover:bg-transparent hover:stroke-red-600 hover:ring-red-600"
-            onclick={() => deleteCartDiscount()}
-        >
-            <div class="h-5 w-4 fill-none text-transparent">{@html trash}</div>
-        </Button>
+        <CartDeleteButton onclick={deleteCartDiscount} />
     </div>
 {/if}
