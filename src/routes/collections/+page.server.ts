@@ -1,14 +1,17 @@
+import { handleError } from "$lib/error";
+import { isCollectionPrivate } from "$lib/medusa/collection";
 import { medusa } from "$lib/medusa/medusa";
 import type { StoreProductsRes } from "@medusajs/medusa";
 import type { PageServerLoad } from "./$types";
-import { handleError } from "$lib/error";
 
 export const prerender = false;
 
 export const load: PageServerLoad = async () => {
-    const { collections } = await medusa.collections.list().catch((err) => {
+    const collectionsResponse = await medusa.collections.list().catch((err) => {
         return handleError(500, "COLLECTIONS_LOAD.COLLECTIONS_LIST_FAILED", { error: err.response.data });
     });
+
+    const collections = collectionsResponse.collections.filter((collection) => !isCollectionPrivate(collection));
 
     // List all of the front page products
     const frontPageIds = collections.map((collections) => collections.metadata?.["front_page_product"] as string);

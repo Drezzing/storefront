@@ -3,6 +3,7 @@ import { getProductOptions } from "$lib/medusa/product";
 import type { PageServerLoad } from "./$types";
 import { PUBLIC_REGION_ID } from "$env/static/public";
 import { handleError } from "$lib/error";
+import { isCollectionPrivate } from "$lib/medusa/collection";
 
 export const prerender = false;
 
@@ -16,6 +17,10 @@ export const load: PageServerLoad = async ({ params }) => {
     }
 
     const collection = collections.collections[0];
+
+    if (isCollectionPrivate(collection)) {
+        return handleError(404, "COLLECTION_LOAD.COLLECTION_PRIVATE");
+    }
 
     const { products: medusaProduct } = await medusa.products
         .list({

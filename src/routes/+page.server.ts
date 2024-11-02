@@ -1,4 +1,5 @@
 import { handleError } from "$lib/error";
+import { isCollectionPrivate } from "$lib/medusa/collection";
 import { medusa } from "$lib/medusa/medusa";
 import type { StoreProductsRes } from "@medusajs/medusa";
 
@@ -17,7 +18,9 @@ export const load = async () => {
     if (collectionsResponse.count <= 0) {
         return handleError(404, "HOMEPAGE_LOAD.COLLECTIONS_NOT_FOUND");
     }
-    const { collections } = collectionsResponse;
+
+    const collections = collectionsResponse.collections.filter((collection) => !isCollectionPrivate(collection));
+
     const frontPageIds = collections.map((collections) => collections.metadata?.["front_page_product"] as string);
     const frontPageProducts = new Map<string, StoreProductsRes["product"]>();
 
