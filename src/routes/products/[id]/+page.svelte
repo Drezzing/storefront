@@ -59,6 +59,10 @@
     let cartButtonState = $state<ButtonState>(ButtonState.Idle);
 
     const addToCart = async () => {
+        if (variant.soldout) {
+            return;
+        }
+
         cartButtonState = ButtonState.Updating;
 
         const response = await clientRequest("PRODUCT_CART_POST", "/api/cart", {
@@ -99,15 +103,15 @@
                         <img
                             src={image.url}
                             alt={title}
-                            class="bg-dgray/10 m-auto size-[min(90vw,600px)] rounded-lg object-scale-down md:h-[600px] md:w-[600px]"
+                            class="m-auto size-[min(90vw,600px)] rounded-lg bg-dgray/10 object-scale-down md:h-[600px] md:w-[600px]"
                             loading={i === 0 ? "eager" : "lazy"}
                         />
                     </Carousel.Item>
                 {/each}
             </Carousel.Content>
-            <Carousel.Previous class="hover:bg-dgray left-2 border-0 bg-transparent" />
-            <Carousel.Next class="hover:bg-dgray right-2 border-0 bg-transparent" />
-            <p class="text-d-darkgray mt-2 text-center text-xs">Image {currentImage} sur {images.length}</p>
+            <Carousel.Previous class="left-2 border-0 bg-transparent hover:bg-dgray" />
+            <Carousel.Next class="right-2 border-0 bg-transparent hover:bg-dgray" />
+            <p class="mt-2 text-center text-xs text-d-darkgray">Image {currentImage} sur {images.length}</p>
         </Carousel.Root>
 
         <div class="flex w-full max-w-[850px] flex-col gap-4 lg:w-auto lg:grow lg:gap-16">
@@ -134,9 +138,14 @@
             <div class="mt-2 grid grid-cols-[100px_auto] gap-4 lg:grid-cols-[125px_auto] lg:gap-6">
                 <QuantitySelector bind:value={itemQuantity} min={1} max={99} />
                 <div class="w-full">
-                    <StateButton buttonState={cartButtonState} on:click={addToCart}>
+                    <StateButton
+                        buttonState={variant.soldout ? ButtonState.Updating : cartButtonState}
+                        on:click={addToCart}
+                    >
                         <ShoppingBag strokeWidth={2.25} class="size-4" />
-                        <p>{cartButtonStates[cartButtonState]}</p>
+                        <p>
+                            {variant.soldout ? "Produit plus disponible à la vente" : cartButtonStates[cartButtonState]}
+                        </p>
                     </StateButton>
                 </div>
             </div>

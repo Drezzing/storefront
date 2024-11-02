@@ -1,6 +1,7 @@
 import { medusa } from "$lib/medusa/medusa";
 import { PUBLIC_REGION_ID } from "$env/static/public";
 import { handleError } from "$lib/error.js";
+import { isVariantSoldout } from "$lib/medusa/product";
 
 export const prerender = false;
 
@@ -24,10 +25,15 @@ export const load = async ({ params }) => {
         optionMap.set(option.title, Array.from(optionValues).sort());
     }
 
-    const variantMap = new Array<{ id: string; options: Set<string>; price: number }>();
+    const variantMap = new Array<{ id: string; options: Set<string>; price: number; soldout: boolean }>();
     for (const variant of product.variants) {
         const variantOptions = new Set<string>(variant.options?.map((option) => option.value));
-        variantMap.push({ id: variant.id!, options: variantOptions, price: variant.original_price || 0.42 });
+        variantMap.push({
+            id: variant.id!,
+            options: variantOptions,
+            price: variant.original_price || 0.42,
+            soldout: isVariantSoldout(variant),
+        });
     }
 
     return {

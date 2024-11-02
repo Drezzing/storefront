@@ -1,4 +1,4 @@
-import type { StoreProductsRes } from "@medusajs/medusa";
+import type { StoreProductsRes, StoreVariantsRes } from "@medusajs/medusa";
 
 export const SIZE_MAP: Record<string, number> = {
     xs: 1,
@@ -24,4 +24,8 @@ export const getProductOptions = (product: StoreProductsRes["product"]) => {
     }
 
     return optionMap;
+};
+
+export const isVariantSoldout = (variant: StoreVariantsRes["variant"]) => {
+    return Boolean(variant.manage_inventory) && (variant.inventory_quantity || 0) <= 0;
 };

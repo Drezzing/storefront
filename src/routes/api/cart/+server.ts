@@ -1,11 +1,11 @@
-import { json } from "@sveltejs/kit";
-import { handleError } from "$lib/error.js";
-import { medusa } from "$lib/medusa/medusa";
-import { CartAdd, CartDelete } from "$lib/cart/cart.js";
-import { checkCartExists, checkVariantExists } from "$lib/medusa/medusa";
 import { dev } from "$app/environment";
 import { DEFAULT_SHIPPING_ID, MEDUSA_SALES_CHANNEL } from "$env/static/private";
 import { PUBLIC_REGION_ID } from "$env/static/public";
+import { CartAdd, CartDelete } from "$lib/cart/cart.js";
+import { handleError } from "$lib/error.js";
+import { checkCartExists, checkVariantExists, medusa } from "$lib/medusa/medusa";
+import { isVariantSoldout } from "$lib/medusa/product.js";
+import { json } from "@sveltejs/kit";
 
 export const DELETE = async ({ request, cookies }) => {
     const reqJson = await request.json().catch(async () => {
@@ -44,6 +44,10 @@ export const POST = async ({ request, getClientAddress, cookies }) => {
     const variantInfo = await checkVariantExists(cartAddValid.data.product_id);
     if (variantInfo.err) {
         return handleError(404, "CART_POST.VARIANT_NOT_FOUND", { error: variantInfo.err });
+    }
+
+    if (isVariantSoldout(variantInfo.variant)) {
+        return handleError(423, "CART_POST.VARIANT_SOLD_OUT", { variant: variantInfo.variant.id });
     }
 
     let cart;
