@@ -64,7 +64,7 @@
                 id="email"
                 placeholder="nom.prenom@mail.fr"
                 bind:value={email}
-                class="focus-visible:ring-d-darkgray ring-offset-0 focus-visible:ring-1 focus-visible:ring-offset-0"
+                class="ring-offset-0 focus-visible:ring-1 focus-visible:ring-d-darkgray focus-visible:ring-offset-0"
             />
         </div>
 
@@ -78,7 +78,7 @@
             >
                 <Select.Trigger
                     id="object"
-                    class="focus-visible:ring-d-darkgray ring-offset-0 focus-visible:ring-1 focus-visible:ring-offset-0"
+                    class="ring-offset-0 focus-visible:ring-1 focus-visible:ring-d-darkgray focus-visible:ring-offset-0"
                 >
                     <Select.Value placeholder="Objet" />
                 </Select.Trigger>
@@ -97,8 +97,8 @@
                 bind:value={content as string | null}
                 cols={30}
                 rows={10}
-                placeholder="Régigez votre message"
-                class="focus-visible:ring-d-darkgray ring-offset-0 focus-visible:ring-1 focus-visible:ring-offset-0"
+                placeholder="Rédigez votre message"
+                class="ring-offset-0 focus-visible:ring-1 focus-visible:ring-d-darkgray focus-visible:ring-offset-0"
             />
         </div>
     </section>
