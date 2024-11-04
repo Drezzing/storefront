@@ -22,11 +22,17 @@ export const DELETE = async ({ request, cookies }) => {
         return handleError(404, "CART_DELETE.CART_NOT_FOUND", { error: cartInfo.err });
     }
 
-    const cartUpdated = await medusa.carts.lineItems
-        .delete(cartInfo.cart.id, cartDeleteValid.data.item_id)
-        .catch((err) => {
-            return handleError(500, "CART_DELETE.ITEM_DELETE_FAIL", { error: err.response.data });
+    const cartProduct = cartInfo.cart.items.find((item) => item.id === cartDeleteValid.data.item_id);
+    if (cartProduct === undefined) {
+        return handleError(404, "CART_DELETE.ITEM_NOT_FOUND", {
+            cart_id: cartInfo.cart.id,
+            item_id: cartDeleteValid.data.item_id,
         });
+    }
+
+    const cartUpdated = await medusa.carts.lineItems.delete(cartInfo.cart.id, cartProduct.id).catch((err) => {
+        return handleError(500, "CART_DELETE.ITEM_DELETE_FAIL", { error: err.response.data });
+    });
 
     return json({ total: cartUpdated.cart.total || 0 }, { status: 200 });
 };
