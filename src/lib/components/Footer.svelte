@@ -5,7 +5,7 @@
     import { Mail } from "lucide-svelte";
 </script>
 
-<footer class="bg-dblack mt-6 flex w-full flex-col items-center gap-8 py-6 text-white lg:gap-16 lg:py-12">
+<footer class="mt-6 flex w-full flex-col items-center gap-8 bg-dblack py-6 text-white lg:gap-16 lg:py-12">
     <div class="grid grid-cols-2 gap-16 lg:gap-64">
         <div class="justify-self-end">
             <div class="flex flex-col gap-8">
@@ -26,7 +26,7 @@
             <div class="flex flex-col gap-y-2">
                 <a href="/faq">FAQ</a>
                 <a href="/contact">Contact</a>
-                <a href="https://isima.fr">Site de l'ISIMA</a>
+                <a href="https://isima.fr" target="_blank">Site de l'ISIMA</a>
             </div>
         </div>
     </div>
