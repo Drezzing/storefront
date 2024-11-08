@@ -13,6 +13,8 @@ export const medusa = new Medusa({
     apiKey: MEDUSA_API_TOKEN,
 });
 
+export type MedusaCart = StoreCartsRes["cart"];
+
 const checkEntityExist = async <K extends string, V>(
     id: string | undefined,
     key: string,

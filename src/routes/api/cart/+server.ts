@@ -1,10 +1,11 @@
 import { dev } from "$app/environment";
 import { DEFAULT_SHIPPING_ID, MEDUSA_SALES_CHANNEL } from "$env/static/private";
 import { PUBLIC_REGION_ID } from "$env/static/public";
-import { CartAdd, CartDelete } from "$lib/cart/cart.js";
-import { handleError } from "$lib/error.js";
+import { CartAdd, CartDelete } from "$lib/cart/cart";
+import { handleError } from "$lib/error";
+import { discountNotUsed, removeDiscounts } from "$lib/medusa/discount";
 import { checkCartExists, checkVariantExists, medusa } from "$lib/medusa/medusa";
-import { isVariantSoldout } from "$lib/medusa/product.js";
+import { isVariantSoldout } from "$lib/medusa/product";
 import { json } from "@sveltejs/kit";
 
 export const DELETE = async ({ request, cookies }) => {
@@ -34,7 +35,12 @@ export const DELETE = async ({ request, cookies }) => {
         return handleError(500, "CART_DELETE.ITEM_DELETE_FAIL", { error: err.response.data });
     });
 
-    return json({ total: cartUpdated.cart.total || 0 }, { status: 200 });
+    const discartDiscount = discountNotUsed(cartUpdated.cart);
+    if (discartDiscount) {
+        await removeDiscounts(cartUpdated.cart, "CART_DELETE");
+    }
+
+    return json({ total: cartUpdated.cart.total || 0, discart_discount: discartDiscount }, { status: 200 });
 };
 
 export const POST = async ({ request, getClientAddress, cookies }) => {

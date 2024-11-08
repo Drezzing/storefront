@@ -2,6 +2,7 @@ import { json } from "@sveltejs/kit";
 import { checkCartExists, medusa } from "$lib/medusa/medusa";
 import { CartUserData } from "$lib/cart/cart";
 import { handleError } from "$lib/error.js";
+import { discountNotUsed, removeDiscounts } from "$lib/medusa/discount.js";
 
 export const POST = async ({ cookies, request }) => {
     const cartInfo = await checkCartExists(cookies.get("panier"));
@@ -25,6 +26,10 @@ export const POST = async ({ cookies, request }) => {
     const userDataValid = CartUserData.safeParse(reqJson);
     if (!userDataValid.success) {
         return handleError(422, "CHECKOUT_POST.INVALID_DATA", { data: reqJson });
+    }
+
+    if (discountNotUsed(cartInfo.cart)) {
+        await removeDiscounts(cartInfo.cart, "CHECKOUT_POST");
     }
 
     const { cart } = await medusa.carts

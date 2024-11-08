@@ -28,7 +28,7 @@
         <div class="flex flex-col items-start justify-center gap-4 md:flex-row lg:gap-8">
             <div class="w-full grow space-y-4 md:w-auto">
                 {#each items as item}
-                    <CartItem bind:total bind:items {item} />
+                    <CartItem bind:total bind:items bind:discount {item} />
                 {/each}
 
                 <CartDiscount bind:total bind:discount />
