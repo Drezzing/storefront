@@ -1,13 +1,18 @@
-import { json } from "@sveltejs/kit";
-import { checkCartExists, medusa } from "$lib/medusa/medusa";
 import { CartUserData } from "$lib/cart/cart";
-import { handleError } from "$lib/error.js";
-import { discountNotUsed, removeDiscounts } from "$lib/medusa/discount.js";
+import { handleError } from "$lib/error";
+import { discountNotUsed, removeDiscounts } from "$lib/medusa/discount";
+import { checkCartExists, medusa } from "$lib/medusa/medusa";
+import { isVariantSoldout } from "$lib/medusa/product";
+import { json } from "@sveltejs/kit";
 
 export const POST = async ({ cookies, request }) => {
     const cartInfo = await checkCartExists(cookies.get("panier"));
     if (cartInfo.err) {
         return handleError(400, "CHECKOUT_POST.CART_INVALID", { cart_id: cookies.get("panier") });
+    }
+
+    if (cartInfo.cart.items.some((item) => isVariantSoldout(item.variant))) {
+        return handleError(423, "CHECKOUT_POST.CART_ITEM_SOLDOUT");
     }
 
     if (cartInfo.cart.completed_at) {
@@ -62,7 +67,3 @@ export const POST = async ({ cookies, request }) => {
 
     return json({ client_secret: final.payment_session.data.client_secret as string });
 };
-
-// export const POST = async () => {
-//     return handleError(403, "CHECKOUT_POST.DISABLED");
-// };
