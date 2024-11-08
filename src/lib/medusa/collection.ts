@@ -1,5 +1,5 @@
-import type { StoreCollectionsRes } from "@medusajs/medusa";
+import type { MedusaCollection } from "./medusa";
 
-export const isCollectionPrivate = (collection: StoreCollectionsRes["collection"]) => {
+export const isCollectionPrivate = (collection: MedusaCollection) => {
     return Boolean(collection.metadata["private"]) === true;
 };

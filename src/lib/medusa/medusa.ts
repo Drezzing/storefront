@@ -1,6 +1,13 @@
+import { MEDUSA_API_TOKEN, MEDUSA_BACKEND_URL, MEDUSA_PKEY } from "$env/static/private";
+import type {
+    AdminDiscountsRes,
+    StoreCartsRes,
+    StoreCollectionsRes,
+    StoreOrdersRes,
+    StoreProductsRes,
+    StoreVariantsRes,
+} from "@medusajs/medusa";
 import Medusa from "@medusajs/medusa-js";
-import type { StoreCartsRes, StoreVariantsRes, StoreOrdersRes, AdminDiscountsRes } from "@medusajs/medusa";
-import { MEDUSA_PKEY, MEDUSA_API_TOKEN, MEDUSA_BACKEND_URL } from "$env/static/private";
 
 type EntityExist<K extends string, V> =
     | ({ [P in K]: V } & { err: false })
@@ -13,7 +20,14 @@ export const medusa = new Medusa({
     apiKey: MEDUSA_API_TOKEN,
 });
 
+export type MedusaOrder = StoreOrdersRes["order"];
 export type MedusaCart = StoreCartsRes["cart"];
+export type MedusaDiscount = AdminDiscountsRes["discount"];
+export type MedusaCollection = StoreCollectionsRes["collection"];
+export type MedusaProduct = StoreProductsRes["product"];
+export type MedusaProductVariant = StoreVariantsRes["variant"];
+export type MedusaLineItemVariant = MedusaCart["items"][0]["variant"]; // I hate everything about this but it works
+export type MedusaVariant = MedusaProductVariant | MedusaLineItemVariant;
 
 const checkEntityExist = async <K extends string, V>(
     id: string | undefined,
@@ -32,7 +46,7 @@ const checkEntityExist = async <K extends string, V>(
 };
 
 export const checkDiscountExist = async (id?: string) => {
-    return checkEntityExist<"discount", AdminDiscountsRes["discount"]>(id, "discount", (id: string) => {
+    return checkEntityExist<"discount", MedusaDiscount>(id, "discount", (id: string) => {
         if (id?.startsWith("disc_")) {
             return medusa.admin.discounts.retrieve(id);
         } else {
@@ -42,23 +56,19 @@ export const checkDiscountExist = async (id?: string) => {
 };
 
 export const checkCartExists = async (id?: string) => {
-    return checkEntityExist<"cart", StoreCartsRes["cart"]>(id, "cart", (id: string) => medusa.carts.retrieve(id));
+    return checkEntityExist<"cart", MedusaCart>(id, "cart", (id: string) => medusa.carts.retrieve(id));
 };
 
 export const checkVariantExists = async (id?: string) => {
-    return checkEntityExist<"variant", StoreVariantsRes["variant"]>(id, "variant", (id: string) =>
+    return checkEntityExist<"variant", MedusaProductVariant>(id, "variant", (id: string) =>
         medusa.products.variants.retrieve(id),
     );
 };
 
 export const checkOrderExists = async (id?: string) => {
     if (id?.startsWith("cart_")) {
-        return checkEntityExist<"order", StoreOrdersRes["order"]>(id, "order", (id: string) =>
-            medusa.orders.retrieveByCartId(id),
-        );
+        return checkEntityExist<"order", MedusaOrder>(id, "order", (id: string) => medusa.orders.retrieveByCartId(id));
     } else {
-        return checkEntityExist<"order", StoreOrdersRes["order"]>(id, "order", (id: string) =>
-            medusa.orders.retrieve(id),
-        );
+        return checkEntityExist<"order", MedusaOrder>(id, "order", (id: string) => medusa.orders.retrieve(id));
     }
 };
