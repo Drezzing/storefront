@@ -43,6 +43,8 @@ export const load: PageServerLoad = async ({ params }) => {
 
     // const frontPageProduct = await medusa.products.retrieve(collection.metadata?.["front_page_product"] as string);
     const description = collection.metadata?.["description"] as string | undefined;
+    const cpv = collection.metadata?.["cpv"] as string | undefined;
+    const guideTaille = collection.metadata?.["guide-taille"] as string | undefined;
 
     const allOptions = new Map<string, Set<string>>();
     for (const product of products) {
@@ -59,8 +61,10 @@ export const load: PageServerLoad = async ({ params }) => {
         title: collection.title,
         handle: collection.handle,
         description: description,
+        cpv: cpv,
+        guideTaille: guideTaille,
         products: products,
-        thumbnail: null,
+        // thumbnail: null,
         // thumbnail: frontPageProduct.product.thumbnail ?? "https://",
         allOptions,
     };

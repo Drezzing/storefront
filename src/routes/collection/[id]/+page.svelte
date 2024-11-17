@@ -11,7 +11,7 @@
     import ProductDisplay from "$lib/components/ProductDisplay.svelte";
 
     let { data } = $props();
-    const { title, products, thumbnail, description, allOptions } = data;
+    const { title, products, description, cpv, guideTaille, allOptions } = data;
 
     let optionSelector = $state(new SvelteMap<string, SvelteSet<string>>());
     for (const [key, _] of allOptions) {
@@ -93,7 +93,7 @@
         transition:fly={{ x: -250, duration: 350 }}
     >
         <button
-            class="hover:bg-dgray ml-3 mt-3 flex size-[32px] items-center justify-center rounded-full transition-colors duration-100 ease-in-out"
+            class="ml-3 mt-3 flex size-[32px] items-center justify-center rounded-full transition-colors duration-100 ease-in-out hover:bg-dgray"
             onclick={() => (menufilter = !menufilter)}
         >
             <X class="text-d-darkgray" />
@@ -149,7 +149,17 @@
     </section>
 
     <div class="space-y-4">
-        <a href="/cgv" class="underline">Conditions particulière de vente</a>
+        {#if cpv || guideTaille}
+            <div class="flex flex-row justify-between">
+                {#if guideTaille}
+                    <a href={guideTaille} class="underline">Guide des tailles</a>
+                {/if}
+
+                {#if cpv}
+                    <a href={cpv} class="underline">Conditions particulière de vente</a>
+                {/if}
+            </div>
+        {/if}
 
         <section class="-mx-4 bg-[#EEEEEE] px-4 py-2">
             <div class="flex items-center justify-between">
