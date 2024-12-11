@@ -3,6 +3,8 @@
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import { Separator } from "$lib/components/ui/separator/index.js";
     import PartnerIsima from "$lib/images/partners/inp_isima.jpg";
+    import PartnerINP from "$lib/images/partners/inp.jpg";
+    import PartnerEpopey from "$lib/images/partners/epopey.jpg";
 
     const { data } = $props();
 </script>
@@ -45,8 +47,10 @@
 
     <section class="justify-center space-y-8 px-4">
         <h2 class="text-center font-bold">Nos partenaires</h2>
-        <div class="flex flex-row items-center justify-center gap-2 px-4">
-            <img src={PartnerIsima} alt="Clermont Auvergne INP - ISIMA" width="300" height="128" />
+        <div class="flex flex-row flex-wrap items-center justify-center gap-2 px-4">
+            <img src={PartnerINP} alt="Logo Clermont Auvergne INP" class="h-32 object-scale-down" />
+            <img src={PartnerIsima} alt="Logo Clermont Auvergne INP - ISIMA" class="h-32 object-scale-down" />
+            <img src={PartnerEpopey} alt="Logo Epopey" class="h-28 object-scale-down" />
         </div>
     </section>
 </div>
