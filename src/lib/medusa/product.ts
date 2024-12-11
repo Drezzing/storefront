@@ -6,6 +6,8 @@ export const SIZE_MAP: Record<string, number> = {
     m: 3,
     l: 4,
     xl: 5,
+    xxl: 6,
+    "3xl": 7,
 };
 
 export const getProductOptions = (product: MedusaProduct) => {
