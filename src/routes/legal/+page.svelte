@@ -64,6 +64,7 @@
                 quelque support que ce soit, de tout ou partie du site et/ou des éléments qui le composent n'est pas
                 autorisée sans le consentement expresse de DREZZING.
             </p>
+            <p>Conception graphique : Leeloo L.</p>
         </section>
 
         <section class="space-y-4" id="privacy">
