@@ -47,10 +47,10 @@
 
     <section class="justify-center space-y-8 px-4">
         <h2 class="text-center font-bold">Nos partenaires</h2>
-        <div class="flex flex-row flex-wrap items-center justify-center gap-2 px-4">
+        <div class="flex flex-row flex-wrap items-center justify-center gap-8 px-4">
             <img src={PartnerINP} alt="Logo Clermont Auvergne INP" class="h-32 object-scale-down" />
             <img src={PartnerIsima} alt="Logo Clermont Auvergne INP - ISIMA" class="h-32 object-scale-down" />
-            <img src={PartnerEpopey} alt="Logo Epopey" class="h-28 object-scale-down" />
+            <img src={PartnerEpopey} alt="Logo Epopey" class="h-20 object-scale-down" />
         </div>
     </section>
 </div>
