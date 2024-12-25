@@ -42,9 +42,12 @@
 
                 <Separator class="my-4" />
 
-                <p>La réception de votre achat se fera en main propre au BDE ISIMA.</p>
-
-                <CartStripe />
+                <a
+                    href="/checkout"
+                    class="flex h-10 w-full items-center justify-center rounded bg-d-darkgray text-white transition-colors duration-75 hover:bg-d-darkgray/85"
+                    >Commander</a
+                >
+                <!-- <CartStripe /> -->
             </div>
         </div>
     {:else}

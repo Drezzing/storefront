@@ -7,7 +7,7 @@ import { logger } from "$lib/logger";
 
 export const POST: RequestHandler = async ({ request }) => {
     const body = await request.text();
-    const sig = request.headers.get("stripe-signature") || ("" as string);
+    const sig = request.headers.get("stripe-signature") || "";
 
     const event = await stripe.webhooks.constructEventAsync(body, sig, STRIPE_WEBHOOK_KEY).catch((err) => {
         // probably unwanted data in this error but docs have the interface of the error and i don't trust
@@ -30,8 +30,6 @@ export const POST: RequestHandler = async ({ request }) => {
             } else {
                 logger.error(`Cart ${order.data.id} could not be converted to order (currently ${order.type})`);
             }
-
-            // TODO: send mail with order info
 
             break;
         }

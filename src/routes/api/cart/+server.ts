@@ -1,5 +1,5 @@
 import { dev } from "$app/environment";
-import { DEFAULT_SHIPPING_ID, MEDUSA_SALES_CHANNEL } from "$env/static/private";
+import { MEDUSA_SALES_CHANNEL } from "$env/static/private";
 import { PUBLIC_REGION_ID } from "$env/static/public";
 import { CartAdd, CartDelete } from "$lib/cart/cart";
 import { handleError } from "$lib/error";
@@ -101,9 +101,6 @@ export const POST = async ({ request, getClientAddress, cookies }) => {
             .catch((err) => {
                 return handleError(500, "CART_POST.CART_CREATE_FAIL", { error: err.response.data });
             }));
-        await medusa.carts.addShippingMethod(cart.id, {
-            option_id: DEFAULT_SHIPPING_ID,
-        });
     }
 
     cookies.set("panier", cart.id, {
