@@ -14,5 +14,9 @@ export const shippingFormSchema = z.object({
 
 export const shippingAddressForm = z.object({});
 
+export const confirmationTokenData = z.object({
+    confirmationToken: z.string(),
+});
+
 export type UserInfoFormSchema = typeof userInfoFormSchema;
 export type ShippingFormSchema = typeof shippingFormSchema;

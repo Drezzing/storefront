@@ -1,10 +1,11 @@
 <script lang="ts">
-    import { type Stripe, type StripeElements } from "@stripe/stripe-js";
+    import { type Stripe, type StripeElements, type PaymentIntent } from "@stripe/stripe-js";
     import { toast } from "svelte-sonner";
     import { Address, Elements, PaymentElement } from "svelte-stripe";
 
     import { PUBLIC_BASE_URL } from "$env/static/public";
     import { clientRequest } from "$lib/error";
+    import { goto } from "$app/navigation";
 
     let {
         stripe,
@@ -45,23 +46,48 @@
             return;
         }
 
-        const result = await stripeSDK.confirmPayment({
+        const elementsValid = await elements.submit();
+        if (elementsValid.error) {
+            return toast.error("Une erreur est survenue.", {
+                description: elementsValid.error.message,
+            });
+        }
+        const createTokenResponse = await stripeSDK.createConfirmationToken({
             elements,
-            confirmParams: {
+            params: {
                 return_url: PUBLIC_BASE_URL + "/cart/complete",
-                receipt_email: userData.mail,
                 payment_method_data: {
                     billing_details: { email: userData.mail, name: userData.firstName + " " + userData.lastName },
                 },
             },
-            redirect: "always",
         });
 
-        if (result.error) {
-            if (result.error.type !== "validation_error") {
-                toast.error("Une erreur est survenue.", { description: `Code erreur : stripe_${result.error.code}` });
-            }
+        if (createTokenResponse.error) {
+            return toast.error("Une erreur est survenue.", {
+                description: createTokenResponse.error.message,
+            });
         }
+
+        const submitTokenResponse = await clientRequest<{
+            status: PaymentIntent.Status;
+            clientSecret: string;
+            redirect: string;
+        }>("CART_CHECKOUT_POST", "/api/checkout", {
+            method: "POST",
+            body: JSON.stringify({ confirmationToken: createTokenResponse.confirmationToken?.id }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!submitTokenResponse.success) {
+            return toast.error("qsf");
+        } else if (submitTokenResponse.data.status === "requires_action") {
+            await stripeSDK.handleNextAction({ clientSecret: submitTokenResponse.data.clientSecret });
+            // TODO : Error handling
+        }
+
+        goto(submitTokenResponse.data.redirect);
     };
 </script>
 

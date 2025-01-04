@@ -4,6 +4,7 @@ import { stripe } from "$lib/payment/stripe";
 import { medusa } from "$lib/medusa/medusa";
 import { handleError } from "$lib/error";
 import { logger } from "$lib/logger";
+import { paymentNotification, PaymentNotification } from "$lib/checkout/notification";
 
 export const POST: RequestHandler = async ({ request }) => {
     const body = await request.text();
@@ -41,9 +42,24 @@ export const POST: RequestHandler = async ({ request }) => {
 
         // User tried paying but authorization failed and payment is not valid.
         case "payment_intent.payment_failed": {
-            // TODO : Send mail to user to imform them payment failed -> attach metadata to payment_intent in
-            // /cart/complete & check here if metadata is present, then send mail if needed
+            const clientSecret = event.data.object.client_secret;
+            if (!clientSecret) {
+                break;
+            }
 
+            const subscriberKey = await PaymentNotification.generateNotificationToken(clientSecret);
+            paymentNotification.setStatus(subscriberKey, "failed");
+            break;
+        }
+
+        case "payment_intent.succeeded": {
+            const clientSecret = event.data.object.client_secret;
+            if (!clientSecret) {
+                break;
+            }
+
+            const subscriberKey = await PaymentNotification.generateNotificationToken(clientSecret);
+            paymentNotification.setStatus(subscriberKey, "success");
             break;
         }
     }

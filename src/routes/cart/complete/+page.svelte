@@ -1,34 +1,28 @@
 <script lang="ts">
+    import { onMount, onDestroy } from "svelte";
+    import { type NotificationStatus } from "$lib/checkout/notification.js";
+    import { LoaderCircle, Check, X } from "lucide-svelte";
+
     let { data } = $props();
-    let { status } = data;
+    let { subscriberKey, currentStatus } = $state(data);
 
-    $inspect(status);
-
-    type ContentMap = {
-        [key in typeof status]: {
-            title: string;
-            content: string;
-        };
+    const isStatusNull = (status: string | null) => {
+        return status === null || status === "pending";
     };
 
-    const contentMap: ContentMap = {
-        succeeded: {
-            title: "Merci pour votre commande.",
-            content:
-                "Votre commande a été enregistrée. Vous devrez recevoir un reçu et un récapitulatif de votre commande " +
-                "par mail prochainement.",
-        },
-        pending: {
-            title: "Le traitement de votre paiement est en cours.",
-            content:
-                "Un reçu et un récapitulatif de votre commande vous seront envoyé par mail si le paiement est accepté. " +
-                "Dans le cas contraire, un mail vous invitant à ré-essayer vous sera envoyé.",
-        },
-        failed: {
-            title: "Echec de l'autorisation de votre paiement",
-            content: "Veuillez ré-essayer ou essayer avec un autre mode de paiement.",
-        },
-    };
+    let eventSource: EventSource | null = null;
+    onMount(() => {
+        if (isStatusNull(currentStatus)) {
+            eventSource = new EventSource("/api/checkout/notification?subscriber_key=" + subscriberKey);
+            eventSource.onmessage = (ev) => (currentStatus = ev.data as NotificationStatus);
+        }
+    });
+
+    onDestroy(() => {
+        if (eventSource && eventSource.OPEN) {
+            eventSource.close();
+        }
+    });
 </script>
 
 <svelte:head>
@@ -36,7 +30,17 @@
     <meta name="description" content="Status de votre commande" />
 </svelte:head>
 
-<div class="max-w-[1024px] space-y-12 px-4 md:px-8 lg:m-auto">
-    <h1 class="text-center text-3xl font-bold">{contentMap[status].title}</h1>
-    <p class="text-justify">{contentMap[status].content}</p>
+<div class="h-full max-w-[1024px] px-4 md:px-8 lg:m-auto">
+    <div class="mt-[40vh] flex w-full flex-col items-center justify-center">
+        {#if currentStatus === null}
+            <LoaderCircle class="animate-spin" />
+            <p class="mt-4 italic">Validation de votre paiement en cours</p>
+        {:else if currentStatus === "success"}
+            <Check class="stroke-green-500" />
+            <p class="mt-4 italic">Paiement réussi</p>
+        {:else if currentStatus === "failed"}
+            <X class="stroke-red-500" />
+            <p class="mt-4 italic">Le paiement à échoué</p>
+        {/if}
+    </div>
 </div>
