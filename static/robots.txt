@@ -1,3 +1,11 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Disallow: /
+Allow: /$
+Allow: /collection
+Disallow: /collection/*/cpv
+Disallow: /collection/*/guide-taille
+Allow: /collections
+Allow: /category
+Allow: /categories
+Allow: /products
