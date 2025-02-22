@@ -9,27 +9,38 @@ export enum CacheTTL {
 
 const redis = new Redis(REDIS_URL);
 
-export const redisGetObject = async <T>(key: string): Promise<T | null> => {
-    const object = await redis.get(key);
+class RedisConnection {
+    private readonly redis: Redis = redis;
+    private readonly prefix: string;
 
-    if (object != null) {
-        return JSON.parse(object) as T;
-    } else {
-        return null;
-    }
-};
-
-export const redisSetObject = async (key: string, object: object | string, minutes_ttl: CacheTTL | number) => {
-    let objectStr;
-    if (typeof object === "object") {
-        objectStr = JSON.stringify(object);
-    } else {
-        objectStr = object;
+    constructor(prefix: string) {
+        this.prefix = prefix;
     }
 
-    redis.set(key, objectStr, "EX", minutes_ttl * 60);
-};
+    async get<T>(key: string): Promise<T | null> {
+        const object = await this.redis.get(this.prefix + ":" + key);
 
-export const redisDeleteObject = async (key: string) => {
-    redis.del(key);
-};
+        if (object != null) {
+            return JSON.parse(object) as T;
+        } else {
+            return null;
+        }
+    }
+
+    async set(key: string, object: object | string, minutes_ttl: CacheTTL | number) {
+        let objectStr;
+        if (typeof object === "object") {
+            objectStr = JSON.stringify(object);
+        } else {
+            objectStr = object;
+        }
+
+        this.redis.set(key, objectStr, "EX", minutes_ttl * 60);
+    }
+
+    async delete(key: string) {
+        this.redis.del(key);
+    }
+}
+
+export const paymentNotificationCache = new RedisConnection("payment_notification");

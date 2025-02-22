@@ -1,5 +1,5 @@
 import { CHECKOUT_NOTIFICATION_KEY } from "$env/static/private";
-import { redisGetObject, redisSetObject } from "$lib/redis";
+import { paymentNotificationCache } from "$lib/redis";
 
 export type NotificationStatus = "success" | "failed";
 
@@ -37,7 +37,7 @@ export class PaymentNotification {
     async setStatus(key: string, status: NotificationStatus) {
         const controller = this.controllerMap.get(key);
 
-        await redisSetObject("notification:" + key, status, 5);
+        await paymentNotificationCache.set(key, status, 5);
 
         if (controller) {
             try {
@@ -50,7 +50,7 @@ export class PaymentNotification {
     }
 
     async getStatus(key: string) {
-        const status = await redisGetObject<NotificationStatus>("notification:" + key);
+        const status = await paymentNotificationCache.get<NotificationStatus>("notification:" + key);
         return status;
     }
 
