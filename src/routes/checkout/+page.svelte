@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { loadStripe, type StripeElements } from "@stripe/stripe-js";
+    import { loadStripe } from "@stripe/stripe-js";
     import { untrack } from "svelte";
     import type { Infer, SuperValidated } from "sveltekit-superforms";
 
@@ -14,7 +14,6 @@
 
     let { data, form } = $props();
     const checkoutData = $state(data);
-    // let { cart, userInfoForm, shippingForm, shippingOptions, priceDetails } = $state(data);
 
     let value = $state("0");
     let currentState = $state(0);
@@ -26,13 +25,14 @@
         if (!form || !form.success || !checkoutData.cart) return;
 
         untrack(() => (value = String(Number(value) + 1)));
-        untrack(() => currentState++);
 
         if (form.form.id === "info") {
             checkoutData.userInfoForm = form.form as SuperValidated<Infer<UserInfoFormSchema>>;
+            untrack(() => (currentState = Math.max(currentState, 1)));
         } else if (form.form.id === "shipping") {
             checkoutData.shippingForm = form.form as SuperValidated<Infer<ShippingFormSchema>>;
             checkoutData.priceDetails = form.priceDetails as PriceDetails;
+            untrack(() => (currentState = Math.max(currentState, 2)));
         }
     });
 </script>
