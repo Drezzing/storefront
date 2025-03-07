@@ -41,7 +41,15 @@ export const load = async ({ cookies }) => {
         }),
         shippingForm: await superValidate(zod(shippingFormSchema), {
             id: "shipping",
-            defaults: { method: PUBLIC_DEFAULT_SHIPPING_ID },
+            defaults: {
+                method: PUBLIC_DEFAULT_SHIPPING_ID,
+                address: undefined,
+                complement: undefined,
+                city: undefined,
+                department: undefined,
+                postal_code: undefined,
+                country: undefined,
+            },
         }),
         shippingOptions,
         priceDetails: getPriceDetails(cartInfo.cart),
@@ -93,7 +101,26 @@ export const actions = {
             return handleError(500, "test");
         }
 
-        const cartUpdated = await medusa.carts.addShippingMethod(cartInfo.cart.id, { option_id: form.data.method });
+        const promises = [medusa.carts.addShippingMethod(cartInfo.cart.id, { option_id: form.data.method })];
+
+        if (form.data.method !== PUBLIC_DEFAULT_SHIPPING_ID) {
+            const country_code = cartInfo.cart.region.countries.find(
+                (country) => country.name === form.data.country?.toUpperCase(),
+            );
+
+            const shppingUpdate = medusa.carts.update(cartInfo.cart.id, {
+                shipping_address: {
+                    address_1: form.data.address,
+                    address_2: form.data.complement,
+                    city: form.data.city,
+                    postal_code: form.data.postal_code,
+                    country_code: country_code?.iso_2,
+                },
+            });
+            promises.push(shppingUpdate);
+        }
+
+        const [cartUpdated] = await Promise.all(promises);
 
         return { form, success: true, priceDetails: getPriceDetails(cartUpdated.cart) };
     },

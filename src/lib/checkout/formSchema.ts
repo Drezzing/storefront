@@ -1,3 +1,4 @@
+import { PUBLIC_DEFAULT_SHIPPING_ID } from "$env/static/public";
 import { z } from "zod";
 
 export const CartName = z.string().regex(/^([a-zA-Zà-žÀ-Ž\- ']+)$/g);
@@ -8,11 +9,54 @@ export const userInfoFormSchema = z.object({
     mail: z.string().email(),
 });
 
-export const shippingFormSchema = z.object({
-    method: z.string().startsWith("so_"),
-});
+// const shippingFormSchemaWithShipping = z.object({
+//     method: z.string().startsWith("so_"),
+//     address: z.string().nonempty(),
+//     complement: z.string(),
+//     city: z.string().nonempty(),
+//     postal_code: z.string().nonempty(),
+//     department: z.string().nonempty(),
+//     country: z.string().nonempty(),
+// });
 
-export const shippingAddressForm = z.object({});
+// const shippingFormSchemaWithoutShipping = z.object({
+//     method: z.literal(PUBLIC_DEFAULT_SHIPPING_ID),
+//     address: z.null(),
+//     complement: z.null(),
+//     city: z.null(),
+//     postal_code: z.null(),
+//     department: z.null(),
+//     country: z.null(),
+// });
+
+// export const shippingFormSchema = z.union([shippingFormSchemaWithShipping, shippingFormSchemaWithoutShipping]);
+
+export const shippingFormSchema = z
+    .object({
+        method: z.string(),
+        address: z.string().optional(),
+        complement: z.string().optional(),
+        city: z.string().optional(),
+        postal_code: z.string().optional(),
+        department: z.string().optional(),
+        country: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+        if (data.method !== PUBLIC_DEFAULT_SHIPPING_ID) {
+            if (!data.address)
+                ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["address"], message: "L'adresse est requise" });
+            if (!data.city)
+                ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["city"], message: "La ville est requise" });
+            if (!data.postal_code)
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ["postal_code"],
+                    message: "Le code postal est requis",
+                });
+            if (!data.country)
+                ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["country"], message: "Le pays est requis" });
+        }
+    });
 
 export const confirmationTokenData = z.object({
     confirmationToken: z.string(),
