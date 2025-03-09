@@ -1,16 +1,22 @@
 {
-	"useTabs": false,
-	"tabWidth": 4,
-	"singleQuote": false,
-	"trailingComma": "all",
-	"printWidth": 120,
-	"plugins": ["prettier-plugin-svelte", "prettier-plugin-tailwindcss"],
-	"overrides": [
-		{
-			"files": "*.svelte",
-			"options": {
-				"parser": "svelte"
-			}
-		}
-	]
+    "useTabs": false,
+    "tabWidth": 4,
+    "singleQuote": false,
+    "trailingComma": "all",
+    "printWidth": 120,
+    "plugins": ["prettier-plugin-svelte", "prettier-plugin-tailwindcss"],
+    "overrides": [
+        {
+            "files": "*.svelte",
+            "options": {
+                "parser": "svelte"
+            }
+        },
+        {
+            "files": ".github/workflows/*.yml",
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ]
 }
