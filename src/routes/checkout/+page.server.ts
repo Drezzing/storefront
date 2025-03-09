@@ -48,7 +48,7 @@ export const load = async ({ cookies }) => {
                 city: undefined,
                 department: undefined,
                 postal_code: undefined,
-                country: undefined,
+                // country: undefined,
             },
         }),
         shippingOptions,
@@ -104,9 +104,9 @@ export const actions = {
         const promises = [medusa.carts.addShippingMethod(cartInfo.cart.id, { option_id: form.data.method })];
 
         if (form.data.method !== PUBLIC_DEFAULT_SHIPPING_ID) {
-            const country_code = cartInfo.cart.region.countries.find(
-                (country) => country.name === form.data.country?.toUpperCase(),
-            );
+            // const country_code = cartInfo.cart.region.countries.find(
+            //     (country) => country.name === form.data.country?.toUpperCase(),
+            // );
 
             const shppingUpdate = medusa.carts.update(cartInfo.cart.id, {
                 shipping_address: {
@@ -114,7 +114,7 @@ export const actions = {
                     address_2: form.data.complement,
                     city: form.data.city,
                     postal_code: form.data.postal_code,
-                    country_code: country_code?.iso_2,
+                    // country_code: country_code?.iso_2,
                 },
             });
             promises.push(shppingUpdate);

@@ -39,7 +39,7 @@ export const shippingFormSchema = z
         city: z.string().optional(),
         postal_code: z.string().optional(),
         department: z.string().optional(),
-        country: z.string().optional(),
+        // country: z.string().optional(),
     })
     .superRefine((data, ctx) => {
         if (data.method !== PUBLIC_DEFAULT_SHIPPING_ID) {
@@ -53,8 +53,8 @@ export const shippingFormSchema = z
                     path: ["postal_code"],
                     message: "Le code postal est requis",
                 });
-            if (!data.country)
-                ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["country"], message: "Le pays est requis" });
+            // if (!data.country)
+            //     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["country"], message: "Le pays est requis" });
         }
     });
 

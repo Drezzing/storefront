@@ -99,7 +99,7 @@
                 </Form.Field>
             </div>
 
-            <Form.Field {form} name="country">
+            <!-- <Form.Field {form} name="country">
                 <Form.Control>
                     {#snippet children({ attrs }: { attrs: object })}
                         <Form.Label>Pays</Form.Label>
@@ -107,7 +107,7 @@
                     {/snippet}
                 </Form.Control>
                 <Form.FieldErrors />
-            </Form.Field>
+            </Form.Field> -->
         </div>
     {/if}
 
