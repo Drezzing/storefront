@@ -27,8 +27,6 @@
 
         return { value: option.id, label: option.name };
     });
-
-    $inspect($formData);
 </script>
 
 <form id="shipping" method="POST" action="?/shipping" class="p-2" use:enhance onsubmit={() => console.log("test")}>
@@ -59,7 +57,7 @@
 
     {#if selected && selected.value !== PUBLIC_DEFAULT_SHIPPING_ID}
         <div transition:fly={{ duration: 250 }}>
-            <Form.Field {form} name="address">
+            <Form.Field {form} name="address" class="mb-4 mt-4">
                 <Form.Control>
                     {#snippet children({ attrs }: { attrs: object })}
                         <Form.Label>Adresse</Form.Label>
@@ -69,7 +67,7 @@
                 <Form.FieldErrors />
             </Form.Field>
 
-            <Form.Field {form} name="complement">
+            <Form.Field {form} name="complement" class="mb-4">
                 <Form.Control>
                     {#snippet children({ attrs }: { attrs: object })}
                         <Form.Label>Complément (Optionel)</Form.Label>
@@ -79,7 +77,7 @@
                 <Form.FieldErrors />
             </Form.Field>
 
-            <div class="sm:grid sm:grid-cols-[70%_auto] sm:gap-x-2">
+            <div class="space-y-4 sm:grid sm:grid-cols-[70%_auto] sm:gap-x-2 sm:space-y-0">
                 <Form.Field {form} name="city">
                     <Form.Control>
                         {#snippet children({ attrs }: { attrs: object })}
@@ -113,7 +111,7 @@
         </div>
     {/if}
 
-    <div class="text-right md:col-span-2">
+    <div class="mt-4 text-right md:col-span-2">
         <Form.Button><ChevronRight /></Form.Button>
     </div>
 </form>
