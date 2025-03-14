@@ -1,11 +1,17 @@
 import { PUBLIC_DEFAULT_SHIPPING_ID } from "$env/static/public";
 import { z } from "zod";
 
-export const CartName = z.string().regex(/^([a-zA-Zà-žÀ-Ž\- ']+)$/g);
+const nameRegex = /^([a-zA-Zà-žÀ-Ž\- ']*)$/g;
 
 export const userInfoFormSchema = z.object({
-    firstName: CartName,
-    lastName: CartName,
+    firstName: z
+        .string({ message: "Le prénom doit être une chaine de caractères" })
+        .regex(nameRegex, { message: "Contient des caractères non-autorisé" })
+        .nonempty({ message: "Le prénom est requis" }),
+    lastName: z
+        .string({ message: "Le nom doit être une chaine de caractères" })
+        .regex(nameRegex, { message: "Contient des caractères non-autorisé" })
+        .nonempty({ message: "Le nom est requis" }),
     mail: z.string().email(),
 });
 
@@ -42,6 +48,11 @@ export const shippingFormSchema = z
         // country: z.string().optional(),
     })
     .superRefine((data, ctx) => {
+        if (!data.method) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["method"], message: "Le mode de livraison est requis" });
+            return;
+        }
+
         if (data.method !== PUBLIC_DEFAULT_SHIPPING_ID) {
             if (!data.address)
                 ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["address"], message: "L'adresse est requise" });

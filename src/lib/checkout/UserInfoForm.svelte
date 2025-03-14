@@ -1,16 +1,51 @@
 <script lang="ts">
+    import { Check, ChevronRight, LoaderCircle, X } from "lucide-svelte";
     import { type Infer, superForm, type SuperValidated } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
-    import { ChevronRight } from "lucide-svelte";
 
     import { userInfoFormSchema, type UserInfoFormSchema } from "$lib/checkout/formSchema";
+    import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
+    import { ButtonState } from "$lib/components/StateButton/stateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
+    import { toast } from "svelte-sonner";
 
     const { data = $bindable() }: { data: SuperValidated<Infer<UserInfoFormSchema>> } = $props();
 
+    let submitState = $state(ButtonState.Idle);
+
     const form = superForm(data, {
         validators: zodClient(userInfoFormSchema),
+        onSubmit() {
+            submitState = ButtonState.Updating;
+        },
+        onUpdated({ form }) {
+            if (!form.valid) {
+                submitState = ButtonState.Fail;
+                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+            }
+        },
+        onError({ result }) {
+            const message = result.error.message || "Erreur inconnue";
+            toast.error("Une erreur est survenue", {
+                description: "Code erreur : " + message,
+            });
+
+            submitState = ButtonState.Fail;
+            setTimeout(() => (submitState = ButtonState.Idle), 2500);
+        },
+        onResult({ result }) {
+            if (result.type === "error" || result.type === "failure") {
+                submitState = ButtonState.Fail;
+                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+            }
+
+            // should not happen but just in case, happens when return error() in server action is called
+            // failure is when return fail is called, but it's already handled by use:enhance
+            if (result.type === "error") {
+                toast.error("Une erreur est survenue");
+            }
+        },
     });
 
     const { form: formData, enhance } = form;
@@ -52,7 +87,18 @@
         </Form.Control>
         <Form.FieldErrors />
     </Form.Field>
-    <div class="text-right md:col-span-2">
-        <Form.Button><ChevronRight /></Form.Button>
+
+    <div class="w-16 justify-self-end md:col-span-2">
+        <SubmitFormButton buttonState={submitState}>
+            {#if submitState == ButtonState.Idle}
+                <ChevronRight strokeWidth={1.5} />
+            {:else if submitState == ButtonState.Updating}
+                <LoaderCircle class="animate-spin"></LoaderCircle>
+            {:else if submitState == ButtonState.Success}
+                <Check />
+            {:else if submitState == ButtonState.Fail}
+                <X />
+            {/if}
+        </SubmitFormButton>
     </div>
 </form>
