@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Check, ChevronRight, LoaderCircle, X } from "lucide-svelte";
+    import { toast } from "svelte-sonner";
     import { type Infer, superForm, type SuperValidated } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
 
@@ -8,7 +9,6 @@
     import { ButtonState } from "$lib/components/StateButton/stateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
-    import { toast } from "svelte-sonner";
 
     const { data = $bindable() }: { data: SuperValidated<Infer<UserInfoFormSchema>> } = $props();
 
@@ -35,14 +35,10 @@
             setTimeout(() => (submitState = ButtonState.Idle), 2500);
         },
         onResult({ result }) {
+            // result.type always be "success" but we handle error if needed
             if (result.type === "error" || result.type === "failure") {
                 submitState = ButtonState.Fail;
                 setTimeout(() => (submitState = ButtonState.Idle), 2500);
-            }
-
-            // should not happen but just in case, happens when return error() in server action is called
-            // failure is when return fail is called, but it's already handled by use:enhance
-            if (result.type === "error") {
                 toast.error("Une erreur est survenue");
             }
         },

@@ -114,7 +114,7 @@ export const actions = {
                     address_2: form.data.complement,
                     city: form.data.city,
                     postal_code: form.data.postal_code,
-                    // country_code: country_code?.iso_2,
+                    country_code: "fr",
                 },
             });
             promises.push(shppingUpdate);

@@ -1,10 +1,13 @@
 <script lang="ts">
-    import { ChevronRight } from "lucide-svelte";
+    import { Check, ChevronRight, LoaderCircle, X } from "lucide-svelte";
+    import { toast } from "svelte-sonner";
     import { type Infer, superForm, type SuperValidated } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
 
     import { PUBLIC_DEFAULT_SHIPPING_ID } from "$env/static/public";
     import { shippingFormSchema, type ShippingFormSchema } from "$lib/checkout/formSchema";
+    import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
+    import { ButtonState } from "$lib/components/StateButton/stateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
     import * as Select from "$lib/components/ui/select";
@@ -16,8 +19,36 @@
         options,
     }: { data: SuperValidated<Infer<ShippingFormSchema>>; options: ShippingOption[] } = $props();
 
+    let submitState = $state(ButtonState.Idle);
+
     const form = superForm(data, {
         validators: zodClient(shippingFormSchema),
+        onSubmit() {
+            submitState = ButtonState.Updating;
+        },
+        onUpdated({ form }) {
+            if (!form.valid) {
+                submitState = ButtonState.Fail;
+                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+            }
+        },
+        onError({ result }) {
+            const message = result.error.message || "Erreur inconnue";
+            toast.error("Une erreur est survenue", {
+                description: "Code erreur : " + message,
+            });
+
+            submitState = ButtonState.Fail;
+            setTimeout(() => (submitState = ButtonState.Idle), 2500);
+        },
+        onResult({ result }) {
+            // result.type always be "success" but we handle error if needed
+            if (result.type === "error" || result.type === "failure") {
+                submitState = ButtonState.Fail;
+                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+                toast.error("Une erreur est survenue");
+            }
+        },
     });
     const { form: formData, enhance } = form;
 
@@ -29,7 +60,7 @@
     });
 </script>
 
-<form id="shipping" method="POST" action="?/shipping" class="p-2" use:enhance onsubmit={() => console.log("test")}>
+<form id="shipping" method="POST" action="?/shipping" class="p-2" use:enhance>
     <Form.Field {form} name="method">
         <Form.Control let:attrs>
             <Form.Label>Mode de livraison</Form.Label>
@@ -111,7 +142,17 @@
         </div>
     {/if}
 
-    <div class="mt-4 text-right md:col-span-2">
-        <Form.Button><ChevronRight /></Form.Button>
+    <div class="mt-4 w-16 justify-self-end">
+        <SubmitFormButton buttonState={submitState}>
+            {#if submitState == ButtonState.Idle}
+                <ChevronRight strokeWidth={1.5} />
+            {:else if submitState == ButtonState.Updating}
+                <LoaderCircle class="animate-spin"></LoaderCircle>
+            {:else if submitState == ButtonState.Success}
+                <Check />
+            {:else if submitState == ButtonState.Fail}
+                <X />
+            {/if}
+        </SubmitFormButton>
     </div>
 </form>
