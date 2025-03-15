@@ -2,7 +2,9 @@
     import { type Stripe, type StripeElements, type PaymentIntent } from "@stripe/stripe-js";
     import { toast } from "svelte-sonner";
     import { Address, Elements, PaymentElement } from "svelte-stripe";
+    import type { z } from "zod";
 
+    import { userInfoFormSchema, shippingFormSchema } from "$lib/checkout/formSchema";
     import { PUBLIC_BASE_URL } from "$env/static/public";
     import { clientRequest } from "$lib/error";
     import { goto } from "$app/navigation";
@@ -10,10 +12,12 @@
     let {
         stripe,
         userData,
+        shippingData,
         client_secret = $bindable(),
     }: {
         stripe: Promise<Stripe | null>;
-        userData: { mail: string; firstName: string; lastName: string };
+        userData: z.infer<typeof userInfoFormSchema>;
+        shippingData: z.infer<typeof shippingFormSchema>;
         client_secret: string;
     } = $props();
 
@@ -110,7 +114,16 @@
                 fields={{ phone: "never" }}
                 mode="billing"
                 autocomplete={{ mode: "disabled" }}
-                defaultValues={{ name: userData.firstName + " " + userData.lastName, address: { country: "FR" } }}
+                defaultValues={{
+                    name: userData.firstName + " " + userData.lastName,
+                    address: {
+                        line1: shippingData.address,
+                        line2: shippingData.complement,
+                        postal_code: shippingData.postal_code,
+                        city: shippingData.city,
+                        country: "FR",
+                    },
+                }}
             />
 
             <PaymentElement
@@ -122,6 +135,6 @@
             />
         </Elements>
 
-        <button type="submit">Validerw</button>
+        <button type="submit">Valider</button>
     </form>
 {/await}

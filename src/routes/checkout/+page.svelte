@@ -4,7 +4,7 @@
     import type { Infer, SuperValidated } from "sveltekit-superforms";
 
     import { PUBLIC_STRIPE_API_KEY } from "$env/static/public";
-    import CartStripe from "$lib/cart/CartStripe.svelte";
+    import StripeForm from "$lib/checkout/StripeForm.svelte";
     import type { ShippingFormSchema, UserInfoFormSchema } from "$lib/checkout/formSchema";
     import ShippingForm from "$lib/checkout/ShippingForm.svelte";
     import UserInfoForm from "$lib/checkout/UserInfoForm.svelte";
@@ -76,7 +76,12 @@
                             >Paiement</Accordion.Trigger
                         >
                         <Accordion.Content>
-                            <CartStripe {stripe} userData={checkoutData.userInfoForm.data} bind:client_secret />
+                            <StripeForm
+                                {stripe}
+                                userData={checkoutData.userInfoForm.data}
+                                shippingData={checkoutData.shippingForm.data}
+                                bind:client_secret
+                            />
                         </Accordion.Content>
                     </Accordion.Item>
                 </Accordion.Root>

@@ -6,7 +6,7 @@
 
     import { Separator } from "$lib/components/ui/separator/index.js";
     import CartItem from "$lib/cart/CartItem.svelte";
-    import CartStripe from "$lib/cart/CartStripe.svelte";
+    // import CartStripe from "$lib/checkout/CartStripe.svelte";
 
     let itemCount = $derived.by(() => (items ? items.length : 0));
 </script>
