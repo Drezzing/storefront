@@ -40,7 +40,6 @@ export const load = async ({ cookies }) => {
         cart: true,
         userInfoForm: await superValidate(zod(userInfoFormSchema), {
             id: "info",
-            defaults: { firstName: "abc", lastName: "def", mail: "test@test.com" },
         }),
         shippingForm: await superValidate(zod(shippingFormSchema), {
             id: "shipping",
