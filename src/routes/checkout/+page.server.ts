@@ -24,7 +24,10 @@ export const load = async ({ cookies }) => {
         } satisfies CheckoutData;
     }
 
-    const so = await medusa.shippingOptions.listCartOptions(cartInfo.cart.id);
+    const so = await medusa.shippingOptions.listCartOptions(cartInfo.cart.id).catch((err) => {
+        return handleError(500, "CHECKOUT_LOAD_ACTION.LIST_CART_OPTIONS_FAILED", { error: err.response.data });
+    });
+
     const shippingOptions = so.shipping_options.map((option) => {
         const optionPrice = (option.price_incl_tax ?? 0) / 100;
         return {
@@ -70,17 +73,23 @@ export const actions = {
         const cartInfo = await checkCartExists(cartId);
 
         if (cartInfo.err) {
-            return handleError(500, "test");
+            return handleError(404, "CHECKOUT_USERINFO_ACTION.CART_NOT_FOUND", { error: cartInfo.err });
         }
 
         const cartUpdated = await medusa.carts.update(cartInfo.cart.id, { email: form.data.mail }).catch((err) => {
-            return handleError(500, "CHECKOUT_POST.UPDATE_CART_FAILED", { error: err.response.data });
+            return handleError(500, "CHECKOUT_USERINFO_ACTION.UPDATE_CART_FAILED", { error: err.response.data });
         });
 
-        await medusa.admin.customers.update(cartUpdated.cart.customer_id, {
-            first_name: form.data.firstName,
-            last_name: form.data.lastName,
-        });
+        await medusa.admin.customers
+            .update(cartUpdated.cart.customer_id, {
+                first_name: form.data.firstName,
+                last_name: form.data.lastName,
+            })
+            .catch((err) => {
+                return handleError(500, "CHECKOUT_USERINFO_ACTION.UPDATE_CUSTOMER_FAILED", {
+                    error: err.response.data,
+                });
+            });
 
         return { form, success: true };
     },
@@ -101,22 +110,34 @@ export const actions = {
             return handleError(500, "test");
         }
 
-        const promises = [medusa.carts.addShippingMethod(cartInfo.cart.id, { option_id: form.data.method })];
+        const promises = [
+            medusa.carts.addShippingMethod(cartInfo.cart.id, { option_id: form.data.method }).catch((err) => {
+                return handleError(500, "CHECKOUT_SHIPPING_ACTION.UPDATE_SHIPPING_METHOD_FAILED", {
+                    error: err.response.data,
+                });
+            }),
+        ];
 
         if (form.data.method !== PUBLIC_DEFAULT_SHIPPING_ID) {
             // const country_code = cartInfo.cart.region.countries.find(
             //     (country) => country.name === form.data.country?.toUpperCase(),
             // );
 
-            const shppingUpdate = medusa.carts.update(cartInfo.cart.id, {
-                shipping_address: {
-                    address_1: form.data.address,
-                    address_2: form.data.complement,
-                    city: form.data.city,
-                    postal_code: form.data.postal_code,
-                    country_code: "fr",
-                },
-            });
+            const shppingUpdate = medusa.carts
+                .update(cartInfo.cart.id, {
+                    shipping_address: {
+                        address_1: form.data.address,
+                        address_2: form.data.complement,
+                        city: form.data.city,
+                        postal_code: form.data.postal_code,
+                        country_code: "fr",
+                    },
+                })
+                .catch((err) => {
+                    return handleError(500, "CHECKOUT_SHIPPING_ACTION.UPDATE_SHIPPING_ADDRESS_FAILED", {
+                        error: err.response.data,
+                    });
+                });
             promises.push(shppingUpdate);
         }
 
