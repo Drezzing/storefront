@@ -28,8 +28,10 @@
             });
 
             if (!response.success) {
-                toast.error("erreur");
-                throw new Error();
+                toast.error("Une erreur est survenue.", {
+                    description: response.errorID,
+                });
+                return;
             } else {
                 client_secret = response.data.client_secret;
             }
@@ -47,7 +49,9 @@
         const stripeSDK = await stripe;
 
         if (!stripeSDK || !elements) {
-            return;
+            return toast.error("Une erreur est survenue.", {
+                description: "Impossible de charger Stripe.",
+            });
         }
 
         const elementsValid = await elements.submit();
@@ -85,10 +89,16 @@
         });
 
         if (!submitTokenResponse.success) {
-            return toast.error("qsf");
+            return toast.error("Une erreur est survenue lors de la validation du paiement.", {
+                description: submitTokenResponse.errorID,
+            });
         } else if (submitTokenResponse.data.status === "requires_action") {
-            await stripeSDK.handleNextAction({ clientSecret: submitTokenResponse.data.clientSecret });
-            // TODO : Error handling
+            const { error } = await stripeSDK.handleNextAction({ clientSecret: submitTokenResponse.data.clientSecret });
+            if (error) {
+                return toast.error("Une erreur est survenue lors de l'action suivante.", {
+                    description: error.message,
+                });
+            }
         }
 
         goto(submitTokenResponse.data.redirect);
