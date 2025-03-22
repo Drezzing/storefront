@@ -1,13 +1,16 @@
 <script lang="ts">
-    import { type Stripe, type StripeElements, type PaymentIntent } from "@stripe/stripe-js";
+    import { type PaymentIntent, type Stripe, type StripeElements } from "@stripe/stripe-js";
+    import { LoaderCircle, X } from "lucide-svelte";
     import { toast } from "svelte-sonner";
     import { Address, Elements, PaymentElement } from "svelte-stripe";
     import type { z } from "zod";
 
-    import { userInfoFormSchema, shippingFormSchema } from "$lib/checkout/formSchema";
-    import { PUBLIC_BASE_URL } from "$env/static/public";
-    import { clientRequest } from "$lib/error";
     import { goto } from "$app/navigation";
+    import { PUBLIC_BASE_URL } from "$env/static/public";
+    import { shippingFormSchema, userInfoFormSchema } from "$lib/checkout/formSchema";
+    import StateButton from "$lib/components/StateButton/StateButton.svelte";
+    import { ButtonState } from "$lib/components/StateButton/stateButton";
+    import { clientRequest } from "$lib/error";
 
     let {
         stripe,
@@ -43,12 +46,16 @@
     const stripeLoaderPromise = Promise.all([stripe, getClientSecret()]);
 
     let elements: StripeElements | undefined = $state();
+    let validateButtonState: ButtonState = $state(ButtonState.Idle);
 
     const submitCheckout = async (e: Event) => {
         e.preventDefault();
+        validateButtonState = ButtonState.Updating;
         const stripeSDK = await stripe;
 
         if (!stripeSDK || !elements) {
+            validateButtonState = ButtonState.Fail;
+            setTimeout(() => (validateButtonState = ButtonState.Idle), 2500);
             return toast.error("Une erreur est survenue.", {
                 description: "Impossible de charger Stripe.",
             });
@@ -56,9 +63,9 @@
 
         const elementsValid = await elements.submit();
         if (elementsValid.error) {
-            return toast.error("Une erreur est survenue.", {
-                description: elementsValid.error.message,
-            });
+            validateButtonState = ButtonState.Fail;
+            setTimeout(() => (validateButtonState = ButtonState.Idle), 2500);
+            return;
         }
         const createTokenResponse = await stripeSDK.createConfirmationToken({
             elements,
@@ -71,6 +78,8 @@
         });
 
         if (createTokenResponse.error) {
+            validateButtonState = ButtonState.Fail;
+            setTimeout(() => (validateButtonState = ButtonState.Idle), 2500);
             return toast.error("Une erreur est survenue.", {
                 description: createTokenResponse.error.message,
             });
@@ -89,19 +98,24 @@
         });
 
         if (!submitTokenResponse.success) {
-            return toast.error("Une erreur est survenue lors de la validation du paiement.", {
+            validateButtonState = ButtonState.Fail;
+            setTimeout(() => (validateButtonState = ButtonState.Idle), 2500);
+            return toast.error("Une erreur est survenue.", {
                 description: submitTokenResponse.errorID,
             });
         } else if (submitTokenResponse.data.status === "requires_action") {
             const { error } = await stripeSDK.handleNextAction({ clientSecret: submitTokenResponse.data.clientSecret });
             if (error) {
-                return toast.error("Une erreur est survenue lors de l'action suivante.", {
+                validateButtonState = ButtonState.Fail;
+                setTimeout(() => (validateButtonState = ButtonState.Idle), 2500);
+                return toast.error("Une erreur est survenue.", {
                     description: error.message,
                 });
             }
         }
-
-        goto(submitTokenResponse.data.redirect);
+        if (submitTokenResponse.data.status !== "canceled") {
+            goto(submitTokenResponse.data.redirect);
+        }
     };
 </script>
 
@@ -124,6 +138,7 @@
                 fields={{ phone: "never" }}
                 mode="billing"
                 autocomplete={{ mode: "disabled" }}
+                allowedCountries={["FR"]}
                 defaultValues={{
                     name: userData.firstName + " " + userData.lastName,
                     address: {
@@ -145,6 +160,19 @@
             />
         </Elements>
 
-        <button type="submit">Valider</button>
+        <div class="mt-4 w-32 justify-self-center">
+            <StateButton buttonState={validateButtonState} type="submit">
+                {#if validateButtonState === ButtonState.Idle}
+                    <p>Valider</p>
+                {:else if validateButtonState === ButtonState.Updating}
+                    <LoaderCircle class="animate-spin" />
+                {:else if validateButtonState === ButtonState.Success}
+                    <!-- should not be seen, user is redirected to other page -->
+                    <p>Validé</p>
+                {:else if validateButtonState === ButtonState.Fail}
+                    <X />
+                {/if}
+            </StateButton>
+        </div>
     </form>
 {/await}
