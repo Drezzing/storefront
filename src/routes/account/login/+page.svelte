@@ -1,0 +1,98 @@
+<script lang="ts">
+  import * as Select from "$lib/components/ui/select";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { Input } from "$lib/components/ui/input";
+  import { Label } from "$lib/components/ui/label";
+
+  import { LogIn } from "lucide-svelte";
+
+  import { clientRequest, displayClientError } from "$lib/error";
+
+  
+  import { toast } from "svelte-sonner";
+
+  let email = $state("");
+  let password = $state("");
+  let content = $state("");
+
+  // const fieldMap: Record<string, string> = {
+  //     email: "Adresse mail",
+  //     subject: "Objet",
+  //     content: "Message",
+  // };
+
+  // const sendMessage = async () => {
+  //     const contactObjectValid = contactObject.safeParse({ email, subject, content });
+
+  //     if (!contactObjectValid.success) {
+  //         const errorFields = contactObjectValid.error.errors.map((err) => fieldMap[err.path[0]]);
+  //         return toast.error("Champ(s) invalide(s) : " + errorFields.join(", "));
+  //     }
+
+  //     const response = await clientRequest("CONTACT_POST", "/api/contact", {
+  //         method: "POST",
+  //         body: JSON.stringify(contactObjectValid.data),
+  //         headers: {
+  //             "Content-Type": "application/json",
+  //         },
+  //     });
+
+  //     if (!response.success) {
+  //         displayClientError(response);
+  //     } else {
+  //         toast.success("Votre message a bien été transmis.");
+  //         email = "";
+  //         subject = "";
+  //         content = "";
+  //     }
+  // };
+</script>
+
+<svelte:head>
+  <title>Login</title>
+  <meta name="description" content="Page de connection" />
+</svelte:head>
+
+<div class="max-w-[1024px] space-y-4 px-4 md:px-8 lg:m-auto">
+  <h1 class="text-center text-3xl font-bold">Bienvenue</h1>
+
+  <section class="space-y-4">
+      <div class="space-y-1">
+          <Label for="email">Adresse mail</Label>
+          <Input
+              type="email"
+              id="email"
+              placeholder="nom.prenom@mail.fr"
+              bind:value={email}
+              class="ring-offset-0 focus-visible:ring-1 focus-visible:ring-d-darkgray focus-visible:ring-offset-0"
+          />
+      </div>
+
+      <div class="space-y-1">
+          <Label for="object">Mot de passe</Label>
+          <Input
+              type="password"
+              id="password"
+              placeholder="**********"
+              bind:value={password}
+              class="ring-offset-0 focus-visible:ring-1 focus-visible:ring-d-darkgray focus-visible:ring-offset-0"
+          />
+      </div>
+
+      
+  </section>
+
+  <div class="flex justify-center">
+      <Button variant="drezzing"  class="flex gap-4 px-8 py-2">
+        Se connecter<LogIn class="mr-2"></LogIn> 
+      </Button>
+  </div>
+  <div class="justify-start">
+    <br>
+    <a href="/account/forgot-password" class="text-center underline">Mot de passe oublié ?</a>
+    <br>
+    <br>
+    <a href="/account/register" class="text-center ">Pas encore inscrit ?</a>
+
+  </div>
+</div>
