@@ -35,11 +35,11 @@ class RedisConnection {
             objectStr = object;
         }
 
-        this.redis.set(key, objectStr, "EX", minutes_ttl * 60);
+        await this.redis.set(this.prefix + ":" + key, objectStr, "EX", minutes_ttl * 60);
     }
 
     async delete(key: string) {
-        this.redis.del(key);
+        this.redis.del(this.prefix + ":" + key);
     }
 }
 
