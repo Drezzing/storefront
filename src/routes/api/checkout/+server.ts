@@ -30,7 +30,9 @@ export const POST = async ({ cookies, request }) => {
     }
 
     if (!cartInfo.cart.payment_session) {
-        return handleError(404, "sqfds");
+        return handleError(404, "CHECKOUT_POST.PAYMENT_SESSION_MISSING", {
+            error: `Payment session missing on cart ${cartInfo.cart.id}`,
+        });
     }
 
     const reqJson = await request.json().catch(async () => {
@@ -54,7 +56,9 @@ export const POST = async ({ cookies, request }) => {
     });
 
     if (stripeConfirm.client_secret === null) {
-        return handleError(500, "qsljfs");
+        return handleError(500, "CHECKOUT_POST.CLIENT_SECRET_NULL", {
+            error: `Client secret is null for payment intent ${paymentId}`,
+        });
     }
 
     return json({
