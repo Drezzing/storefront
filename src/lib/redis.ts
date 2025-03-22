@@ -17,11 +17,11 @@ class RedisConnection {
         this.prefix = prefix;
     }
 
-    async get<T>(key: string): Promise<T | null> {
+    async get<T>(key: string, parseFunc: ((arg0: string) => unknown) | null = null): Promise<T | null> {
         const object = await this.redis.get(this.prefix + ":" + key);
 
         if (object != null) {
-            return JSON.parse(object) as T;
+            return (parseFunc ? parseFunc(object) : object) as T;
         } else {
             return null;
         }
