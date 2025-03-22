@@ -50,7 +50,7 @@ export class PaymentNotification {
     }
 
     async getStatus(key: string) {
-        const status = await paymentNotificationCache.get<NotificationStatus>("notification:" + key);
+        const status = await paymentNotificationCache.get<NotificationStatus>(key);
         return status;
     }
 
