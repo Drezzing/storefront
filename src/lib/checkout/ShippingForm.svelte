@@ -43,7 +43,7 @@
         },
         onResult({ result }) {
             // result.type always be "success" but we handle error if needed
-            if (result.type === "error" || result.type === "failure") {
+            if (result.type === "error") {
                 submitState = ButtonState.Fail;
                 setTimeout(() => (submitState = ButtonState.Idle), 2500);
                 toast.error("Une erreur est survenue");
