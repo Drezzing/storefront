@@ -1,14 +1,16 @@
 import { handleError } from "$lib/error";
 import { isCollectionPrivate } from "$lib/medusa/collection";
 import { medusa } from "$lib/medusa/medusa";
-import type { StoreProductsRes } from "@medusajs/medusa";
+import { getThumbnail } from "$lib/medusa/utils";
+import { getThumbnailCarrousell } from "$lib/medusa/utils";
 
 export const prerender = false;
 
 export const load = async () => {
+    // Récupérer les produits et collections simultanément
     const [products, collectionsResponse] = await Promise.all([
-        medusa.products.list({ order: "-created_at", limit: 8 }),
-        medusa.collections.list(), // can't order so limit is useless :)
+        medusa.products.list({ order: "-created_at", limit: 8 }), // Produits récents
+        medusa.collections.list(), // Collections disponibles
     ]);
 
     if (products.count <= 0) {
@@ -19,42 +21,55 @@ export const load = async () => {
         return handleError(404, "HOMEPAGE_LOAD.COLLECTIONS_NOT_FOUND");
     }
 
+    // Filtrer les collections privées
     const collections = collectionsResponse.collections.filter((collection) => !isCollectionPrivate(collection));
 
-    const frontPageIds = collections.map((collections) => collections.metadata?.["front_page_product"] as string);
-    const frontPageProducts = new Map<string, StoreProductsRes["product"]>();
+    // Récupérer les données des collections avec leurs thumbnails
+    const collectionData = await Promise.all(
+        collections.map(async (collection) => {
+        //   console.log(`Collection ID: ${collection.id}, Metadata: ${JSON.stringify(collection.metadata)}`); // Vérifie les métadonnées
+          const thumbnail = await getThumbnail(collection);
+          return {
+            id: collection.id,
+            title: collection.title,
+            handle: collection.handle,
+            thumbnail: thumbnail || "https://placehold.co/600",
+            created_at: collection.created_at,
+          };
+        })
+      );
+      
 
-    const { products: collectionProducts } = await medusa.products.list({ id: frontPageIds }).catch((err) => {
-        return handleError(500, "HOMEPAGE_LOAD.COLLECTIONS_LIST_FAILED", { error: err.response.data });
-    });
-    collectionProducts.forEach((product) => frontPageProducts.set(product.id!, product));
-
-    return {
-        products: products.products.map((product) => {
-            return {
-                title: product.title ?? "",
-                handle: product.handle ?? "",
-                thumbnail: product.thumbnail ?? "",
-            };
-        }),
-        collections: collections
-            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-            .map((collection) => {
-                const frontPageId = collection.metadata?.["front_page_product"] as string;
-                const frontPageProduct = frontPageProducts.get(frontPageId);
-
-                if (frontPageProduct === undefined) {
-                    return handleError(500, "HOMEPAGE_LOAD.FRONT_PAGE_PRODUCT_MISSING", {
-                        category: collection.id,
-                        product: frontPageId,
-                    });
-                }
+    // Construire les données pour le carrousel
+    const carrousell = await Promise.all(
+        collections.map(async (collectionc) => {
+            const images = await getThumbnailCarrousell({ id: collectionc.id, metadata: collectionc.metadata });
+            if (images) {
                 return {
-                    title: collection.title,
-                    handle: collection.handle,
-                    thumbnail: frontPageProduct?.thumbnail || "https://placehold.co/600",
+                    link: `/collection/${collectionc.handle}`,
+                    images, // Cela sera un tableau d'images
+                    alt: collectionc.title,
                 };
-            })
-            .slice(0, 8),
+            }
+            return null; // Ne pas inclure dans le carrousel si aucune image
+        })
+    ).then((items) => items.filter((item) => item !== null)); // Filtrer les éléments nuls
+
+    // Optionnel : S'assurer qu'il y a bien des éléments dans le carrousel
+    if (carrousell.length === 0) {
+        console.error("Aucun carrousel disponible");
+    }
+
+    // Retourner les données nécessaires à la page
+    return {
+        products: products.products.map((product) => ({
+            title: product.title ?? "",
+            handle: product.handle ?? "",
+            thumbnail: product.thumbnail ?? "https://placehold.co/600", // Image par défaut si pas de thumbnail
+        })),
+        collections: collectionData
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) // Trier les collections par date de création
+            .slice(0, 8), // Limiter à 8 collections
+        carrousell, // Les données pour le carrousel
     };
 };
