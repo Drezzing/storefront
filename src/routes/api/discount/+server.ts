@@ -1,5 +1,5 @@
 import { handleError } from "$lib/error.js";
-import { DiscountAddDelete, discountNotUsed, removeDiscounts, type DiscountType } from "$lib/medusa/discount.js";
+import { DiscountAddDelete, removeUnusedDiscounts, type DiscountType } from "$lib/medusa/discount.js";
 import { checkCartExists, checkDiscountExist, medusa } from "$lib/medusa/medusa";
 import { json } from "@sveltejs/kit";
 
@@ -40,8 +40,11 @@ export const POST = async ({ cookies, request }) => {
         discounts: [{ code: discountInfo.discount.code }],
     });
 
-    if (discountNotUsed(cartUpdated.cart)) {
-        await removeDiscounts(cartUpdated.cart, "DISCOUNT_POST");
+    const removedDiscounts = await removeUnusedDiscounts(cartUpdated.cart, "DISCOUNT_POST").catch((err) => {
+        return handleError(500, "DISCOUNT_POST.DELETE_DISCOUNT_FAILED", err);
+    });
+
+    if (removedDiscounts.includes(discountInfo.discount.code)) {
         return handleError(409, "DISCOUNT_POST.DISCOUNT_NOT_VALID");
     }
 

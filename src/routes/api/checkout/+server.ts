@@ -2,7 +2,6 @@ import { type PaymentIntent } from "@stripe/stripe-js";
 import { json } from "@sveltejs/kit";
 
 import { handleError } from "$lib/error";
-import { discountNotUsed, removeDiscounts } from "$lib/medusa/discount";
 import { checkCartExists, medusa } from "$lib/medusa/medusa";
 import { isVariantSoldout } from "$lib/medusa/product";
 import { stripe } from "$lib/payment/stripe.js";
@@ -85,10 +84,6 @@ export const GET = async ({ cookies }) => {
 
     if (cartInfo.cart.payment_session) {
         return json({ client_secret: cartInfo.cart.payment_session.data.client_secret as string });
-    }
-
-    if (discountNotUsed(cartInfo.cart)) {
-        await removeDiscounts(cartInfo.cart, "CHECKOUT_POST");
     }
 
     await medusa.carts.createPaymentSessions(cartInfo.cart.id).catch((err) => {

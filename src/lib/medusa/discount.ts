@@ -12,21 +12,28 @@ export const DiscountAddDelete = z.object({
     discount_code: z.string().min(1),
 });
 
-export const discountNotUsed = (cart: MedusaCart) => {
-    const cartHasDiscount = cart.discounts.length >= 1;
-    const discoutIsUsed = (cart.discount_total || 0) == 0;
-    return cartHasDiscount && discoutIsUsed;
-};
+export const removeUnusedDiscounts = async (cart: MedusaCart, caller: string) => {
+    const unsed = cart.discounts.filter((discount) => {
+        if (discount.rule.type === "free_shipping") return false;
+        const used = cart.items.some((item) => {
+            return item.adjustments.some((adjustment) => {
+                return adjustment.discount_id === discount.id;
+            });
+        });
 
-export const removeDiscounts = async (cart: MedusaCart, caller: string) => {
+        return !used;
+    });
+
     return await Promise.all(
-        cart.discounts.map((discount) =>
+        unsed.map((discount) => {
             medusa.carts.deleteDiscount(cart.id, discount.code).catch((err) => {
                 return handleError(500, caller + ".DELETE_DISCOUNT_FAILED", {
                     code: discount.code,
                     error: err.response.data,
                 });
-            }),
-        ),
+            });
+
+            return discount.code;
+        }),
     );
 };
