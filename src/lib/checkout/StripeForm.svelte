@@ -10,7 +10,7 @@
     import { shippingFormSchema, userInfoFormSchema } from "$lib/checkout/formSchema";
     import StateButton from "$lib/components/StateButton/StateButton.svelte";
     import { ButtonState } from "$lib/components/StateButton/stateButton";
-    import { clientRequest } from "$lib/error";
+    import { clientRequest, displayClientError } from "$lib/error";
 
     let {
         stripe,
@@ -31,9 +31,7 @@
             });
 
             if (!response.success) {
-                toast.error("Une erreur est survenue.", {
-                    description: response.errorID,
-                });
+                displayClientError(response);
                 return;
             } else {
                 client_secret = response.data.client_secret;
@@ -100,9 +98,7 @@
         if (!submitTokenResponse.success) {
             validateButtonState = ButtonState.Fail;
             setTimeout(() => (validateButtonState = ButtonState.Idle), 2500);
-            return toast.error("Une erreur est survenue.", {
-                description: submitTokenResponse.errorID,
-            });
+            return displayClientError(submitTokenResponse);
         } else if (submitTokenResponse.data.status === "requires_action") {
             const { error } = await stripeSDK.handleNextAction({ clientSecret: submitTokenResponse.data.clientSecret });
             if (error) {

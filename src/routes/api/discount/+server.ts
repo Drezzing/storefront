@@ -45,7 +45,10 @@ export const POST = async ({ cookies, request }) => {
     });
 
     if (removedDiscounts.includes(discountInfo.discount.code)) {
-        return handleError(409, "DISCOUNT_POST.DISCOUNT_NOT_VALID");
+        return handleError(409, {
+            message: "DISCOUNT_POST.DISCOUNT_NOT_VALID",
+            userMessage: "Ce code promotionnel n'est pas applicable aux articles de ce panier.",
+        });
     }
 
     const discountReturn = {

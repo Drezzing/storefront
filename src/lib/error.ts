@@ -11,13 +11,16 @@ type SuccessResponse<T> = {
 
 type ErrorResponse = {
     success: false;
-    httpResponse: Response;
+    response: Response;
     errorID: string;
+    errorMessage?: string;
 };
 
-export const handleError = (status: number, message: string, obj?: Record<string, unknown>) => {
-    const logMessage = `${status} - ${message}`;
-
+export const handleError = (
+    status: number,
+    message: string | { message: string; userMessage: string },
+    obj?: Record<string, unknown>,
+) => {
     let errID: string;
     if (dev) {
         const byteArray = new Uint8Array(16);
@@ -33,6 +36,12 @@ export const handleError = (status: number, message: string, obj?: Record<string
         ...obj,
     };
 
+    let logMessage: string;
+    if (typeof message === "string") {
+        logMessage = `${status} - ${message}`;
+    } else {
+        logMessage = `${status} - ${message.message}`;
+    }
     if (status >= 400 && status <= 499) {
         logger.warn(errObj, logMessage);
     } else if (status >= 500 && status <= 599) {
@@ -41,7 +50,11 @@ export const handleError = (status: number, message: string, obj?: Record<string
         throw new Error("invalid status");
     }
 
-    error(status, errID);
+    if (typeof message === "string") {
+        error(status, { message: errID });
+    } else {
+        error(status, { message: errID, userMessage: message.userMessage });
+    }
 };
 
 export const clientRequest = async <T>(
@@ -60,17 +73,24 @@ export const clientRequest = async <T>(
     if (response.ok) {
         return { success: true, response: response, data: reqJson as T };
     } else {
-        return { success: false, httpResponse: response, errorID: reqJson.message as string };
+        return {
+            success: false,
+            response: response,
+            errorID: reqJson.message as string,
+            errorMessage: reqJson.userMessage as string | undefined,
+        };
     }
 };
 
 export const displayClientError = async (response: ErrorResponse, message?: string) => {
-    if (response.httpResponse.status === 429) {
-        const retryAfter = response.httpResponse.headers.get("Retry-after");
+    if (response.response.status === 429) {
+        const retryAfter = response.response.headers.get("Retry-after");
         toast.error("Vous effectuez trop de requêtes.", {
-            description: retryAfter ? `Veuillez réessayer dans ${retryAfter} secondes.` : "",
+            description: retryAfter ? `Veuillez réessayer dans ${retryAfter} secondes.` : undefined,
         });
     } else {
-        toast.error(message ?? "Une erreur est survenue.", { description: `Code erreur : ${response.errorID}` });
+        toast.error(message ?? response.errorMessage ?? "Une erreur est survenue.", {
+            description: `Code erreur : ${response.errorID}`,
+        });
     }
 };
