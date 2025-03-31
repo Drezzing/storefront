@@ -35,7 +35,7 @@
         );
 
         if (!response.success) {
-            toast.error("Code promotionnel non valide.");
+            displayClientError(response);
             discountState = ButtonState.Fail;
         } else {
             discountState = ButtonState.Success;
