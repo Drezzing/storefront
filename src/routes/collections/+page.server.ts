@@ -4,7 +4,6 @@ import { medusa } from "$lib/medusa/medusa";
 import { getThumbnail } from "$lib/medusa/utils";
 import type { PageServerLoad } from "./$types";
 
-
 export const prerender = false;
 
 export const load: PageServerLoad = async () => {
@@ -12,19 +11,17 @@ export const load: PageServerLoad = async () => {
         return handleError(500, "COLLECTIONS_LOAD.COLLECTIONS_LIST_FAILED", { error: err.response.data });
     });
 
-    // Filtrer les collections privées
     const collections = collectionsResponse.collections.filter((collection) => !isCollectionPrivate(collection));
 
-    // Récupérer les thumbnails en parallèle
     const collectionsWithThumbnails = await Promise.all(
         collections.map(async (collection) => {
-            const thumbnail = await getThumbnail(collection);
+            const thumbnail = await getThumbnail(collection, "COLLECTIONS_LOAD");
             return {
                 title: collection.title,
                 handle: collection.handle,
                 thumbnail: thumbnail || "https://via.placeholder.com/600x600",
             };
-        })
+        }),
     );
 
     return {

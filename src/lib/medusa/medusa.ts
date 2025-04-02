@@ -25,12 +25,12 @@ export type MedusaOrder = StoreOrdersRes["order"];
 export type MedusaCart = StoreCartsRes["cart"];
 export type MedusaDiscount = AdminDiscountsRes["discount"];
 export type MedusaCollection = StoreCollectionsRes["collection"];
+export type MedusaCategory = StoreGetProductCategoriesCategoryRes["product_category"];
 export type MedusaProduct = StoreProductsRes["product"];
 export type MedusaProductVariant = StoreVariantsRes["variant"];
 export type MedusaLineItemVariant = MedusaCart["items"][0]["variant"]; // I hate everything about this but it works
 export type MedusaVariant = MedusaProductVariant | MedusaLineItemVariant;
-//
-export type MedusaCategory = StoreGetProductCategoriesCategoryRes["product_category"];
+
 const checkEntityExist = async <K extends string, V>(
     id: string | undefined,
     key: string,
