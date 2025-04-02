@@ -15,29 +15,24 @@
 </svelte:head>
 
 <div class="max-w-[1024px] justify-center space-y-8 md:px-8 lg:m-auto lg:space-y-16">
-    {#if data.carrousell && data.carrousell.length > 0}
-        <section class="-mt-6 mb-12 md:mt-0 lg:mb-0">
-            <Carousel.Root class="w-full">
-                <Carousel.Content>
-                    {#each data.carrousell as item}
-                        {#each item.images as image}
-                            <Carousel.Item>
-                                <a href={item.link || "/"}>
-                                    <img
-                                        src={image || "https://via.placeholder.com/600x300"}
-                                        alt={item.alt || "Carousel Item"}
-                                        class="aspect-[2/1] w-full md:rounded"
-                                    />
-                                </a>
-                            </Carousel.Item>
-                        {/each}
-                    {/each}
-                </Carousel.Content>
-                <Carousel.Previous class="hover:bg-dgray left-4 border-0 bg-transparent" />
-                <Carousel.Next class="hover:bg-dgray right-4 border-0 bg-transparent" />
-            </Carousel.Root>
-        </section>
-    {/if}
+        <!-- <section class="-mt-6 mb-12 md:mt-0 lg:mb-0">
+        <Carousel.Root class="w-full">
+            <Carousel.Content>
+                <Carousel.Item>
+                    <a href="/">
+                        <img
+                            src="https://via.placeholder.com/600x300"
+                            alt="Carousel 1"
+                            class="aspect-[2/1] w-full md:rounded"
+                        />
+                    </a>
+                </Carousel.Item>
+            </Carousel.Content>
+            <Carousel.Previous class="hover:bg-dgray left-4 border-0 bg-transparent" />
+            <Carousel.Next class="hover:bg-dgray right-4 border-0 bg-transparent" />
+        </Carousel.Root>
+    </section> -->
+
 
     <section class="justify-center space-y-8 px-4">
         <h2 class="text-center text-xl font-bold">Dernières sorties</h2>
