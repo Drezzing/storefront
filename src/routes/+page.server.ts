@@ -6,9 +6,10 @@ import { getThumbnail } from "$lib/medusa/utils";
 export const prerender = false;
 
 export const load = async () => {
+    // Récupérer les produits et collections simultanément
     const [products, collectionsResponse] = await Promise.all([
-        medusa.products.list({ order: "-created_at", limit: 8 }),
-        medusa.collections.list(), // can't order so limit is useless :)
+        medusa.products.list({ order: "-created_at", limit: 8 }), // Produits récents
+        medusa.collections.list(), // Collections disponibles
     ]);
 
     if (products.count <= 0) {
@@ -19,6 +20,7 @@ export const load = async () => {
         return handleError(404, "HOMEPAGE_LOAD.COLLECTIONS_NOT_FOUND");
     }
 
+    // Filtrer les collections privées
     const collections = collectionsResponse.collections.filter((collection) => !isCollectionPrivate(collection));
 
     const collectionData = await Promise.all(
