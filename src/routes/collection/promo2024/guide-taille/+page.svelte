@@ -5,7 +5,9 @@
 
 <svelte:head>
     <title>Promo 2024 - Guide des tailles</title>
+    <meta property="og:title" content="Promo 2024 - Guide des tailles" />
     <meta name="description" content="Guide des tailles de la collection Promo 2024" />
+    <meta property="og:description" content="Guide des tailles de la collection Promo 2024" />
 </svelte:head>
 
 <article class="max-w-[1024px] space-y-10 px-4 md:px-8 lg:m-auto">

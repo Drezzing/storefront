@@ -39,7 +39,11 @@
 
 <svelte:head>
     <title>Commander</title>
-    <meta name="description" content="Passer votre commande" />
+    <meta property="og:title" content="Commander" />
+    <meta name="description" content="Finalisez votre commande." />
+    <meta property="og:description" content="Finalisez votre commande." />
+
+    <meta name="robots" content="noindex,nofollow" />
 </svelte:head>
 
 <div class="px-4 sm:px-6 md:mx-auto md:max-w-[1350px] md:px-8">

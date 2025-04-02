@@ -13,7 +13,11 @@
 
 <svelte:head>
     <title>Panier</title>
+    <meta property="og:title" content="Panier" />
     <meta name="description" content="Voir le contenu de mon panier" />
+    <meta property="og:description" content="Voir le contenu de mon panier." />
+
+    <meta name="robots" content="noindex,nofollow" />
 </svelte:head>
 
 <div class="px-4 md:mx-auto md:max-w-[1350px]">

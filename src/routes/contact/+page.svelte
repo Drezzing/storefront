@@ -50,7 +50,15 @@
 
 <svelte:head>
     <title>Contact</title>
-    <meta name="description" content="Page de contact" />
+    <meta property="og:title" content="Contact" />
+    <meta
+        name="description"
+        content="Contactez-nous pour toute question ou assistance concernant nos services ou produits."
+    />
+    <meta
+        property="og:description"
+        content="Contactez-nous pour toute question ou assistance concernant nos services ou produits."
+    />
 </svelte:head>
 
 <div class="max-w-[1024px] space-y-4 px-4 md:px-8 lg:m-auto">

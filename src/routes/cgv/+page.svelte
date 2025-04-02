@@ -1,6 +1,14 @@
 <svelte:head>
     <title>Conditions Générales de vente</title>
-    <meta name="description" content="Conditions générales de vente" />
+    <meta property="og:title" content="Conditions Générales de vente" />
+    <meta
+        name="description"
+        content="Découvrez les conditions générales de vente de l'association DreZZing, incluant les modalités de commande, paiement, livraison, retours et litiges."
+    />
+    <meta
+        property="og:description"
+        content="Découvrez les conditions générales de vente de l'association DreZZing, incluant les modalités de commande, paiement, livraison, retours et litiges."
+    />
 </svelte:head>
 
 <article class="max-w-[1024px] space-y-10 px-4 md:px-8 lg:m-auto">

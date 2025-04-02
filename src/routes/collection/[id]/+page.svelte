@@ -84,7 +84,15 @@
 
 <svelte:head>
     <title>{title}</title>
+    <meta property="og:title" content={title} />
     <meta name="description" content={description} />
+    <meta property="og:description" content={description} />
+
+    <!-- <meta property="og:image" content={thumbnail} />
+    <meta property="og:image:alt" content={description} />
+    <meta property="og:image:type" content="image/webp" />
+    <meta property="og:image:width" content="300" />
+    <meta property="og:image:height" content="300" /> -->
 </svelte:head>
 
 {#if menufilter}
