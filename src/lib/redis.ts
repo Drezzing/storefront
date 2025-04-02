@@ -44,3 +44,4 @@ class RedisConnection {
 }
 
 export const paymentNotificationCache = new RedisConnection("payment_notification");
+export const thumbnailCache = new RedisConnection("thumbnail");
