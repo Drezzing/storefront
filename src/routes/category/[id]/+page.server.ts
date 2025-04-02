@@ -1,11 +1,11 @@
-import { medusa } from "$lib/medusa/medusa";
-import type { PageServerLoad } from "./$types";
 import { PUBLIC_REGION_ID } from "$env/static/public";
 import { handleError } from "$lib/error";
+import { medusa } from "$lib/medusa/medusa";
+import { getThumbnail } from "$lib/medusa/utils";
 
 export const prerender = false;
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load = async ({ params }) => {
     const categories = await medusa.productCategories.list({ handle: params.id }).catch((err) => {
         return handleError(500, "CATEGORY_LOAD.COLLECTION_LIST_FAILED", { err: err.response.data });
     });
@@ -28,6 +28,7 @@ export const load: PageServerLoad = async ({ params }) => {
     return {
         title: category.name,
         description: category.description,
+        thumbnail: await getThumbnail(category, "CATEGORY_LOAD"),
         products: medusaProduct.map((product) => {
             return {
                 title: product.title || "placeholder",
