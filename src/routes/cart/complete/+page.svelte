@@ -26,8 +26,18 @@
 </script>
 
 <svelte:head>
-    <title>Commande</title>
-    <meta name="description" content="Status de votre commande" />
+    <title>Panier - Status</title>
+    <meta property="og:title" content="Panier - Status" />
+    <meta
+        name="description"
+        content="Consultez le statut de votre commande et suivez la validation de votre paiement."
+    />
+    <meta
+        property="og:description"
+        content="Consultez le statut de votre commande et suivez la validation de votre paiement."
+    />
+
+    <meta name="robots" content="noindex,nofollow" />
 </svelte:head>
 
 <div class="h-full max-w-[1024px] px-4 md:px-8 lg:m-auto">

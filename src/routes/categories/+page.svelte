@@ -6,7 +6,9 @@
 
 <svelte:head>
     <title>Catégories</title>
-    <meta name="description" content="Toutes les catégories disponibles" />
+    <meta property="og:title" content="Catégories" />
+    <meta name="description" content="Explorez toutes les catégories disponibles." />
+    <meta property="og:description" content="Explorez toutes les catégories disponibles." />
 </svelte:head>
 
 <div class="max-w-[1024px] justify-center px-4 md:px-8 lg:m-auto">

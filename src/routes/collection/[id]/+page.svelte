@@ -11,7 +11,7 @@
     import ProductDisplay from "$lib/components/ProductDisplay.svelte";
 
     let { data } = $props();
-    const { title, products, description, cpv, guideTaille, allOptions } = data;
+    const { title, thumbnail, products, description, cpv, guideTaille, allOptions } = data;
 
     let optionSelector = $state(new SvelteMap<string, SvelteSet<string>>());
     for (const [key, _] of allOptions) {
@@ -84,7 +84,16 @@
 
 <svelte:head>
     <title>{title}</title>
+    <meta property="og:title" content={title} />
     <meta name="description" content={description} />
+    <meta property="og:description" content={description} />
+
+    {#if thumbnail}
+        <meta property="og:image" content={thumbnail} />
+        <meta property="og:image:type" content="image/webp" />
+        <meta property="og:image:width" content="300" />
+        <meta property="og:image:height" content="300" />
+    {/if}
 </svelte:head>
 
 {#if menufilter}

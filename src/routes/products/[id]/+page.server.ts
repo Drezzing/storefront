@@ -39,6 +39,7 @@ export const load = async ({ params }) => {
     return {
         title: product.title || "Placeholder title",
         description: product.description || "Placeholder description blabla",
+        thumbnail: product.thumbnail || "",
         images: product.images || [{ url: "" }],
         collection: product.collection || { handle: "placeholder", title: "Placeholder" },
         options: optionMap,

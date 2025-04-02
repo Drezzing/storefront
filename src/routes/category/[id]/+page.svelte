@@ -4,14 +4,23 @@
     import ProductDisplay from "$lib/components/ProductDisplay.svelte";
 
     let { data } = $props();
-    const { title, products, description } = data;
+    const { title, products, thumbnail, description } = data;
 
     let count = $derived(products.length);
 </script>
 
 <svelte:head>
     <title>{title}</title>
+    <meta property="og:title" content={title} />
     <meta name="description" content={description} />
+    <meta property="og:description" content={description} />
+
+    {#if thumbnail}
+        <meta property="og:image" content={thumbnail} />
+        <meta property="og:image:type" content="image/webp" />
+        <meta property="og:image:width" content="300" />
+        <meta property="og:image:height" content="300" />
+    {/if}
 </svelte:head>
 
 <div class="mx-4 max-w-[1024px] md:px-8 lg:m-auto">

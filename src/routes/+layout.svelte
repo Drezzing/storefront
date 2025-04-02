@@ -4,7 +4,16 @@
     import Header from "../lib/components/Header.svelte";
     import Footer from "$lib/components/Footer.svelte";
     import "../app.css";
+
+    import { page } from "$app/stores";
 </script>
+
+<svelte:head>
+    <meta property="og:url" content={$page.url.href} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="DreZZing" />
+    <meta property="og:locale" content="fr_FR" />
+</svelte:head>
 
 <div class="app">
     <Header></Header>

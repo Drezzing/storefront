@@ -1,6 +1,14 @@
 <svelte:head>
     <title>Mentions légales</title>
-    <meta name="description" content="Mentions légales" />
+    <meta property="og:title" content="Mentions légales" />
+    <meta
+        name="description"
+        content="Découvrez les mentions légales du site DreZZing, incluant les informations sur l'éditeur, l'hébergeur, la propriété intellectuelle, les données personnelles et les cookies."
+    />
+    <meta
+        name="description"
+        content="Découvrez les mentions légales du site DreZZing, incluant les informations sur l'éditeur, l'hébergeur, la propriété intellectuelle, les données personnelles et les cookies."
+    />
 </svelte:head>
 
 <article class="max-w-[1024px] px-4 md:px-8 lg:m-auto">

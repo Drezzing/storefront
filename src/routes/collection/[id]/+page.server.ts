@@ -1,13 +1,13 @@
-import { medusa } from "$lib/medusa/medusa";
-import { getProductOptions } from "$lib/medusa/product";
-import type { PageServerLoad } from "./$types";
 import { PUBLIC_REGION_ID } from "$env/static/public";
 import { handleError } from "$lib/error";
 import { isCollectionPrivate } from "$lib/medusa/collection";
+import { medusa } from "$lib/medusa/medusa";
+import { getProductOptions } from "$lib/medusa/product";
+import { getThumbnail } from "$lib/medusa/utils";
 
 export const prerender = false;
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load = async ({ params }) => {
     const collections = await medusa.collections.list({ handle: [params.id] }).catch((err) => {
         return handleError(500, "COLLECTION_LOAD.COLLECTION_LIST_FAILED", { err: err.response.data });
     });
@@ -60,12 +60,11 @@ export const load: PageServerLoad = async ({ params }) => {
     return {
         title: collection.title,
         handle: collection.handle,
+        thumbnail: await getThumbnail(collection, "COLLECTION_LOAD"),
         description: description,
         cpv: cpv,
         guideTaille: guideTaille,
         products: products,
-        // thumbnail: null,
-        // thumbnail: frontPageProduct.product.thumbnail ?? "https://",
         allOptions,
     };
 };

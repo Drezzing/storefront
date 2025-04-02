@@ -5,7 +5,15 @@
 
 <svelte:head>
     <title>FAQ</title>
-    <meta name="description" content="FAQ page" />
+    <meta property="og:title" content="FAQ" />
+    <meta
+        name="description"
+        content="Vous trouverez ici les réponses aux questions fréquemment posées sur DreZZing, incluant les délais de livraison, les retours, les modes de paiement et plus encore."
+    />
+    <meta
+        property="og:description"
+        content="Vous trouverez ici les réponses aux questions fréquemment posées sur DreZZing, incluant les délais de livraison, les retours, les modes de paiement et plus encore."
+    />
 </svelte:head>
 
 <article class="max-w-[1024px] px-4 md:px-8 lg:m-auto">
@@ -65,7 +73,7 @@
     </div>
 
     <!-- Ligne de séparation -->
-    <Separator class="bg-dgray my-6 h-[2px] rounded" />
+    <Separator class="my-6 h-[2px] rounded bg-dgray" />
 
     <!-- Message de contact -->
     <div class="flex flex-col items-center gap-1 md:flex-row md:justify-around">

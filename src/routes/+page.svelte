@@ -11,7 +11,15 @@
 
 <svelte:head>
     <title>Accueil</title>
-    <meta name="description" content="Page d'accueil" />
+    <meta
+        name="description"
+        content="Découvrez les dernières sorties et collections sur la page d'accueil de Drezzing."
+    />
+    <meta property="og:title" content="Acceuil" />
+    <meta
+        property="og:description"
+        content="Découvrez les dernières sorties et collections sur la page d'accueil de Drezzing."
+    />
 </svelte:head>
 
 <div class="max-w-[1024px] justify-center space-y-8 md:px-8 lg:m-auto lg:space-y-16">

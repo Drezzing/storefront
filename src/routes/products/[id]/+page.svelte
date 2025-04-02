@@ -14,7 +14,7 @@
     import { clientRequest, displayClientError } from "$lib/error.js";
 
     let { data } = $props();
-    const { title, description, images, collection, options, variants } = data;
+    const { title, description, thumbnail, images, collection, options, variants } = data;
 
     let api: CarouselAPI | undefined = $state(undefined);
     let currentImage = $state(1);
@@ -85,7 +85,13 @@
 
 <svelte:head>
     <title>{title}</title>
+    <meta property="og:title" content={title} />
     <meta name="description" content={description} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={thumbnail} />
+    <meta property="og:image:type" content="image/webp" />
+    <meta property="og:image:width" content="300" />
+    <meta property="og:image:height" content="300" />
 </svelte:head>
 
 <div class="mx-auto max-w-[1350px] px-4">

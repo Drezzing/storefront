@@ -1,6 +1,8 @@
 <svelte:head>
     <title>À propos</title>
-    <meta name="description" content="À propos" />
+    <meta property="og:title" content="À propos" />
+    <meta name="description" content="Découvrez qui nous sommes, notre objectif et notre équipe" />
+    <meta property="og:description" content="Découvrez qui nous sommes, notre objectif et notre équipe." />
 </svelte:head>
 
 <article class="max-w-[1024px] px-4 md:px-8 lg:m-auto">

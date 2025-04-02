@@ -1,6 +1,11 @@
 <svelte:head>
     <title>Promo 2024 - Conditions Particulières de Vente</title>
-    <meta name="description" content="Conditions particulières de vente de la collection Promo 2024" />
+    <meta property="og:title" content="Promo 2024 - Conditions Particulières de Vente" />
+    <meta name="description" content="Découvrez les conditions particulières de vente de la collection Promo 2024." />
+    <meta
+        property="og:description"
+        content="Découvrez les conditions particulières de vente de la collection Promo 2024."
+    />
 </svelte:head>
 
 <article class="max-w-[1024px] space-y-10 px-4 md:px-8 lg:m-auto">
