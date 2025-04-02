@@ -1,14 +1,15 @@
 import { handleError } from "$lib/error";
 import { isCollectionPrivate } from "$lib/medusa/collection";
 import { medusa } from "$lib/medusa/medusa";
-import type { StoreProductsRes } from "@medusajs/medusa";
+import { getThumbnail } from "$lib/medusa/utils";
 
 export const prerender = false;
 
 export const load = async () => {
+    // Récupérer les produits et collections simultanément
     const [products, collectionsResponse] = await Promise.all([
-        medusa.products.list({ order: "-created_at", limit: 8 }),
-        medusa.collections.list(), // can't order so limit is useless :)
+        medusa.products.list({ order: "-created_at", limit: 8 }), // Produits récents
+        medusa.collections.list(), // Collections disponibles
     ]);
 
     if (products.count <= 0) {
@@ -19,42 +20,30 @@ export const load = async () => {
         return handleError(404, "HOMEPAGE_LOAD.COLLECTIONS_NOT_FOUND");
     }
 
+    // Filtrer les collections privées
     const collections = collectionsResponse.collections.filter((collection) => !isCollectionPrivate(collection));
 
-    const frontPageIds = collections.map((collections) => collections.metadata?.["front_page_product"] as string);
-    const frontPageProducts = new Map<string, StoreProductsRes["product"]>();
-
-    const { products: collectionProducts } = await medusa.products.list({ id: frontPageIds }).catch((err) => {
-        return handleError(500, "HOMEPAGE_LOAD.COLLECTIONS_LIST_FAILED", { error: err.response.data });
-    });
-    collectionProducts.forEach((product) => frontPageProducts.set(product.id!, product));
-
-    return {
-        products: products.products.map((product) => {
+    const collectionData = await Promise.all(
+        collections.map(async (collection) => {
+            const thumbnail = await getThumbnail(collection);
             return {
-                title: product.title ?? "",
-                handle: product.handle ?? "",
-                thumbnail: product.thumbnail ?? "",
+                id: collection.id,
+                title: collection.title,
+                handle: collection.handle,
+                thumbnail: thumbnail || "https://placehold.co/600",
+                created_at: collection.created_at,
             };
         }),
-        collections: collections
-            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-            .map((collection) => {
-                const frontPageId = collection.metadata?.["front_page_product"] as string;
-                const frontPageProduct = frontPageProducts.get(frontPageId);
+    );
 
-                if (frontPageProduct === undefined) {
-                    return handleError(500, "HOMEPAGE_LOAD.FRONT_PAGE_PRODUCT_MISSING", {
-                        category: collection.id,
-                        product: frontPageId,
-                    });
-                }
-                return {
-                    title: collection.title,
-                    handle: collection.handle,
-                    thumbnail: frontPageProduct?.thumbnail || "https://placehold.co/600",
-                };
-            })
+    return {
+        products: products.products.map((product) => ({
+            title: product.title ?? "",
+            handle: product.handle ?? "",
+            thumbnail: product.thumbnail ?? "https://placehold.co/600",
+        })),
+        collections: collectionData
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
             .slice(0, 8),
     };
 };

@@ -6,6 +6,7 @@ import type {
     StoreOrdersRes,
     StoreProductsRes,
     StoreVariantsRes,
+    StoreGetProductCategoriesCategoryRes,
 } from "@medusajs/medusa";
 import Medusa from "@medusajs/medusa-js";
 
@@ -24,6 +25,7 @@ export type MedusaOrder = StoreOrdersRes["order"];
 export type MedusaCart = StoreCartsRes["cart"];
 export type MedusaDiscount = AdminDiscountsRes["discount"];
 export type MedusaCollection = StoreCollectionsRes["collection"];
+export type MedusaCategory = StoreGetProductCategoriesCategoryRes["product_category"];
 export type MedusaProduct = StoreProductsRes["product"];
 export type MedusaProductVariant = StoreVariantsRes["variant"];
 export type MedusaLineItemVariant = MedusaCart["items"][0]["variant"]; // I hate everything about this but it works
