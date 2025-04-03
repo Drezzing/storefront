@@ -25,7 +25,7 @@ export const load = async () => {
 
     const collectionData = await Promise.all(
         collections.map(async (collection) => {
-            const thumbnail = await getThumbnail(collection);
+            const thumbnail = await getThumbnail(collection, "HOMEPAGE_LOAD");
             return {
                 id: collection.id,
                 title: collection.title,
