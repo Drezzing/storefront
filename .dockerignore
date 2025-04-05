@@ -11,8 +11,8 @@ Dockerfile
 .eslint.config.js
 .vscode
 
+.env
 .env.*
-!.env.prod
 
 node_modules
 build
