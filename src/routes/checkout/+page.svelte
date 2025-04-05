@@ -3,7 +3,7 @@
     import { untrack } from "svelte";
     import type { Infer, SuperValidated } from "sveltekit-superforms";
 
-    import { PUBLIC_STRIPE_API_KEY } from "$env/static/public";
+    import { env } from "$env/dynamic/public";
     import StripeForm from "$lib/checkout/StripeForm.svelte";
     import type { ShippingFormSchema, UserInfoFormSchema } from "$lib/checkout/formSchema";
     import ShippingForm from "$lib/checkout/ShippingForm.svelte";
@@ -18,7 +18,7 @@
     let value = $state("0");
     let currentState = $state(0);
 
-    const stripe = loadStripe(PUBLIC_STRIPE_API_KEY);
+    const stripe = loadStripe(env.PUBLIC_STRIPE_API_KEY);
     let client_secret: string = $state("");
 
     $effect(() => {

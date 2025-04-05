@@ -1,5 +1,6 @@
-import { PUBLIC_DEFAULT_SHIPPING_ID } from "$env/static/public";
 import { z } from "zod";
+
+import { env } from "$env/dynamic/public";
 
 const nameRegex = /^([a-zA-Zà-žÀ-Ž\- ']*)$/g;
 
@@ -53,7 +54,7 @@ export const shippingFormSchema = z
             return;
         }
 
-        if (data.method !== PUBLIC_DEFAULT_SHIPPING_ID) {
+        if (data.method !== env.PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID) {
             if (!data.address)
                 ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["address"], message: "L'adresse est requise" });
             if (!data.city)

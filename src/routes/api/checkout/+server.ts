@@ -6,7 +6,7 @@ import { checkCartExists, medusa } from "$lib/medusa/medusa";
 import { isVariantSoldout } from "$lib/medusa/product";
 import { stripe } from "$lib/payment/stripe.js";
 import { confirmationTokenData } from "$lib/checkout/formSchema.js";
-import { PUBLIC_BASE_URL } from "$env/static/public";
+import { env } from "$env/dynamic/public";
 import { PaymentNotification } from "$lib/checkout/notification.js";
 
 /**
@@ -50,7 +50,7 @@ export const POST = async ({ cookies, request }) => {
     const returnUrl = `/cart/complete?subscriber_key=${subcriberKey}`;
 
     const stripeConfirm = await stripe.paymentIntents.confirm(paymentId, {
-        return_url: PUBLIC_BASE_URL + returnUrl,
+        return_url: env.PUBLIC_BASE_URL + returnUrl,
         confirmation_token: confirmationTokenValid.data.confirmationToken,
     });
 

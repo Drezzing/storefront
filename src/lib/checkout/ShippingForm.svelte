@@ -4,7 +4,7 @@
     import { type Infer, superForm, type SuperValidated } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
 
-    import { PUBLIC_DEFAULT_SHIPPING_ID } from "$env/static/public";
+    import { env } from "$env/dynamic/public";
     import { shippingFormSchema, type ShippingFormSchema } from "$lib/checkout/formSchema";
     import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
     import { ButtonState } from "$lib/components/StateButton/stateButton";
@@ -86,7 +86,7 @@
         <Form.FieldErrors />
     </Form.Field>
 
-    {#if selected && selected.value !== PUBLIC_DEFAULT_SHIPPING_ID}
+    {#if selected && selected.value !== env.PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID}
         <div transition:fly={{ duration: 250 }}>
             <Form.Field {form} name="address" class="mb-4 mt-4">
                 <Form.Control>

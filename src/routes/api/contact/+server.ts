@@ -1,7 +1,8 @@
-import { DISCORD_WEBHOOK } from "$env/static/private";
-import { handleError } from "$lib/error.js";
-import { contactObject } from "$lib/contact.js";
 import { json } from "@sveltejs/kit";
+
+import { env } from "$env/dynamic/private";
+import { contactObject } from "$lib/contact.js";
+import { handleError } from "$lib/error.js";
 
 const escape_md = (input: string) => {
     return input.replace(/([`\-#*_~|])/g, "\\$1");
@@ -22,7 +23,7 @@ export const POST = async ({ request, fetch }) => {
         content: `**Nouvelle soumission de formulaire :**\n**Email :** \`${escape_md(email)}\`\n**Objet :** \`${escape_md(subject)}\`\n**Message :**\n\`\`\`${escape_md(content)}\`\`\``,
     };
 
-    const discordResponse = await fetch(DISCORD_WEBHOOK, {
+    const discordResponse = await fetch(env.DISCORD_WEBHOOK, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

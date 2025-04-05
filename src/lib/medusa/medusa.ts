@@ -1,4 +1,4 @@
-import { MEDUSA_API_TOKEN, MEDUSA_BACKEND_URL, MEDUSA_PKEY } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import type {
     AdminDiscountsRes,
     StoreCartsRes,
@@ -15,10 +15,10 @@ type EntityExist<K extends string, V> =
     | ({ [P in K]: null } & { err: Record<string, unknown> });
 
 export const medusa = new Medusa({
-    baseUrl: MEDUSA_BACKEND_URL,
+    baseUrl: env.MEDUSA_BACKEND_URL,
     maxRetries: 3,
-    publishableApiKey: MEDUSA_PKEY,
-    apiKey: MEDUSA_API_TOKEN,
+    publishableApiKey: env.MEDUSA_PKEY,
+    apiKey: env.MEDUSA_API_TOKEN,
 });
 
 export type MedusaOrder = StoreOrdersRes["order"];

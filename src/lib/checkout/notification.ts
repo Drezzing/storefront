@@ -1,4 +1,4 @@
-import { CHECKOUT_NOTIFICATION_KEY } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { paymentNotificationCache } from "$lib/redis";
 
 export type NotificationStatus = "success" | "failed";
@@ -11,7 +11,7 @@ export class PaymentNotification {
     }
 
     static async generateNotificationToken(clientSecret: string) {
-        const message = new TextEncoder().encode(clientSecret + CHECKOUT_NOTIFICATION_KEY); // server-only key to prevent reproductability from client
+        const message = new TextEncoder().encode(clientSecret + env.CHECKOUT_NOTIFICATION_KEY); // server-only key to prevent reproductability from client
         const hashBuffer = await crypto.subtle.digest("SHA-512", message);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");

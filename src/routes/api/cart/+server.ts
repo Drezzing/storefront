@@ -1,6 +1,5 @@
 import { dev } from "$app/environment";
-import { MEDUSA_SALES_CHANNEL } from "$env/static/private";
-import { PUBLIC_REGION_ID } from "$env/static/public";
+import { env } from "$env/dynamic/private";
 import { CartAdd, CartDelete } from "$lib/cart/cart";
 import { handleError } from "$lib/error";
 import { removeUnusedDiscounts } from "$lib/medusa/discount";
@@ -90,8 +89,8 @@ export const POST = async ({ request, getClientAddress, cookies }) => {
         ({ cart } = await medusa.carts
             .create({
                 items: [{ variant_id: cartAddValid.data.product_id, quantity: cartAddValid.data.quantity }],
-                sales_channel_id: MEDUSA_SALES_CHANNEL,
-                region_id: PUBLIC_REGION_ID,
+                sales_channel_id: env.MEDUSA_SALES_CHANNEL_ID,
+                region_id: env.MEDUSA_REGION_ID,
                 context: {
                     ip: getClientAddress(),
                     user_agent: request.headers.get("user-agent"),

@@ -1,9 +1,9 @@
-import { MEDUSA_BACKEND_URL } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 
 export const prerender = false;
 
 export const GET = async ({ fetch }) => {
-    const response = await fetch(MEDUSA_BACKEND_URL + "/health");
+    const response = await fetch(env.MEDUSA_BACKEND_URL + "/health");
 
     if (response.ok) {
         return new Response("OK", { status: 200 });

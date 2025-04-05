@@ -1,5 +1,5 @@
 import { Redis } from "ioredis";
-import { REDIS_URL } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 
 export enum CacheTTL {
     Short = 5,
@@ -7,7 +7,7 @@ export enum CacheTTL {
     Long = 60 * 6,
 }
 
-const redis = new Redis(REDIS_URL);
+const redis = new Redis(env.REDIS_URL);
 
 class RedisConnection {
     private readonly redis: Redis = redis;
