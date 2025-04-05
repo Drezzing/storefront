@@ -10,7 +10,7 @@
     }: { value: number; min: number; max: number; step?: number } = $props();
 
     function validateValue(input: FormInputEvent<InputEvent>): void {
-        // @ts-ignore
+        // @ts-expect-error value is defined
         const inputValue = input.target?.value as string;
         let parsedInput = Number.parseInt(inputValue);
 

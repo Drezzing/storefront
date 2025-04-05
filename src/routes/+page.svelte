@@ -1,6 +1,6 @@
 <script lang="ts">
     import ProductDisplay from "$lib/components/ProductDisplay.svelte";
-    import * as Carousel from "$lib/components/ui/carousel/index.js";
+    // import * as Carousel from "$lib/components/ui/carousel/index.js";
     import { Separator } from "$lib/components/ui/separator/index.js";
     import PartnerIsima from "$lib/images/partners/inp_isima.jpg";
     import PartnerINP from "$lib/images/partners/inp.jpg";

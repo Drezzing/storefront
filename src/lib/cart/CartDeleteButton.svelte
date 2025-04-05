@@ -22,6 +22,7 @@
     disabled={Boolean(buttonState)}
 >
     {#if buttonState == 0}
+        {/* eslint-disable-next-line svelte/no-at-html-tags */ null}
         <div class="h-5 w-4 fill-none text-transparent">{@html trash}</div>
     {:else if buttonState == 1}
         <LoaderCircle size={16} strokeWidth={1.75} class="motion-safe:animate-spin" />

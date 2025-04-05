@@ -1,7 +1,7 @@
 <script>
     import drezzing from "$lib/images/drezzing.png";
     import cart from "$lib/images/cart.svg?raw";
-    import profile from "$lib/images/profile.svg?raw";
+    // import profile from "$lib/images/profile.svg?raw";
     import { fly } from "svelte/transition";
     import { X, Menu } from "lucide-svelte";
 
@@ -60,6 +60,7 @@
     <div class="justify-self-end">
         <div class="flex flex-row gap-2 lg:gap-8">
             <!-- <a href="/profile">{@html profile}</a> -->
+            {/* eslint-disable-next-line svelte/no-at-html-tags */ null}
             <a href="/cart">{@html cart}</a>
         </div>
     </div>

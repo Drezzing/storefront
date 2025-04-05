@@ -111,8 +111,8 @@
                 être en mesure de retirer une commande qu'il aurait passé auprès de l'association.
             </p>
             <p>
-                Les données personnelles obligatoires dans les formulaires sont identifiable à l'aide d'une astérisque
-                « * ».
+                Les données personnelles obligatoires dans les formulaires sont identifiable à l'aide d'une astérisque «
+                * ».
             </p>
 
             <h3 class="pt-2 font-bold">Destinataires</h3>

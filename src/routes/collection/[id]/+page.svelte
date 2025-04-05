@@ -14,12 +14,12 @@
     const { title, thumbnail, products, description, cpv, guideTaille, allOptions } = data;
 
     let optionSelector = $state(new SvelteMap<string, SvelteSet<string>>());
-    for (const [key, _] of allOptions) {
+    for (const [key] of allOptions) {
         optionSelector.set(key, new SvelteSet<string>());
     }
 
     const resetOptions = (options: SvelteMap<string, SvelteSet<string>>) => {
-        for (const [key, _] of options) {
+        for (const [key] of options) {
             options.get(key)?.clear();
         }
         priceValues = [0, 100];

@@ -2,7 +2,6 @@
     let { total = $bindable(), discount = $bindable() }: { total: number; discount: DiscountType | null } = $props();
 
     import { Check, LoaderCircle, SendHorizontal, Tag, X } from "lucide-svelte";
-    import { toast } from "svelte-sonner";
 
     import CartDeleteButton from "$lib/cart/CartDeleteButton.svelte";
     import StateButton from "$lib/components/StateButton/StateButton.svelte";

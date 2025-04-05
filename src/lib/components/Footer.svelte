@@ -2,7 +2,7 @@
     import Discord from "$lib/images/discord.svg?raw";
     import Instagram from "$lib/images/instagram.svg?raw";
 
-    import { Mail } from "lucide-svelte";
+    // import { Mail } from "lucide-svelte";
 </script>
 
 <footer class="mt-6 flex w-full flex-col items-center gap-8 bg-dblack py-6 text-white lg:gap-16 lg:py-12">
@@ -12,9 +12,11 @@
                 <p>Association<br />Drezzing</p>
                 <div class="flex h-8 flex-row items-center gap-4 fill-white">
                     <a href="https://discord.gg/cpZCgnkCBx" target="_blank" class="size-7 fill-white">
+                        {/* eslint-disable-next-line svelte/no-at-html-tags */ null}
                         {@html Discord}
                     </a>
                     <a href="https://www.instagram.com/drezzing_isima" target="_blank" class="size-7 fill-white">
+                        {/* eslint-disable-next-line svelte/no-at-html-tags */ null}
                         {@html Instagram}
                     </a>
                 </div>
