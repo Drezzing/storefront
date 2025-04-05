@@ -13,6 +13,7 @@
     export { className as class };
 </script>
 
+{/* @ts-ignore */ null}
 <ButtonPrimitive.Root
     {builders}
     class={cn(buttonVariants({ variant, size, className }))}

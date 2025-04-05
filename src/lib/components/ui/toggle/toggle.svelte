@@ -16,6 +16,7 @@
     export { className as class };
 </script>
 
+{/* @ts-ignore */ null}
 <TogglePrimitive.Root bind:pressed class={cn(toggleVariants({ variant, size, className }))} {...$$restProps} on:click>
     <slot />
 </TogglePrimitive.Root>
