@@ -23,7 +23,7 @@
     {#if menuOpen}
         <nav class="fixed left-0 top-0 h-screen w-[200px] bg-white shadow" transition:fly={{ x: -200, duration: 350 }}>
             <button
-                class="hover:bg-dgray ml-3 mt-3 flex size-[32px] items-center justify-center rounded-full bg-white transition-colors duration-100 ease-in-out"
+                class="ml-3 mt-3 flex size-[32px] items-center justify-center rounded-full bg-white transition-colors duration-100 ease-in-out hover:bg-dgray"
                 onclick={() => (menuOpen = !menuOpen)}
             >
                 <X stroke-width={1} class="stroke-d-darkgray" />

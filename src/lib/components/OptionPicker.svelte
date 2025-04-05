@@ -11,7 +11,7 @@
             {choice}
         </RadioGroup.Item>
         <Label
-            class="hover:bg-d-darkgray cursor-pointer rounded-md bg-transparent px-4 py-3 text-center ring-1 ring-black transition-colors hover:text-white {choice ===
+            class="cursor-pointer rounded-md bg-transparent px-4 py-3 text-center ring-1 ring-black transition-colors hover:bg-d-darkgray hover:text-white {choice ===
             value
                 ? 'bg-d-darkgray text-white'
                 : 'bg-transparent ring-1'}"
