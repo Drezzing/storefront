@@ -1,5 +1,5 @@
 import type { RequestHandler } from "./$types";
-import { STRIPE_WEBHOOK_KEY } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { stripe } from "$lib/payment/stripe";
 import { medusa } from "$lib/medusa/medusa";
 import { handleError } from "$lib/error";
@@ -10,7 +10,7 @@ export const POST: RequestHandler = async ({ request }) => {
     const body = await request.text();
     const sig = request.headers.get("stripe-signature") || "";
 
-    const event = await stripe.webhooks.constructEventAsync(body, sig, STRIPE_WEBHOOK_KEY).catch((err) => {
+    const event = await stripe.webhooks.constructEventAsync(body, sig, env.STRIPE_WEBHOOK_KEY).catch((err) => {
         // probably unwanted data in this error but docs have the interface of the error and i don't trust
         // chatgpt
         return handleError(400, "STRIPE_WEBHOOK_POST.INVALID_BODY", { error: err });

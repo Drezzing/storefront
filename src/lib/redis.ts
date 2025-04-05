@@ -1,5 +1,5 @@
 import { Redis } from "ioredis";
-import { REDIS_URL } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 
 export enum CacheTTL {
     Short = 5,
@@ -7,7 +7,14 @@ export enum CacheTTL {
     Long = 60 * 6,
 }
 
-const redis = new Redis(REDIS_URL);
+const redis = new Redis(env.REDIS_URL, { lazyConnect: true });
+
+export const redisInit = async () => {
+    await redis.connect().catch((err) => {
+        console.error("Redis connection error:", err);
+        process.exit(1);
+    });
+};
 
 class RedisConnection {
     private readonly redis: Redis = redis;
