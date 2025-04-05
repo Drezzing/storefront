@@ -4,27 +4,38 @@ import { medusa, type MedusaCategory, type MedusaCollection } from "$lib/medusa/
 import { CacheTTL, thumbnailCache } from "$lib/redis";
 
 export async function getThumbnail(entity: MedusaCollection | MedusaCategory, caller: string): Promise<string | null> {
-    let thumbnail = entity.metadata["thumbnail"] as string | null;
-    if (!thumbnail) {
-        thumbnail = entity.metadata["front_page_product"] as string | null;
+    let thumbnailKey = entity.metadata["thumbnail"] as string | null;
+    if (!thumbnailKey) {
+        thumbnailKey = entity.metadata["front_page_product"] as string | null;
     }
 
-    if (!thumbnail) {
+    if (!thumbnailKey) {
         return null;
     }
-    if (thumbnail.startsWith("prod_")) {
-        const cachedThumbnail = await thumbnailCache.get<string>(entity.id);
+
+    let thumbnail: string | null = thumbnailKey;
+
+    if (thumbnailKey.startsWith("prod_")) {
+        const cachedThumbnail = await thumbnailCache.get<string>(thumbnailKey);
         if (cachedThumbnail) {
             return cachedThumbnail;
         }
 
-        const product = await medusa.products.retrieve(thumbnail).catch((err) => {
+        const { product } = await medusa.products.retrieve(thumbnailKey).catch((err) => {
             return handleError(500, caller + ".THUMBNAIL_GET_FAILED", err.response.data);
         });
-        thumbnail = product?.product.thumbnail || null;
+        thumbnail = product.thumbnail || null;
 
         if (thumbnail) {
-            await thumbnailCache.set(entity.id, thumbnail, CacheTTL.Medium);
+            if (product.id !== thumbnailKey) {
+                return handleError(500, caller + ".THUMBNAIL_PRODUCT_ID_MISMATCH", {
+                    productId: product.id,
+                    thumbnailId: thumbnail,
+                    entityId: entity.id,
+                });
+            }
+
+            await thumbnailCache.set(product.id!, thumbnail, CacheTTL.Medium);
         }
     }
 
