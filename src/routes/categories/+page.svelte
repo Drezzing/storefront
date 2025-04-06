@@ -14,7 +14,7 @@
 <div class="max-w-[1024px] justify-center px-4 md:px-8 lg:m-auto">
     <h1 class="mb-8 text-center text-3xl font-bold">Catégories</h1>
 
-    {#each data.categories as category}
+    {#each data.categories as category (category[0])}
         {@const name = category[0]}
         {@const childCategories = category[1]}
         <div class="mb-8 md:mb-12 lg:mb-16">

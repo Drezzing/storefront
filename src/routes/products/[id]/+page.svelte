@@ -104,7 +104,7 @@
     <div class="flex flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center xl:gap-24">
         <Carousel.Root bind:api class="max-w-[600px]">
             <Carousel.Content>
-                {#each images as image, i}
+                {#each images as image, i (image.url)}
                     <Carousel.Item>
                         <img
                             src={image.url}
@@ -129,7 +129,7 @@
 
             <div>
                 <Separator class="mb-4 lg:hidden" />
-                {#each selectedOptions as option, i}
+                {#each selectedOptions as option, i (option.option)}
                     {#if i > 0}
                         <Separator class="my-4" />
                     {/if}

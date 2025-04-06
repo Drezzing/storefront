@@ -13,7 +13,7 @@
     let { data } = $props();
     const { title, thumbnail, products, description, cpv, guideTaille, allOptions } = data;
 
-    let optionSelector = $state(new SvelteMap<string, SvelteSet<string>>());
+    let optionSelector = new SvelteMap<string, SvelteSet<string>>();
     for (const [key] of allOptions) {
         optionSelector.set(key, new SvelteSet<string>());
     }
@@ -116,7 +116,7 @@
             <Slider class="mx-[8px] w-auto" bind:value={priceValues} min={0} max={100} step={5} />
         </div>
 
-        {#each allOptions as option}
+        {#each allOptions as option (option[0])}
             {@const key = option[0]}
             {@const values = option[1]}
             <Separator class="mx-2 my-6 h-[2px] w-auto bg-[#EEEEEE] md:rounded-full" />
@@ -124,7 +124,7 @@
             <div class="mx-4 space-y-3">
                 <h3 class="font-bold">{key}</h3>
 
-                {#each values as value}
+                {#each values as value (value)}
                     <div class="flex items-center gap-2">
                         <Checkbox
                             id={`${key}-${value}`}

@@ -22,7 +22,7 @@
 </script>
 
 <div class="grid grid-cols-2 items-center justify-center gap-6 sm:grid-cols-3 md:grid-cols-4 lg:gap-8">
-    {#each elements as element, i}
+    {#each elements as element, i (element.handle)}
         <a href="/{route}/{element.handle}" class="space-y-2 rounded-lg {limitNumber ? getVisibility(i + 1) : ''}">
             <img src={element.thumbnail} alt={element.title} class="aspect-square size-full object-contain" />
             <p class="pb-2 text-center">{element.title}</p>

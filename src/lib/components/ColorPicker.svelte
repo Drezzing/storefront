@@ -12,7 +12,7 @@
 </script>
 
 <RadioGroup.Root bind:value orientation="horizontal">
-    {#each choices as choice}
+    {#each choices as choice (choice)}
         <RadioGroup.Item
             value={choice}
             id={choice}

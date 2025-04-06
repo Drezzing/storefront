@@ -6,7 +6,7 @@
 </script>
 
 <RadioGroup.Root class="flex flex-row flex-wrap justify-start gap-4" bind:value>
-    {#each choices as choice}
+    {#each choices as choice (choice)}
         <RadioGroup.Item id={choice} value={choice} class="hidden">
             {choice}
         </RadioGroup.Item>

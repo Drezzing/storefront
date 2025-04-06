@@ -76,7 +76,7 @@
                     <Select.Value placeholder="Mode de livraison" />
                 </Select.Trigger>
                 <Select.Content>
-                    {#each options as option}
+                    {#each options as option (option.id)}
                         <Select.Item value={option.id} label={option.name} />
                     {/each}
                 </Select.Content>

@@ -31,7 +31,7 @@
     {#if items && itemCount}
         <div class="flex flex-col items-start justify-center gap-4 md:flex-row lg:gap-8">
             <div class="w-full grow space-y-4 md:w-auto">
-                {#each items as item}
+                {#each items as item (item.id)}
                     <CartItem bind:total bind:items bind:discount {item} />
                 {/each}
 
