@@ -10,6 +10,7 @@ export enum CacheTTL {
 const redis = new Redis(env.REDIS_URL, { lazyConnect: true });
 
 export const redisInit = async () => {
+    if (redis.status === "connect" || redis.status === "connecting" || redis.status === "ready") return;
     await redis.connect().catch((err) => {
         console.error("Redis connection error:", err);
         process.exit(1);
