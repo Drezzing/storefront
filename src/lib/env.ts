@@ -1,3 +1,4 @@
+import fs from "fs";
 import { z } from "zod";
 
 export const envSchema = z.object({
@@ -21,9 +22,33 @@ export const envSchema = z.object({
     REDIS_URL: z.string().url(),
 });
 
+/**
+ * Docker convention for secrets is to use the _FILE suffix
+ * to indicate that the value is a file path. This function reads
+ * the file and replaces the value in the env object with the
+ * contents of the file.
+ * @param env Environment variables object
+ */
+const substituteEnvFile = (env: Record<string, string | undefined>) => {
+    for (const [key, value] of Object.entries(env)) {
+        if (key.endsWith("_FILE") && value) {
+            env[key.slice(0, -5)] = fs.readFileSync(value, "utf8");
+            delete env[key];
+        }
+    }
+};
+
 export const validateEnv = async () => {
     const { env: privateEnv } = await import("$env/dynamic/private");
     const { env: publicEnv } = await import("$env/dynamic/public");
+
+    try {
+        substituteEnvFile(privateEnv);
+        substituteEnvFile(publicEnv);
+    } catch (error) {
+        console.error("Error parsing environment variables:", error);
+        process.exit(1);
+    }
 
     const env = {
         ...privateEnv,
