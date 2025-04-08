@@ -13,7 +13,9 @@ export const userInfoFormSchema = z.object({
         .string({ message: "Le nom doit être une chaine de caractères" })
         .regex(nameRegex, { message: "Contient des caractères non-autorisé" })
         .nonempty({ message: "Le nom est requis" }),
-    mail: z.string().email(),
+    mail: z
+        .string({ message: "L'adresse mail doit être une chaine de caractères" })
+        .email({ message: "L'adresse mail est invalide" }),
 });
 
 // const shippingFormSchemaWithShipping = z.object({
