@@ -1,6 +1,7 @@
 <script lang="ts">
     import { type PaymentIntent, type Stripe, type StripeElements } from "@stripe/stripe-js";
     import { LoaderCircle, X } from "lucide-svelte";
+    import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import { Address, Elements, PaymentElement } from "svelte-stripe";
     import type { z } from "zod";
@@ -113,6 +114,16 @@
             goto(submitTokenResponse.data.redirect);
         }
     };
+
+    onMount(() => {
+        // cannot use focus() on the iframe content since it is cross-origin
+        // so we focus the iframe itself
+        // this is a workaround and not a good one
+        const iframe: HTMLIFrameElement | null = document.querySelector("iframe[name^='__privateStripeFrame']");
+        if (iframe) {
+            iframe.focus();
+        }
+    });
 </script>
 
 {#await stripeLoaderPromise}

@@ -1,6 +1,8 @@
 <script lang="ts">
     import { Check, ChevronRight, LoaderCircle, X } from "lucide-svelte";
+    import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
+    import { fly } from "svelte/transition";
     import { type Infer, superForm, type SuperValidated } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
 
@@ -13,7 +15,6 @@
     import * as Select from "$lib/components/ui/select";
     import type { ShippingOption } from "$lib/medusa/shipping";
     import { cn } from "$lib/utils";
-    import { fly } from "svelte/transition";
 
     const {
         data = $bindable(),
@@ -61,6 +62,13 @@
     });
 
     const shippingFormOpen = $derived(selected && selected.value !== env.PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID);
+
+    onMount(() => {
+        const select: HTMLButtonElement | null = document.querySelector("form[id='shipping'] > * > button");
+        if (select) {
+            select.focus();
+        }
+    });
 </script>
 
 <form

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Check, ChevronRight, LoaderCircle, X } from "lucide-svelte";
+    import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import { type Infer, superForm, type SuperValidated } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
@@ -45,6 +46,12 @@
     });
 
     const { form: formData, enhance } = form;
+    onMount(() => {
+        const input: HTMLInputElement | null = document.querySelector("input[name='firstName']");
+        if (input) {
+            input.focus();
+        }
+    });
 </script>
 
 <form
