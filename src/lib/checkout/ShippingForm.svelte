@@ -12,6 +12,7 @@
     import { Input } from "$lib/components/ui/input/index.js";
     import * as Select from "$lib/components/ui/select";
     import type { ShippingOption } from "$lib/medusa/shipping";
+    import { cn } from "$lib/utils";
     import { fly } from "svelte/transition";
 
     const {
@@ -58,9 +59,17 @@
 
         return { value: option.id, label: option.name };
     });
+
+    const shippingFormOpen = $derived(selected && selected.value !== env.PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID);
 </script>
 
-<form id="shipping" method="POST" action="?/shipping" class="p-2" use:enhance>
+<form
+    id="shipping"
+    method="POST"
+    action="?/shipping"
+    class={cn("grid grid-rows-3 p-2", shippingFormOpen ? "grid-rows-[auto_auto_auto]" : "grid-rows-[auto_auto]")}
+    use:enhance
+>
     <Form.Field {form} name="method">
         <Form.Control let:attrs>
             <Form.Label>Mode de livraison</Form.Label>
@@ -86,7 +95,7 @@
         <Form.FieldErrors />
     </Form.Field>
 
-    {#if selected && selected.value !== env.PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID}
+    {#if shippingFormOpen}
         <div transition:fly={{ duration: 250 }}>
             <Form.Field {form} name="address" class="mb-4 mt-4">
                 <Form.Control>
