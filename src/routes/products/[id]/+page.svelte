@@ -14,7 +14,7 @@
     import { clientRequest, displayClientError } from "$lib/error.js";
 
     let { data } = $props();
-    const { title, description, thumbnail, images, collection, options, variants } = data;
+    const { title, description, thumbnail, commonImages, collection, options, variants } = data;
 
     let api: CarouselAPI | undefined = $state(undefined);
     let currentImage = $state(1);
@@ -49,6 +49,8 @@
 
         return v;
     });
+    let carouselImages = $derived([...variant.images, ...commonImages]);
+    let imageCount = $derived(carouselImages.length);
 
     const cartButtonStates: StateButtonContent = {
         Idle: "Ajouter au panier",
@@ -104,10 +106,10 @@
     <div class="flex flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center xl:gap-24">
         <Carousel.Root bind:api class="max-w-[600px]">
             <Carousel.Content>
-                {#each images as image, i (image.url)}
+                {#each carouselImages as image, i (image)}
                     <Carousel.Item>
                         <img
-                            src={image.url}
+                            src={image}
                             alt={title}
                             class="m-auto size-[min(90vw,600px)] rounded-lg bg-dgray/10 object-scale-down md:h-[600px] md:w-[600px]"
                             loading={i === 0 ? "eager" : "lazy"}
@@ -117,7 +119,7 @@
             </Carousel.Content>
             <Carousel.Previous class="left-2 border-0 bg-transparent hover:bg-dgray" />
             <Carousel.Next class="right-2 border-0 bg-transparent hover:bg-dgray" />
-            <p class="mt-2 text-center text-xs text-d-darkgray">Image {currentImage} sur {images.length}</p>
+            <p class="mt-2 text-center text-xs text-d-darkgray">Image {currentImage} sur {imageCount}</p>
         </Carousel.Root>
 
         <div class="flex w-full max-w-[850px] flex-col gap-4 lg:w-auto lg:grow lg:gap-16">

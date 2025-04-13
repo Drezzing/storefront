@@ -5,6 +5,14 @@ import { isVariantSoldout } from "$lib/medusa/product";
 
 export const prerender = false;
 
+type StoreVariant = {
+    id: string;
+    options: Set<string>;
+    price: number;
+    soldout: boolean;
+    images: Array<string>;
+};
+
 export const load = async ({ params }) => {
     const products = await medusa.products.list({ handle: params.id, region_id: env.MEDUSA_REGION_ID }).catch((err) => {
         return handleError(500, "PRODUCT_LOAD.PRODUCTS_LIST_FAILED", { err: err.response.data });
@@ -25,7 +33,29 @@ export const load = async ({ params }) => {
         optionMap.set(option.title, Array.from(optionValues).sort());
     }
 
-    const variantMap = new Array<{ id: string; options: Set<string>; price: number; soldout: boolean }>();
+    const commonImages = new Array<string>();
+    const variantImages = new Map<string, Array<string>>();
+    for (const image of product.images || []) {
+        if (!image.metadata) {
+            commonImages.push(image.url);
+            continue;
+        }
+        if (!image.metadata.variants) {
+            commonImages.push(image.url);
+        } else {
+            const variants = image.metadata.variants as string[];
+            for (const variant of variants) {
+                if (variantImages.has(variant)) {
+                    // @ts-expect-error has check right before, ts being dumb
+                    variantImages.get(variant).push(image.url);
+                } else {
+                    variantImages.set(variant, [image.url]);
+                }
+            }
+        }
+    }
+
+    const variantMap = new Array<StoreVariant>();
     for (const variant of product.variants) {
         const variantOptions = new Set<string>(variant.options?.map((option) => option.value));
         variantMap.push({
@@ -33,6 +63,7 @@ export const load = async ({ params }) => {
             options: variantOptions,
             price: variant.original_price || 0.42,
             soldout: isVariantSoldout(variant),
+            images: variantImages.get(variant.id!) || [],
         });
     }
 
@@ -40,7 +71,7 @@ export const load = async ({ params }) => {
         title: product.title || "Placeholder title",
         description: product.description || "Placeholder description blabla",
         thumbnail: product.thumbnail || "",
-        images: product.images || [{ url: "" }],
+        commonImages: commonImages,
         collection: product.collection || { handle: "placeholder", title: "Placeholder" },
         options: optionMap,
         variants: variantMap,
