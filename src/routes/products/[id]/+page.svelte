@@ -111,7 +111,7 @@
                         <img
                             src={image}
                             alt={title}
-                            class="m-auto size-[min(90vw,600px)] rounded-lg bg-dgray/10 object-scale-down md:h-[600px] md:w-[600px]"
+                            class="m-auto size-[min(90vw,600px)] rounded-lg bg-dgray/10 object-scale-down md:min-h-[600px] md:min-w-[600px]"
                             loading={i === 0 ? "eager" : "lazy"}
                         />
                     </Carousel.Item>
@@ -151,7 +151,7 @@
                         on:click={addToCart}
                     >
                         <ShoppingBag strokeWidth={2.25} class="size-4" />
-                        <p>
+                        <p class="text-wrap">
                             {variant.soldout ? "Produit plus disponible à la vente" : cartButtonStates[cartButtonState]}
                         </p>
                     </StateButton>
