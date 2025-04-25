@@ -106,11 +106,11 @@
     <div class="flex flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center xl:gap-24">
         <Carousel.Root bind:api class="max-w-[600px]">
             <Carousel.Content>
-                {#each carouselImages as image, i (image)}
+                {#each carouselImages as image, i (image.url)}
                     <Carousel.Item>
                         <img
-                            src={image}
-                            alt={title}
+                            src={image.url}
+                            alt={image.alt}
                             class="m-auto size-[min(90vw,600px)] rounded-lg bg-dgray/10 object-scale-down md:min-h-[600px] md:min-w-[600px]"
                             loading={i === 0 ? "eager" : "lazy"}
                         />

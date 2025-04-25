@@ -5,12 +5,17 @@ import { isVariantSoldout } from "$lib/medusa/product";
 
 export const prerender = false;
 
+type StoreImage = {
+    url: string;
+    alt: string;
+};
+
 type StoreVariant = {
     id: string;
     options: Set<string>;
     price: number;
     soldout: boolean;
-    images: Array<string>;
+    images: Array<StoreImage>;
 };
 
 export const load = async ({ params }) => {
@@ -33,25 +38,28 @@ export const load = async ({ params }) => {
         optionMap.set(option.title, Array.from(optionValues).sort());
     }
 
-    const commonImages = new Array<string>();
-    const variantImages = new Map<string, Array<string>>();
+    const commonImages = new Array<StoreImage>();
+    const variantImages = new Map<string, Array<StoreImage>>();
+
+    const imagesVariants = product.metadata?.["imageMetadata-variants"] as Record<string, string[]> | undefined;
+    const imageAlts = product.metadata?.["imageMetadata-altDescription"] as Record<string, string> | undefined;
+
     for (const image of product.images || []) {
-        if (!image.metadata) {
-            commonImages.push(image.url);
-            continue;
-        }
-        if (!image.metadata.variants) {
-            commonImages.push(image.url);
-        } else {
-            const variants = image.metadata.variants as string[];
-            for (const variant of variants) {
+        const storeImage: StoreImage = {
+            url: image.url,
+            alt: imageAlts?.[image.id] || "If you see this, the image is missing an alt description",
+        };
+        const imageVariants = imagesVariants?.[image.id];
+        if (imageVariants && imageVariants.length > 0) {
+            for (const variant of imageVariants) {
                 if (variantImages.has(variant)) {
-                    // @ts-expect-error has check right before, ts being dumb
-                    variantImages.get(variant).push(image.url);
+                    variantImages.get(variant)?.push(storeImage);
                 } else {
-                    variantImages.set(variant, [image.url]);
+                    variantImages.set(variant, [storeImage]);
                 }
             }
+        } else {
+            commonImages.push(storeImage);
         }
     }
 
