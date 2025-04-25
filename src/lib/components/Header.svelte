@@ -43,6 +43,7 @@
 
     <div class="justify-self-end">
         <div class="flex flex-row gap-2 lg:gap-8">
+            {/* eslint-disable-next-line svelte/no-at-html-tags */ null}
             <a href="/cart">{@html cart}</a>
         </div>
     </div>
