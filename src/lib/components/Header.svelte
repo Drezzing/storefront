@@ -1,6 +1,4 @@
 <script lang="ts">
-    // Ensure TypeScript is properly configured in your project
-    // and that SidePanel.svelte has correct prop typings.
     import drezzing from "$lib/images/drezzing.png";
     import cart from "$lib/images/cart.svg?raw";
     import { Menu } from "lucide-svelte";

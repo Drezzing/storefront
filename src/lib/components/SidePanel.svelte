@@ -45,7 +45,7 @@
         transition:fly={{ x: -250, duration: 350 }}
     >
         <button
-            class="hover:bg-dgray ml-3 mt-3 flex size-[32px] items-center justify-center rounded-full transition-colors duration-100 ease-in-out"
+            class="ml-3 mt-3 flex size-[32px] items-center justify-center rounded-full transition-colors duration-100 ease-in-out hover:bg-dgray"
             on:click={onClose}
         >
             <X class="text-d-darkgray" />
