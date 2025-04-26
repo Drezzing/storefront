@@ -1,0 +1,43 @@
+<script lang="ts">
+    import { type Snippet } from "svelte";
+
+    import { afterNavigate } from "$app/navigation";
+    import * as Sheet from "$lib/components/ui/sheet";
+
+    afterNavigate(() => {
+        isOpen = false;
+    });
+
+    type Props = {
+        trigger: Snippet;
+        children: Snippet;
+        isOpen?: boolean;
+        title?: Snippet;
+        description?: Snippet;
+    };
+
+    let { trigger, children, isOpen = $bindable(false), title, description }: Props = $props();
+</script>
+
+<Sheet.Root bind:open={isOpen}>
+    <Sheet.Trigger>
+        {@render trigger()}
+    </Sheet.Trigger>
+    <Sheet.Content side="left" inTransitionConfig={{ x: -250, duration: 350 }}>
+        {#if title || description}
+            <Sheet.Header>
+                {#if title}
+                    <Sheet.Title>{@render title()}</Sheet.Title>
+                {/if}
+                {#if description}
+                    <Sheet.Description>{@render description()}</Sheet.Description>
+                {/if}
+            </Sheet.Header>
+        {/if}
+
+        <!-- setting class to "app" because the side panel is not a child of the main div so it does not inherit css -->
+        <div class="app">
+            {@render children()}
+        </div>
+    </Sheet.Content>
+</Sheet.Root>
