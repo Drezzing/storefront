@@ -1,13 +1,14 @@
 <script lang="ts">
-    import { Label } from "$lib/components/ui/label";
-    import { Checkbox } from "$lib/components/ui/checkbox";
-    import { Slider } from "$lib/components/ui/slider";
-    import { Separator } from "$lib/components/ui/separator/index.js";
-    import { Button } from "$lib/components/ui/button/index.js";
     import { Filter } from "lucide-svelte";
     import { SvelteMap, SvelteSet } from "svelte/reactivity";
+
     import ProductDisplay from "$lib/components/ProductDisplay.svelte";
     import SidePanel from "$lib/components/SidePanel.svelte";
+    import { Button } from "$lib/components/ui/button/index.js";
+    import { Checkbox } from "$lib/components/ui/checkbox";
+    import { Label } from "$lib/components/ui/label";
+    import { Separator } from "$lib/components/ui/separator/index.js";
+    import { Slider } from "$lib/components/ui/slider";
 
     let { data } = $props();
     const { title, thumbnail, products, description, cpv, guideTaille, allOptions } = data;
@@ -75,7 +76,6 @@
         });
     };
 
-    let menufilter = $state(false);
     let priceValues = $state([0, 100]);
     let filteredProducts = $derived.by(() => filterProducts(optionSelector, priceValues));
     let count = $derived(filteredProducts.length);
@@ -94,44 +94,6 @@
         <meta property="og:image:height" content="300" />
     {/if}
 </svelte:head>
-
-<SidePanel isOpen={menufilter} onClose={() => (menufilter = false)}>
-    <h2 class="mx-3 mb-6 mt-3 text-2xl font-bold">Filtrer par</h2>
-
-    <div class="mx-4 space-y-3">
-        <h2 class="font-bold">Prix</h2>
-        <span>{priceValues[0]}€</span> à <span>{priceValues[1]}€</span>
-        <Slider class="mx-[8px] w-auto" bind:value={priceValues} min={0} max={100} step={5} />
-    </div>
-
-    {#each allOptions as option (option[0])}
-        {@const key = option[0]}
-        {@const values = option[1]}
-        <Separator class="mx-2 my-6 h-[2px] w-auto bg-[#EEEEEE] md:rounded-full" />
-
-        <div class="mx-4 space-y-3">
-            <h3 class="font-bold">{key}</h3>
-
-            {#each values as value (value)}
-                <div class="flex items-center gap-2">
-                    <Checkbox
-                        id={`${key}-${value}`}
-                        class="data-[state=checked]:bg-d-darkgray"
-                        checked={optionSelector.get(key)?.has(value) ?? false}
-                        onCheckedChange={(v) => handleCheckbox(key, value, v)}
-                    />
-                    <Label for={`${key}-${value}`}>{value}</Label>
-                </div>
-            {/each}
-        </div>
-    {/each}
-
-    <div class="mb-8 flex flex-row items-center justify-center">
-        <Button class="mx-4 mt-8 w-32" variant="drezzing" onclick={() => resetOptions(optionSelector)}
-            >Réinitialiser</Button
-        >
-    </div>
-</SidePanel>
 
 <div class="mx-4 max-w-[1024px] md:px-8 lg:m-auto">
     <div>
@@ -158,12 +120,50 @@
 
         <section class="-mx-4 bg-[#EEEEEE] px-4 py-2">
             <div class="flex items-center justify-between">
-                <Button
-                    class="rounded-sm bg-white px-4 py-2 text-black shadow hover:bg-white/90"
-                    onclick={() => (menufilter = !menufilter)}
-                >
-                    <Filter strokeWidth={1} class="mr-2" /> Filtrer
-                </Button>
+                <SidePanel>
+                    {#snippet trigger()}
+                        <Button class="rounded-sm bg-white px-4 py-2 text-black shadow hover:bg-white/90">
+                            <Filter strokeWidth={1} class="mr-2" /> Filtrer
+                        </Button>
+                    {/snippet}
+                    {#snippet title()}
+                        <h2 class="mx-4 mb-6 mt-3 text-2xl font-bold">Filtrer par</h2>
+                    {/snippet}
+
+                    <div class="mx-4 space-y-3">
+                        <h2 class="font-bold">Prix</h2>
+                        <span>{priceValues[0]}€</span> à <span>{priceValues[1]}€</span>
+                        <Slider class="mx-[8px] w-auto" bind:value={priceValues} min={0} max={100} step={5} />
+                    </div>
+
+                    {#each allOptions as option (option[0])}
+                        {@const key = option[0]}
+                        {@const values = option[1]}
+                        <Separator class="mx-2 my-6 h-[2px] w-auto bg-[#EEEEEE] md:rounded-full" />
+
+                        <div class="mx-4 space-y-3">
+                            <h3 class="font-bold">{key}</h3>
+
+                            {#each values as value (value)}
+                                <div class="flex items-center gap-2">
+                                    <Checkbox
+                                        id={`${key}-${value}`}
+                                        class="data-[state=checked]:bg-d-darkgray"
+                                        checked={optionSelector.get(key)?.has(value) ?? false}
+                                        onCheckedChange={(v) => handleCheckbox(key, value, v)}
+                                    />
+                                    <Label for={`${key}-${value}`}>{value}</Label>
+                                </div>
+                            {/each}
+                        </div>
+                    {/each}
+
+                    <div class="mb-8 flex flex-row items-center justify-center">
+                        <Button class="mx-4 mt-8 w-32" variant="drezzing" onclick={() => resetOptions(optionSelector)}
+                            >Réinitialiser</Button
+                        >
+                    </div>
+                </SidePanel>
                 <p class="ml-4">{count} produit{count > 1 ? "s" : ""}</p>
             </div>
         </section>

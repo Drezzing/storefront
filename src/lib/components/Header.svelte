@@ -1,31 +1,29 @@
 <script lang="ts">
-    import drezzing from "$lib/images/drezzing.png";
-    import cart from "$lib/images/cart.svg?raw";
     import { Menu } from "lucide-svelte";
-    import SidePanel from "./SidePanel.svelte";
-    import { afterNavigate } from "$app/navigation";
-    import { Separator } from "$lib/components/ui/separator/index.js";
-    let menuOpen = false;
 
-    afterNavigate(() => {
-        menuOpen = false;
-    });
+    import SidePanel from "$lib/components/SidePanel.svelte";
+    import { Separator } from "$lib/components/ui/separator/index.js";
+    import cart from "$lib/images/cart.svg?raw";
+    import drezzing from "$lib/images/drezzing.png";
 </script>
 
 <header class="sticky z-50 mb-6 grid h-14 w-full grid-cols-3 items-center px-4 shadow lg:px-12">
-    <button on:click={() => (menuOpen = !menuOpen)} class="grow lg:hidden">
-        <Menu strokeWidth={2} size={28} class="stroke-d-darkgray" />
-    </button>
-    <SidePanel isOpen={menuOpen} onClose={() => (menuOpen = false)}>
-        <ul class="ml-4 mt-6 space-y-4 text-lg">
-            <li><a href="/">Accueil</a></li>
-            <li><a href="/collections">Collections</a></li>
-            <li><a href="/categories">Catégories</a></li>
-            <Separator class="mx-2 my-6 h-[2px] w-auto bg-[#EEEEEE] md:rounded-full" />
-            <li><a href="/about">À propos</a></li>
-            <li><a href="/contact">Contact</a></li>
-        </ul>
-    </SidePanel>
+    <div class="lg:hidden">
+        <SidePanel>
+            {#snippet trigger()}
+                <Menu strokeWidth={2} size={28} class="mt-1 stroke-d-darkgray" />
+            {/snippet}
+
+            <ul class="ml-2 mt-4 space-y-4 text-lg">
+                <li><a href="/">Accueil</a></li>
+                <li><a href="/collections">Collections</a></li>
+                <li><a href="/categories">Catégories</a></li>
+                <Separator class="my-6 mr-2 h-[2px] w-auto bg-[#EEEEEE] md:rounded-full" />
+                <li><a href="/about">À propos</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </SidePanel>
+    </div>
 
     <div class="justify-self-center lg:justify-self-start">
         <a href="/">
