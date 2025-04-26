@@ -35,9 +35,6 @@
             </Sheet.Header>
         {/if}
 
-        <!-- setting class to "app" because the side panel is not a child of the main div so it does not inherit css -->
-        <div class="app">
-            {@render children()}
-        </div>
+        {@render children()}
     </Sheet.Content>
 </Sheet.Root>
