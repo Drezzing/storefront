@@ -122,9 +122,12 @@
             <div class="flex items-center justify-between">
                 <SidePanel>
                     {#snippet trigger()}
-                        <Button class="rounded-sm bg-white px-4 py-2 text-black shadow hover:bg-white/90">
-                            <Filter strokeWidth={1} class="mr-2" /> Filtrer
-                        </Button>
+                        <div
+                            class="inline-flex items-center rounded-sm bg-white px-4 py-2 text-black shadow hover:bg-white/90"
+                        >
+                            <Filter strokeWidth={1} class="mr-2" />
+                            <p class="text-sm">Filtrer</p>
+                        </div>
                     {/snippet}
                     {#snippet title()}
                         <h2 class="mx-4 mb-6 mt-3 text-2xl font-bold">Filtrer par</h2>
