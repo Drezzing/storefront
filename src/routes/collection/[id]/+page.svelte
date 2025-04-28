@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Filter } from "lucide-svelte";
-    import { SvelteMap, SvelteSet } from "svelte/reactivity";
+    // import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
     import ProductDisplay from "$lib/components/ProductDisplay.svelte";
     import SidePanel from "$lib/components/SidePanel.svelte";
@@ -9,76 +9,13 @@
     import { Label } from "$lib/components/ui/label";
     import { Separator } from "$lib/components/ui/separator/index.js";
     import { Slider } from "$lib/components/ui/slider";
+    import { ProductFilter } from "$lib/components/ProductFilter/productFilter.svelte.js";
 
     let { data } = $props();
     const { title, thumbnail, products, description, cpv, guideTaille, allOptions } = data;
 
-    let optionSelector = new SvelteMap<string, SvelteSet<string>>();
-    for (const [key] of allOptions) {
-        optionSelector.set(key, new SvelteSet<string>());
-    }
-
-    const resetOptions = (options: SvelteMap<string, SvelteSet<string>>) => {
-        for (const [key] of options) {
-            options.get(key)?.clear();
-        }
-        priceValues = [0, 100];
-    };
-
-    const handleCheckbox = (key: string, value: string, v: boolean | "indeterminate") => {
-        if (v === "indeterminate") return;
-
-        if (v === false) {
-            optionSelector.get(key)?.delete(value);
-        } else {
-            optionSelector.get(key)?.add(value);
-        }
-    };
-
-    const filterProducts = (selectedOptions: SvelteMap<string, SvelteSet<string>>, selectedPrices: number[]) => {
-        return products.filter((product) => {
-            let keep = true;
-            for (const [key, values] of selectedOptions) {
-                // this option has no value selected, ignoring
-                if (values.size == 0) continue;
-
-                // this product does not have this option
-                if (product.options.get(key) === undefined) {
-                    keep = false;
-                    break;
-                }
-                // the requested options are not on product
-                // TODO: this set should not be re-created every time
-                if (new Set(product.options.get(key)).intersection(selectedOptions.get(key)!).size === 0) {
-                    keep = false;
-                    break;
-                }
-            }
-
-            if (keep) {
-                keep = false;
-
-                // keeping the product if one of its variant is in price range
-                const [priceMin, priceMax] = selectedPrices;
-                for (const price of product.prices) {
-                    if (price === null) continue;
-
-                    // one price is valid, we keep the product so we don't need to check the other prices
-                    const priceDec = price / 100;
-                    if (priceDec >= priceMin && priceDec <= priceMax) {
-                        keep = true;
-                        break;
-                    }
-                }
-            }
-
-            return keep;
-        });
-    };
-
-    let priceValues = $state([0, 100]);
-    let filteredProducts = $derived.by(() => filterProducts(optionSelector, priceValues));
-    let count = $derived(filteredProducts.length);
+    const filter = new ProductFilter(products, allOptions);
+    let count = $derived(filter.selectedProducts.length);
 </script>
 
 <svelte:head>
@@ -135,8 +72,8 @@
 
                     <div class="mx-4 space-y-3">
                         <h2 class="font-bold">Prix</h2>
-                        <span>{priceValues[0]}€</span> à <span>{priceValues[1]}€</span>
-                        <Slider class="mx-[8px] w-auto" bind:value={priceValues} min={0} max={100} step={5} />
+                        <span>{filter.selectedPrices[0]}€</span> à <span>{filter.selectedPrices[1]}€</span>
+                        <Slider class="mx-[8px] w-auto" bind:value={filter.selectedPrices} min={0} max={100} step={5} />
                     </div>
 
                     {#each allOptions as option (option[0])}
@@ -152,8 +89,8 @@
                                     <Checkbox
                                         id={`${key}-${value}`}
                                         class="data-[state=checked]:bg-d-darkgray"
-                                        checked={optionSelector.get(key)?.has(value) ?? false}
-                                        onCheckedChange={(v) => handleCheckbox(key, value, v)}
+                                        checked={filter.selectedOptions.get(key)?.has(value) ?? false}
+                                        onCheckedChange={(v) => filter.handleCheckbox(key, value, v)}
                                     />
                                     <Label for={`${key}-${value}`}>{value}</Label>
                                 </div>
@@ -162,7 +99,7 @@
                     {/each}
 
                     <div class="mb-8 flex flex-row items-center justify-center">
-                        <Button class="mx-4 mt-8 w-32" variant="drezzing" onclick={() => resetOptions(optionSelector)}
+                        <Button class="mx-4 mt-8 w-32" variant="drezzing" onclick={() => filter.resetOptions()}
                             >Réinitialiser</Button
                         >
                     </div>
@@ -171,6 +108,6 @@
             </div>
         </section>
 
-        <ProductDisplay elements={filteredProducts ?? products} />
+        <ProductDisplay elements={filter.selectedProducts ?? products} />
     </div>
 </div>
