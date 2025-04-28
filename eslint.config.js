@@ -28,6 +28,14 @@ export default [
         },
     },
     {
+        files: ["**/*.svelte.ts"],
+        languageOptions: {
+            parserOptions: {
+                parser: ts.parser,
+            },
+        },
+    },
+    {
         ignores: ["build/", ".svelte-kit/", "dist/", "src/lib/components/ui/"],
     },
 ];
