@@ -1,4 +1,4 @@
-import { type FilterOptions, type FilterProducts } from "$lib/components/ProductFilter/utils";
+import type { FilterOptions, FilterProducts } from "$lib/components/ProductFilter/utils";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
 export class ProductFilter {

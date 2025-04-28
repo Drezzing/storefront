@@ -1,5 +1,5 @@
-import { type MedusaProduct, type MedusaVariant } from "$lib/medusa/medusa";
-import { type FilterOptions, type FilterData } from "$lib/components/ProductFilter/utils";
+import type { MedusaProduct, MedusaVariant } from "$lib/medusa/medusa";
+import type { FilterOptions, FilterData } from "$lib/components/ProductFilter/utils";
 
 export const SIZE_MAP: Record<string, number> = {
     xs: 1,
