@@ -1,8 +1,8 @@
 import { env } from "$env/dynamic/private";
+import { getFilterData } from "$lib/medusa/product";
 import { handleError } from "$lib/error";
 import { isCollectionPrivate } from "$lib/medusa/collection";
 import { medusa } from "$lib/medusa/medusa";
-import { getProductOptions } from "$lib/medusa/product";
 import { getThumbnail } from "$lib/medusa/utils";
 
 export const prerender = false;
@@ -22,7 +22,7 @@ export const load = async ({ params }) => {
         return handleError(404, "COLLECTION_LOAD.COLLECTION_PRIVATE");
     }
 
-    const { products: medusaProduct } = await medusa.products
+    const { products } = await medusa.products
         .list({
             collection_id: [collection.id],
             region_id: env.MEDUSA_REGION_ID,
@@ -31,31 +31,9 @@ export const load = async ({ params }) => {
             return handleError(500, "COLLECTION_LOAD.PRODUCT_LIST_FAILED", { err: err.response.data });
         });
 
-    const products = medusaProduct.map((product) => {
-        return {
-            title: product.title || "placeholder",
-            handle: product.handle || "placeholder",
-            thumbnail: product.thumbnail || "placeholder",
-            options: getProductOptions(product),
-            prices: new Set(product.variants.map((variant) => variant.original_price)),
-        };
-    });
-
-    // const frontPageProduct = await medusa.products.retrieve(collection.metadata?.["front_page_product"] as string);
     const description = collection.metadata?.["description"] as string | undefined;
     const cpv = collection.metadata?.["cpv"] as string | undefined;
     const guideTaille = collection.metadata?.["guide-taille"] as string | undefined;
-
-    const allOptions = new Map<string, Set<string>>();
-    for (const product of products) {
-        for (const [key, values] of product.options) {
-            if (allOptions.has(key)) {
-                values.forEach((value) => allOptions.get(key)?.add(value));
-            } else {
-                allOptions.set(key, new Set(values));
-            }
-        }
-    }
 
     return {
         title: collection.title,
@@ -64,7 +42,6 @@ export const load = async ({ params }) => {
         description: description,
         cpv: cpv,
         guideTaille: guideTaille,
-        products: products,
-        allOptions,
+        ...getFilterData(products),
     };
 };
