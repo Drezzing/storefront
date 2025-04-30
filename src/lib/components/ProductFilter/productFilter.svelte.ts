@@ -1,19 +1,21 @@
-import type { FilterOptions, FilterProducts } from "$lib/components/ProductFilter/utils";
+import type { FilterProducts } from "$lib/components/ProductFilter/utils";
+import { SIZE_MAP } from "$lib/medusa/product";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
 export class ProductFilter {
     private products: FilterProducts;
 
-    // private productOptions: Map<string, Set<string>>;
-
+    public options = new Map<string, string[]>();
     public selectedProducts = $derived.by(() => this.filterProducts());
     public selectedOptions = new SvelteMap<string, SvelteSet<string>>();
     public selectedPrices = $state([0, 100]);
 
-    constructor(products: FilterProducts, options: FilterOptions) {
+    constructor(products: FilterProducts) {
         this.products = products;
 
-        for (const [key] of options) {
+        this.generateOptions();
+
+        for (const [key] of this.options) {
             this.selectedOptions.set(key, new SvelteSet());
         }
     }
@@ -33,6 +35,25 @@ export class ProductFilter {
             this.selectedOptions.get(key)?.clear();
         }
         this.selectedPrices = [0, 100];
+    }
+
+    private generateOptions() {
+        const allOptions = new Map<string, Set<string>>();
+        for (const product of this.products) {
+            for (const [key, values] of product.options) {
+                if (allOptions.has(key)) {
+                    values.forEach((value) => allOptions.get(key)?.add(value));
+                } else {
+                    allOptions.set(key, new Set(values));
+                }
+            }
+        }
+        for (const [key, values] of allOptions) {
+            this.options.set(key, Array.from(values));
+        }
+        if (this.options.has("Taille")) {
+            this.options.get("Taille")?.sort((a, b) => SIZE_MAP[a] - SIZE_MAP[b]);
+        }
     }
 
     private filterProducts() {

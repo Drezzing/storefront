@@ -1,5 +1,5 @@
+import type { FilterProducts } from "$lib/components/ProductFilter/utils";
 import type { MedusaProduct, MedusaVariant } from "$lib/medusa/medusa";
-import type { FilterOptions, FilterData } from "$lib/components/ProductFilter/utils";
 
 export const SIZE_MAP: Record<string, number> = {
     xs: 1,
@@ -33,24 +33,8 @@ export const getProductOptions = (product: MedusaProduct) => {
     return optionMap;
 };
 
-export const getAllOptions = (products: MedusaProduct[]): FilterOptions => {
-    const allOptions = new Map<string, Set<string>>();
-    for (const product of products) {
-        for (const [key, values] of getProductOptions(product)) {
-            if (allOptions.has(key)) {
-                values.forEach((value) => allOptions.get(key)?.add(value));
-            } else {
-                allOptions.set(key, new Set(values));
-            }
-        }
-    }
-
-    return allOptions;
-};
-
-export const getFilterData = (medusaProducts: MedusaProduct[]): FilterData => {
-    const allOptions = getAllOptions(medusaProducts);
-    const products = medusaProducts.map((product) => {
+export const getProducts = (products: MedusaProduct[]): FilterProducts => {
+    return products.map((product) => {
         const options = getProductOptions(product);
         const prices = new Set(product.variants.map((variant) => variant.original_price));
 
@@ -62,6 +46,4 @@ export const getFilterData = (medusaProducts: MedusaProduct[]): FilterData => {
             prices,
         };
     });
-
-    return { products, allOptions };
 };

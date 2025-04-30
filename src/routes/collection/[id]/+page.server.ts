@@ -1,8 +1,8 @@
 import { env } from "$env/dynamic/private";
-import { getFilterData } from "$lib/medusa/product";
 import { handleError } from "$lib/error";
 import { isCollectionPrivate } from "$lib/medusa/collection";
 import { medusa } from "$lib/medusa/medusa";
+import { getProducts } from "$lib/medusa/product";
 import { getThumbnail } from "$lib/medusa/utils";
 
 export const prerender = false;
@@ -42,6 +42,6 @@ export const load = async ({ params }) => {
         description: description,
         cpv: cpv,
         guideTaille: guideTaille,
-        ...getFilterData(products),
+        products: getProducts(products),
     };
 };

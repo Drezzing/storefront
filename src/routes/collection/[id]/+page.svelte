@@ -1,20 +1,19 @@
 <script lang="ts">
     import { Filter } from "lucide-svelte";
-    // import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
     import ProductDisplay from "$lib/components/ProductDisplay.svelte";
+    import { ProductFilter } from "$lib/components/ProductFilter/productFilter.svelte.js";
     import SidePanel from "$lib/components/SidePanel.svelte";
     import { Button } from "$lib/components/ui/button/index.js";
     import { Checkbox } from "$lib/components/ui/checkbox";
     import { Label } from "$lib/components/ui/label";
     import { Separator } from "$lib/components/ui/separator/index.js";
     import { Slider } from "$lib/components/ui/slider";
-    import { ProductFilter } from "$lib/components/ProductFilter/productFilter.svelte.js";
 
     let { data } = $props();
-    const { title, thumbnail, products, description, cpv, guideTaille, allOptions } = data;
+    const { title, thumbnail, products, description, cpv, guideTaille } = data;
 
-    const filter = new ProductFilter(products, allOptions);
+    const filter = new ProductFilter(products);
     let count = $derived(filter.selectedProducts.length);
 </script>
 
@@ -76,7 +75,7 @@
                         <Slider class="mx-[8px] w-auto" bind:value={filter.selectedPrices} min={0} max={100} step={5} />
                     </div>
 
-                    {#each allOptions as option (option[0])}
+                    {#each filter.options as option (option[0])}
                         {@const key = option[0]}
                         {@const values = option[1]}
                         <Separator class="mx-2 my-6 h-[2px] w-auto bg-[#EEEEEE] md:rounded-full" />
