@@ -1,7 +1,6 @@
 <script lang="ts">
     import ProductDisplay from "$lib/components/ProductDisplay.svelte";
-    import { ProductFilter } from "$lib/components/ProductFilter/productFilter.svelte.js";
-    import ProductFilterPanel from "$lib/components/ProductFilter/ProductFilterPanel.svelte";
+    import { ProductFilter, ProductFilterPanel } from "$lib/components/ProductFilter";
 
     let { data } = $props();
     const { title, thumbnail, products, description, cpv, guideTaille } = data;
