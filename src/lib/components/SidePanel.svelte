@@ -1,11 +1,13 @@
 <script lang="ts">
     import { type Snippet } from "svelte";
 
-    import { afterNavigate } from "$app/navigation";
+    import { beforeNavigate } from "$app/navigation";
     import * as Sheet from "$lib/components/ui/sheet";
 
-    afterNavigate(() => {
-        isOpen = false;
+    beforeNavigate((nav) => {
+        if (nav.from?.url.pathname !== nav.to?.url.pathname) {
+            isOpen = false;
+        }
     });
 
     type Props = {
