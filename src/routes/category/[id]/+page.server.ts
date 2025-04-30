@@ -1,6 +1,7 @@
-import { env } from "$env/dynamic/public";
+import { env } from "$env/dynamic/private";
 import { handleError } from "$lib/error";
 import { medusa } from "$lib/medusa/medusa";
+import { getProducts } from "$lib/medusa/product.js";
 import { getThumbnail } from "$lib/medusa/utils";
 
 export const prerender = false;
@@ -16,10 +17,10 @@ export const load = async ({ params }) => {
 
     const category = categories.product_categories[0];
 
-    const { products: medusaProduct } = await medusa.products
+    const { products } = await medusa.products
         .list({
             category_id: [category.id],
-            region_id: env.PUBLIC_REGION_ID,
+            region_id: env.MEDUSA_REGION_ID,
         })
         .catch((err) => {
             return handleError(500, "CATEGORY_LOAD.PRODUCT_LIST_FAILED", { err: err.response.data });
@@ -29,12 +30,6 @@ export const load = async ({ params }) => {
         title: category.name,
         description: category.description,
         thumbnail: await getThumbnail(category, "CATEGORY_LOAD"),
-        products: medusaProduct.map((product) => {
-            return {
-                title: product.title || "placeholder",
-                handle: product.handle || "placeholder",
-                thumbnail: product.thumbnail || "https://placehold.co/600",
-            };
-        }),
+        products: getProducts(products),
     };
 };

@@ -1,12 +1,11 @@
 <script lang="ts">
-    import { Button } from "$lib/components/ui/button/index.js";
-    import { Filter } from "lucide-svelte";
     import ProductDisplay from "$lib/components/ProductDisplay.svelte";
+    import { ProductFilter, ProductFilterPanel } from "$lib/components/ProductFilter";
 
     let { data } = $props();
     const { title, products, thumbnail, description } = data;
 
-    let count = $derived(products.length);
+    const filter = new ProductFilter(products);
 </script>
 
 <svelte:head>
@@ -39,13 +38,11 @@
 
         <section class="-mx-4 bg-[#EEEEEE] px-4 py-2">
             <div class="flex items-center justify-between">
-                <Button disabled class="rounded-sm bg-white px-4 py-2 text-black shadow hover:bg-white/90">
-                    <Filter strokeWidth={1} class="mr-2" /> Filtrer
-                </Button>
-                <p class="ml-4">{count} produit{count > 1 ? "s" : ""}</p>
+                <ProductFilterPanel {filter} />
+                <p class="ml-4">{filter.selectedCount} produit{filter.selectedCount > 1 ? "s" : ""}</p>
             </div>
         </section>
 
-        <ProductDisplay elements={products} />
+        <ProductDisplay elements={filter.selectedProducts ?? products} />
     </div>
 </div>
