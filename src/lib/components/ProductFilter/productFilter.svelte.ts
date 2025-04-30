@@ -9,6 +9,7 @@ export class ProductFilter {
     public selectedProducts = $derived.by(() => this.filterProducts());
     public selectedOptions = new SvelteMap<string, SvelteSet<string>>();
     public selectedPrices = $state([0, 100]);
+    public selectedCount = $derived(this.selectedProducts.length);
 
     constructor(products: FilterProducts) {
         this.products = products;

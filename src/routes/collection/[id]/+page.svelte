@@ -14,7 +14,6 @@
     const { title, thumbnail, products, description, cpv, guideTaille } = data;
 
     const filter = new ProductFilter(products);
-    let count = $derived(filter.selectedProducts.length);
 </script>
 
 <svelte:head>
@@ -103,7 +102,7 @@
                         >
                     </div>
                 </SidePanel>
-                <p class="ml-4">{count} produit{count > 1 ? "s" : ""}</p>
+                <p class="ml-4">{filter.selectedCount} produit{filter.selectedCount > 1 ? "s" : ""}</p>
             </div>
         </section>
 
