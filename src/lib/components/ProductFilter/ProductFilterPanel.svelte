@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Filter } from "lucide-svelte";
 
-    import { ProductFilter } from "$lib/components/ProductFilter/productFilter.svelte.js";
+    import { type FilterType, ProductFilter } from "$lib/components/ProductFilter";
     import SidePanel from "$lib/components/SidePanel.svelte";
     import { Button } from "$lib/components/ui/button/index.js";
     import { Checkbox } from "$lib/components/ui/checkbox";
@@ -9,7 +9,7 @@
     import { Separator } from "$lib/components/ui/separator/index.js";
     import { Slider } from "$lib/components/ui/slider";
 
-    let { filter }: { filter: ProductFilter } = $props();
+    let { filter, filterType }: { filter: ProductFilter; filterType: FilterType } = $props();
 </script>
 
 <SidePanel>
@@ -29,23 +29,22 @@
         <Slider class="mx-[8px] w-auto" bind:value={filter.selectedPrices} min={0} max={100} step={5} />
     </div>
 
-    {#each filter.options as option (option[0])}
-        {@const key = option[0]}
-        {@const values = option[1]}
+    {#each filter.getOptions(filterType) as option (option)}
+        {@const values = filter.getValues(option)}
         <Separator class="mx-2 my-6 h-[2px] w-auto bg-[#EEEEEE] md:rounded-full" />
 
         <div class="mx-4 space-y-3">
-            <h3 class="font-bold">{key}</h3>
+            <h3 class="font-bold">{option}</h3>
 
-            {#each values as value (value)}
+            {#each values || [] as value (value)}
                 <div class="flex items-center gap-2">
                     <Checkbox
-                        id={`${key}-${value}`}
+                        id={`${option}-${value}`}
                         class="data-[state=checked]:bg-d-darkgray"
-                        checked={filter.selectedOptions.get(key)?.has(value) ?? false}
-                        onCheckedChange={(v) => filter.handleCheckbox(key, value, v)}
+                        checked={filter.selectedOptions.get(option)?.has(value) ?? false}
+                        onCheckedChange={(v) => filter.handleCheckbox(option, value, v)}
                     />
-                    <Label for={`${key}-${value}`}>{value}</Label>
+                    <Label for={`${option}-${value}`}>{value}</Label>
                 </div>
             {/each}
         </div>

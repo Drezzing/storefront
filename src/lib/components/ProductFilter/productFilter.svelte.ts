@@ -1,12 +1,12 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
-import type { FilterProducts } from "$lib/components/ProductFilter/utils";
+import type { FilterProducts, FilterType } from "$lib/components/ProductFilter";
 import { SIZE_MAP } from "$lib/medusa/product";
 
 export class ProductFilter {
     private products: FilterProducts;
 
-    public options = new Map<string, string[]>();
+    private options = new Map<string, string[]>();
     public selectedProducts = $derived.by(() => this.filterProducts());
     public selectedOptions = new SvelteMap<string, SvelteSet<string>>();
     public selectedPrices = $state([0, 100]);
@@ -16,6 +16,9 @@ export class ProductFilter {
 
     private readonly MIN_PRICE = 0;
     private readonly MAX_PRICE = 100;
+
+    public static readonly CATEGORY_KEY = "Catégorie";
+    public static readonly COLLECTION_KEY = "Collection";
 
     constructor(products: FilterProducts, searchParams?: URLSearchParams) {
         this.products = products;
@@ -41,6 +44,21 @@ export class ProductFilter {
         }
     }
 
+    public getOptions(type: FilterType) {
+        let keys = Array.from(this.options.keys());
+        if (type === "collection") {
+            keys = keys.filter((key) => key !== ProductFilter.COLLECTION_KEY);
+        } else if (type === "category") {
+            keys = keys.filter((key) => key !== ProductFilter.CATEGORY_KEY);
+        }
+
+        return keys.sort();
+    }
+
+    public getValues(key: string) {
+        return this.options.get(key);
+    }
+
     public resetOptions() {
         for (const [key] of this.selectedOptions) {
             this.selectedOptions.get(key)?.clear();
@@ -59,6 +77,7 @@ export class ProductFilter {
                 }
             }
         }
+        console.log(allOptions);
         for (const [key, values] of allOptions) {
             this.options.set(key, Array.from(values));
         }

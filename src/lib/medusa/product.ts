@@ -1,4 +1,4 @@
-import type { FilterProducts } from "$lib/components/ProductFilter/utils";
+import { ProductFilter, type FilterProducts } from "$lib/components/ProductFilter";
 import type { MedusaProduct, MedusaVariant } from "$lib/medusa/medusa";
 
 export const SIZE_MAP: Record<string, number> = {
@@ -37,6 +37,17 @@ export const getProducts = (products: MedusaProduct[]): FilterProducts => {
     return products.map((product) => {
         const options = getProductOptions(product);
         const prices = new Set(product.variants.map((variant) => variant.original_price));
+
+        const category = product.type?.value || null; // category not expanded by default by medusa, so using product type
+        const collection = product.collection?.title || null;
+
+        if (category) {
+            options.set(ProductFilter.CATEGORY_KEY, [category]);
+        }
+
+        if (collection) {
+            options.set(ProductFilter.COLLECTION_KEY, [collection]);
+        }
 
         return {
             title: product.title!,
