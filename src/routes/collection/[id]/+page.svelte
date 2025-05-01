@@ -1,11 +1,16 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
+    import { page } from "$app/state";
     import ProductDisplay from "$lib/components/ProductDisplay.svelte";
     import { ProductFilter, ProductFilterPanel } from "$lib/components/ProductFilter";
 
     let { data } = $props();
     const { title, thumbnail, products, description, cpv, guideTaille } = data;
 
-    const filter = new ProductFilter(products);
+    const filter = new ProductFilter(products, page.url.searchParams);
+    $effect(() => {
+        goto("?" + filter.urlSeachParams, { replaceState: true });
+    });
 </script>
 
 <svelte:head>

@@ -1,6 +1,7 @@
+import { SvelteMap, SvelteSet } from "svelte/reactivity";
+
 import type { FilterProducts } from "$lib/components/ProductFilter/utils";
 import { SIZE_MAP } from "$lib/medusa/product";
-import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
 export class ProductFilter {
     private products: FilterProducts;
@@ -11,13 +12,22 @@ export class ProductFilter {
     public selectedPrices = $state([0, 100]);
     public selectedCount = $derived(this.selectedProducts.length);
 
-    constructor(products: FilterProducts) {
+    public urlSeachParams = $derived(this.serializeFilter());
+
+    private readonly MIN_PRICE = 0;
+    private readonly MAX_PRICE = 100;
+
+    constructor(products: FilterProducts, searchParams?: URLSearchParams) {
         this.products = products;
 
         this.generateOptions();
 
         for (const [key] of this.options) {
             this.selectedOptions.set(key, new SvelteSet());
+        }
+
+        if (searchParams) {
+            this.deserializeFilter(searchParams);
         }
     }
 
@@ -35,7 +45,7 @@ export class ProductFilter {
         for (const [key] of this.selectedOptions) {
             this.selectedOptions.get(key)?.clear();
         }
-        this.selectedPrices = [0, 100];
+        this.selectedPrices = [this.MIN_PRICE, this.MAX_PRICE];
     }
 
     private generateOptions() {
@@ -96,5 +106,62 @@ export class ProductFilter {
 
             return keep;
         });
+    }
+
+    private serializeFilter() {
+        const searchParams = new URLSearchParams();
+        for (const [key, values] of this.selectedOptions) {
+            for (const value of values) {
+                searchParams.append(key, value);
+            }
+        }
+        if (this.selectedPrices[0] !== this.MIN_PRICE) {
+            searchParams.set("priceMin", this.selectedPrices[0].toString());
+        }
+        if (this.selectedPrices[1] !== this.MAX_PRICE) {
+            searchParams.set("priceMax", this.selectedPrices[1].toString());
+        }
+
+        return searchParams.toString();
+    }
+
+    private deserializeFilter(searchParams: URLSearchParams) {
+        const parseNumber = (value: string): { data: null; success: false } | { data: number; success: true } => {
+            const isValid = RegExp(/^\d+$/).test(value);
+            if (!isValid) {
+                return { data: null, success: false };
+            }
+
+            const number = parseInt(value, 10);
+            if (number < this.MIN_PRICE) {
+                return { data: null, success: false };
+            }
+            if (number > this.MAX_PRICE) {
+                return { data: null, success: false };
+            }
+            return { data: number, success: true };
+        };
+
+        for (const [key, value] of searchParams.entries()) {
+            if (key === "priceMin") {
+                const { data, success } = parseNumber(value);
+                if (!success) {
+                    console.error("priceMax must be a number greater than or equal to", this.MIN_PRICE);
+                }
+                this.selectedPrices[0] = success ? data : this.MIN_PRICE;
+            } else if (key === "priceMax") {
+                const { data, success } = parseNumber(value);
+                if (!success) {
+                    console.error("priceMax must be a number less than or equal to", this.MAX_PRICE);
+                }
+                this.selectedPrices[1] = success ? data : this.MAX_PRICE;
+            } else {
+                if (this.options.get(key)?.includes(value)) {
+                    this.selectedOptions.get(key)?.add(value);
+                } else {
+                    console.error(`Key "${key}" with value "${value}" is not valid and will be ignored`);
+                }
+            }
+        }
     }
 }
