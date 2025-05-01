@@ -13,7 +13,7 @@ export class ProductFilter {
     public selectedPrices = $state([0, 100]);
     public selectedCount = $derived(this.selectedProducts.length);
 
-    public urlSeachParams = $derived(this.serializeFilter());
+    public urlSearchParams = $derived(this.serializeFilter());
 
     private readonly MIN_PRICE = 0;
     private readonly MAX_PRICE = 100;
@@ -80,7 +80,6 @@ export class ProductFilter {
                 this.productsOptions.get(product.handle)?.set(key, new Set(values));
             }
         }
-        console.log(allOptions);
         for (const [key, values] of allOptions) {
             this.options.set(key, Array.from(values));
         }
@@ -173,7 +172,7 @@ export class ProductFilter {
             if (key === "priceMin") {
                 const { data, success } = parseNumber(value);
                 if (!success) {
-                    console.error("priceMax must be a number greater than or equal to", this.MIN_PRICE);
+                    console.error("priceMin must be a number greater than or equal to", this.MIN_PRICE);
                 }
                 this.selectedPrices[0] = success ? data : this.MIN_PRICE;
             } else if (key === "priceMax") {

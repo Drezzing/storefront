@@ -9,7 +9,7 @@
 
     const filter = new ProductFilter(products, page.url.searchParams);
     $effect(() => {
-        goto("?" + filter.urlSeachParams, { replaceState: true });
+        goto("?" + filter.urlSearchParams, { replaceState: true });
     });
 </script>
 
