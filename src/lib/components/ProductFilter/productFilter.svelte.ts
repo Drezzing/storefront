@@ -5,6 +5,7 @@ import { SIZE_MAP } from "$lib/medusa/product";
 
 export class ProductFilter {
     private products: FilterProducts;
+    private productsOptions = new Map<string, Map<string, Set<string>>>();
 
     private options = new Map<string, string[]>();
     public selectedProducts = $derived.by(() => this.filterProducts());
@@ -69,12 +70,14 @@ export class ProductFilter {
     private generateOptions() {
         const allOptions = new Map<string, Set<string>>();
         for (const product of this.products) {
+            this.productsOptions.set(product.handle, new Map());
             for (const [key, values] of product.options) {
                 if (allOptions.has(key)) {
                     values.forEach((value) => allOptions.get(key)?.add(value));
                 } else {
                     allOptions.set(key, new Set(values));
                 }
+                this.productsOptions.get(product.handle)?.set(key, new Set(values));
             }
         }
         console.log(allOptions);
@@ -89,18 +92,23 @@ export class ProductFilter {
     private filterProducts() {
         return this.products.filter((product) => {
             let keep = true;
+            const productOptions = this.productsOptions.get(product.handle);
             for (const [key, values] of this.selectedOptions) {
                 // this option has no value selected, ignoring
                 if (values.size == 0) continue;
 
+                // this product does not have any options
+                if (productOptions === undefined || productOptions.size === 0) {
+                    keep = false;
+                    break;
+                }
                 // this product does not have this option
-                if (product.options.get(key) === undefined) {
+                if (productOptions.get(key) === undefined || productOptions.get(key)!.size === 0) {
                     keep = false;
                     break;
                 }
                 // the requested options are not on product
-                // TODO: this set should not be re-created every time
-                if (new Set(product.options.get(key)).intersection(this.selectedOptions.get(key)!).size === 0) {
+                if (productOptions.get(key)!.intersection(this.selectedOptions.get(key)!).size === 0) {
                     keep = false;
                     break;
                 }
