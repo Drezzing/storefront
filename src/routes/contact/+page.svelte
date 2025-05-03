@@ -150,12 +150,9 @@
             <Form.FieldErrors />
         </Form.Field>
 
-        <!-- <button type="submit">Envoyer</button> -->
-
         <div class="flex justify-center">
             <SubmitFormButton buttonState={submitState}>
                 {#if submitState == ButtonState.Idle}
-                    <!-- <ChevronRight strokeWidth={1.5} /> -->
                     <Send class="mr-2" /> Envoyer
                 {:else if submitState == ButtonState.Updating}
                     <LoaderCircle class="animate-spin"></LoaderCircle>
@@ -167,57 +164,4 @@
             </SubmitFormButton>
         </div>
     </form>
-
-    <!-- <section class="space-y-4">
-        <div class="space-y-1">
-            <Label for="email">Adresse mail</Label>
-            <Input
-                type="email"
-                id="email"
-                placeholder="nom.prenom@mail.fr"
-                bind:value={email}
-                class="ring-offset-0 focus-visible:ring-1 focus-visible:ring-d-darkgray focus-visible:ring-offset-0"
-            />
-        </div>
-
-        <div class="space-y-1">
-            <Label for="object">Objet</Label>
-            <Select.Root
-                onSelectedChange={(v) => {
-                    if (v && v.value) subject = v.value as string;
-                }}
-                selected={{ value: subject }}
-            >
-                <Select.Trigger
-                    id="object"
-                    class="ring-offset-0 focus-visible:ring-1 focus-visible:ring-d-darkgray focus-visible:ring-offset-0"
-                >
-                    <Select.Value placeholder="Objet" />
-                </Select.Trigger>
-                <Select.Content>
-                    <Select.Item value="Livraison" label="Livraison">Livraison</Select.Item>
-                    <Select.Item value="Paiement" label="Paiement">Paiement</Select.Item>
-                    <Select.Item value="Autre" label="Autre">Autre</Select.Item>
-                </Select.Content>
-            </Select.Root>
-        </div>
-
-        <div class="space-y-1">
-            <Label for="message">Message</Label>
-            <Textarea
-                id="content"
-                bind:value={content as string | null}
-                cols={30}
-                rows={10}
-                placeholder="Rédigez votre message"
-                class="ring-offset-0 focus-visible:ring-1 focus-visible:ring-d-darkgray focus-visible:ring-offset-0"
-            />
-        </div>
-    </section>
-
-    <div class="flex justify-center">
-        <Button variant="drezzing" onclick={sendMessage} class="flex gap-4 px-8 py-2">
-            <Send class="mr-2" /> Envoyer
-        </Button>
-    </div> -->
 </div>
