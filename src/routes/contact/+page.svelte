@@ -1,51 +1,66 @@
 <script lang="ts">
-    import * as Select from "$lib/components/ui/select";
-    import { Button } from "$lib/components/ui/button/index.js";
-    import { Input } from "$lib/components/ui/input";
-    import { Label } from "$lib/components/ui/label";
-    import { Textarea } from "$lib/components/ui/textarea";
-
-    import { Send } from "lucide-svelte";
-    import { clientRequest, displayClientError } from "$lib/error";
-
-    import { contactObject } from "$lib/contact";
+    import { Check, LoaderCircle, Send, X } from "lucide-svelte";
     import { toast } from "svelte-sonner";
+    import { superForm } from "sveltekit-superforms";
+    import { zodClient } from "sveltekit-superforms/adapters";
 
-    let email = $state("");
-    let subject = $state("");
-    let content = $state("");
+    import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
+    import { ButtonState } from "$lib/components/StateButton/stateButton";
+    import * as Form from "$lib/components/ui/form/index.js";
+    import { Input } from "$lib/components/ui/input";
+    import * as Select from "$lib/components/ui/select";
+    import { Textarea } from "$lib/components/ui/textarea";
+    import { contactFormSchema, contactSubjects } from "$lib/contact/schema";
 
-    const fieldMap: Record<string, string> = {
-        email: "Adresse mail",
-        subject: "Objet",
-        content: "Message",
-    };
+    const { data } = $props();
+    const { contactForm } = data;
 
-    const sendMessage = async () => {
-        const contactObjectValid = contactObject.safeParse({ email, subject, content });
+    let submitState = $state(ButtonState.Idle);
+    // dirty workaround to force remount select field to reset it to placeholder
+    let forceRemount = $state(true);
 
-        if (!contactObjectValid.success) {
-            const errorFields = contactObjectValid.error.errors.map((err) => fieldMap[err.path[0]]);
-            return toast.error("Champ(s) invalide(s) : " + errorFields.join(", "));
-        }
+    const form = superForm(contactForm, {
+        validators: zodClient(contactFormSchema),
+        onSubmit() {
+            submitState = ButtonState.Updating;
+        },
+        onUpdated({ form }) {
+            if (!form.valid) {
+                submitState = ButtonState.Fail;
+                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+            } else {
+                submitState = ButtonState.Success;
+                // @ts-expect-error undefined to force placeholder
+                $formData.subject = undefined;
+                forceRemount = false;
+                setTimeout(() => (forceRemount = true), 0);
+                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+            }
+        },
+        onError({ result }) {
+            const message = result.error.message || "Erreur inconnue";
+            toast.error("Une erreur est survenue", {
+                description: "Code erreur : " + message,
+            });
 
-        const response = await clientRequest("CONTACT_POST", "/api/contact", {
-            method: "POST",
-            body: JSON.stringify(contactObjectValid.data),
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+            submitState = ButtonState.Fail;
+            setTimeout(() => (submitState = ButtonState.Idle), 2500);
+        },
+    });
 
-        if (!response.success) {
-            displayClientError(response);
-        } else {
-            toast.success("Votre message a bien été transmis.");
-            email = "";
-            subject = "";
-            content = "";
-        }
-    };
+    const { form: formData, enhance } = form;
+
+    // @ts-expect-error undefined to force placeholder
+    $formData.subject = undefined;
+
+    let selected = $derived(
+        $formData.subject
+            ? {
+                  value: $formData.subject,
+                  label: $formData.subject,
+              }
+            : undefined,
+    );
 </script>
 
 <svelte:head>
@@ -64,7 +79,96 @@
 <div class="max-w-[1024px] space-y-4 px-4 md:px-8 lg:m-auto">
     <h1 class="text-center text-3xl font-bold">Contact</h1>
 
-    <section class="space-y-4">
+    <form id="info" method="POST" class="space-y-4" use:enhance>
+        <Form.Field {form} name="email">
+            <Form.Control>
+                {#snippet children({ attrs }: { attrs: object })}
+                    <Form.Label>Adresse mail</Form.Label>
+                    <Input {...attrs} bind:value={$formData.email} placeholder="mon.address@domain.ext" />
+                {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+        </Form.Field>
+        {#if forceRemount}
+            <Form.Field {form} name="subject">
+                <Form.Control let:attrs>
+                    <Form.Label>Objet</Form.Label>
+                    <Select.Root
+                        {selected}
+                        onSelectedChange={(v) => {
+                            if (v) {
+                                $formData.subject = v.value as (typeof contactSubjects)[number];
+                            }
+                        }}
+                    >
+                        <Select.Trigger
+                            {...attrs}
+                            class="ring-offset-0 focus-visible:ring-2 focus-visible:ring-d-darkgray focus-visible:ring-offset-0 data-[escapee]:ring-2 data-[escapee]:ring-d-darkgray"
+                        >
+                            <Select.Value placeholder="Mode de livraison" />
+                        </Select.Trigger>
+                        <Select.Content>
+                            {#each contactSubjects as subject (subject)}
+                                <Select.Item value={subject} label={subject} />
+                            {/each}
+                        </Select.Content>
+                    </Select.Root>
+                    <input hidden bind:value={$formData.subject} name={attrs.name} />
+                </Form.Control>
+                <Form.FieldErrors />
+            </Form.Field>
+        {:else}
+            <!-- dummy component to prevent layout shift when remounting -->
+            <Form.Field {form} name="subject">
+                <Form.Control let:attrs>
+                    <Form.Label>Objet</Form.Label>
+                    <Select.Root>
+                        <Select.Trigger {...attrs} class="data-[escapee]:ring-2 ">
+                            <Select.Value placeholder="Mode de livraison" />
+                        </Select.Trigger>
+                        <Select.Content></Select.Content>
+                    </Select.Root>
+                </Form.Control>
+                <Form.FieldErrors />
+            </Form.Field>
+        {/if}
+
+        <Form.Field {form} name="content">
+            <Form.Control>
+                {#snippet children({ attrs }: { attrs: object })}
+                    <Form.Label>Message</Form.Label>
+                    <Textarea
+                        {...attrs}
+                        bind:value={$formData.content}
+                        cols={30}
+                        rows={10}
+                        placeholder="Rédigez votre message"
+                        class="ring-offset-0 focus-visible:ring-d-darkgray focus-visible:ring-offset-0"
+                    />
+                {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+        </Form.Field>
+
+        <!-- <button type="submit">Envoyer</button> -->
+
+        <div class="flex justify-center">
+            <SubmitFormButton buttonState={submitState}>
+                {#if submitState == ButtonState.Idle}
+                    <!-- <ChevronRight strokeWidth={1.5} /> -->
+                    <Send class="mr-2" /> Envoyer
+                {:else if submitState == ButtonState.Updating}
+                    <LoaderCircle class="animate-spin"></LoaderCircle>
+                {:else if submitState == ButtonState.Success}
+                    <Check /> Message envoyé
+                {:else if submitState == ButtonState.Fail}
+                    <X />
+                {/if}
+            </SubmitFormButton>
+        </div>
+    </form>
+
+    <!-- <section class="space-y-4">
         <div class="space-y-1">
             <Label for="email">Adresse mail</Label>
             <Input
@@ -115,5 +219,5 @@
         <Button variant="drezzing" onclick={sendMessage} class="flex gap-4 px-8 py-2">
             <Send class="mr-2" /> Envoyer
         </Button>
-    </div>
+    </div> -->
 </div>
