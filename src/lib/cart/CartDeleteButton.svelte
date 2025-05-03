@@ -2,7 +2,7 @@
     import Button from "$lib/components/ui/button/button.svelte";
     import trash from "$lib/images/trash.svg?raw";
 
-    import { LoaderCircle } from "lucide-svelte";
+    import LoaderCircle from "@lucide/svelte/icons/loader-circle";
     import type { MouseEventHandler } from "svelte/elements";
 
     let { onclick }: { onclick: MouseEventHandler<HTMLButtonElement> } = $props();

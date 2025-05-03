@@ -1,8 +1,6 @@
 <script lang="ts">
     import Discord from "$lib/images/discord.svg?raw";
     import Instagram from "$lib/images/instagram.svg?raw";
-
-    // import { Mail } from "lucide-svelte";
 </script>
 
 <footer class="mt-6 flex w-full flex-col items-center gap-8 bg-dblack py-6 text-white lg:gap-16 lg:py-12">

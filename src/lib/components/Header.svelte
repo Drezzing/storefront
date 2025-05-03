@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Menu } from "lucide-svelte";
+    import Menu from "@lucide/svelte/icons/menu";
 
     import SidePanel from "$lib/components/SidePanel.svelte";
     import { Separator } from "$lib/components/ui/separator/index.js";
