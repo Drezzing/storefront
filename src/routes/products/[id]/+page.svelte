@@ -1,17 +1,16 @@
 <script lang="ts">
+    import ShoppingBag from "@lucide/svelte/icons/shopping-bag";
     import { error } from "@sveltejs/kit";
-    import { ShoppingBag } from "lucide-svelte";
 
-    import * as Carousel from "$lib/components/ui/carousel/index.js";
-    import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
-    import { Separator } from "$lib/components/ui/separator";
-
-    import { SIZE_MAP } from "$lib/medusa/product";
     import OptionPicker from "$lib/components/OptionPicker.svelte";
     import QuantitySelector from "$lib/components/QuantitySelector.svelte";
     import StateButton from "$lib/components/StateButton/StateButton.svelte";
     import { ButtonState, type StateButtonContent } from "$lib/components/StateButton/stateButton.js";
+    import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
+    import * as Carousel from "$lib/components/ui/carousel/index.js";
+    import { Separator } from "$lib/components/ui/separator";
     import { clientRequest, displayClientError } from "$lib/error.js";
+    import { SIZE_MAP } from "$lib/medusa/product";
 
     let { data } = $props();
     const { title, description, thumbnail, commonImages, collection, options, variants } = data;

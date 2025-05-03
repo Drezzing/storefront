@@ -1,7 +1,10 @@
 <script lang="ts">
-    import { onMount, onDestroy } from "svelte";
+    import Check from "@lucide/svelte/icons/check";
+    import LoaderCircle from "@lucide/svelte/icons/loader-circle";
+    import X from "@lucide/svelte/icons/x";
+    import { onDestroy, onMount } from "svelte";
+
     import { type NotificationStatus } from "$lib/checkout/notification.js";
-    import { LoaderCircle, Check, X } from "lucide-svelte";
 
     let { data } = $props();
     let { subscriberKey, currentStatus } = $state(data);

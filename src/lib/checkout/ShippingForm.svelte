@@ -1,5 +1,8 @@
 <script lang="ts">
-    import { Check, ChevronRight, LoaderCircle, X } from "lucide-svelte";
+    import Check from "@lucide/svelte/icons/check";
+    import ChevronRight from "@lucide/svelte/icons/chevron-right";
+    import LoaderCircle from "@lucide/svelte/icons/loader-circle";
+    import X from "@lucide/svelte/icons/x";
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import { fly } from "svelte/transition";

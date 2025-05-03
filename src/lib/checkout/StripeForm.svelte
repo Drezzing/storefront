@@ -1,6 +1,7 @@
 <script lang="ts">
+    import LoaderCircle from "@lucide/svelte/icons/loader-circle";
+    import X from "@lucide/svelte/icons/x";
     import { type PaymentIntent, type Stripe, type StripeElements } from "@stripe/stripe-js";
-    import { LoaderCircle, X } from "lucide-svelte";
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import { Address, Elements, PaymentElement } from "svelte-stripe";

@@ -1,5 +1,8 @@
 <script lang="ts">
-    import { Check, LoaderCircle, Send, X } from "lucide-svelte";
+    import Check from "@lucide/svelte/icons/check";
+    import LoaderCircle from "@lucide/svelte/icons/loader-circle";
+    import Send from "@lucide/svelte/icons/send-horizontal";
+    import X from "@lucide/svelte/icons/x";
     import { toast } from "svelte-sonner";
     import { superForm } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";

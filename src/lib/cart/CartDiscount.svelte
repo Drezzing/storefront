@@ -1,7 +1,11 @@
 <script lang="ts">
     let { total = $bindable(), discount = $bindable() }: { total: number; discount: DiscountType | null } = $props();
 
-    import { Check, LoaderCircle, SendHorizontal, Tag, X } from "lucide-svelte";
+    import Check from "@lucide/svelte/icons/check";
+    import LoaderCircle from "@lucide/svelte/icons/loader-circle";
+    import SendHorizontal from "@lucide/svelte/icons/send-horizontal";
+    import Tag from "@lucide/svelte/icons/tag";
+    import X from "@lucide/svelte/icons/x";
 
     import CartDeleteButton from "$lib/cart/CartDeleteButton.svelte";
     import StateButton from "$lib/components/StateButton/StateButton.svelte";
