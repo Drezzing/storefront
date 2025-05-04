@@ -1,13 +1,15 @@
 <script lang="ts">
     import Filter from "@lucide/svelte/icons/filter";
 
-    import { type FilterType, ProductFilter } from "$lib/components/ProductFilter";
     import SidePanel from "$lib/components/SidePanel.svelte";
     import { Button } from "$lib/components/ui/button/index.js";
     import { Checkbox } from "$lib/components/ui/checkbox";
     import { Label } from "$lib/components/ui/label";
     import { Separator } from "$lib/components/ui/separator/index.js";
     import { Slider } from "$lib/components/ui/slider";
+
+    import { ProductFilter } from "./productFilter.svelte";
+    import type { FilterType } from "./utils";
 
     let { filter, filterType }: { filter: ProductFilter; filterType: FilterType } = $props();
 </script>
