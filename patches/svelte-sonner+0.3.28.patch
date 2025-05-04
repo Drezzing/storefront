@@ -1,0 +1,90 @@
+diff --git a/node_modules/svelte-sonner/dist/Toaster.svelte b/node_modules/svelte-sonner/dist/Toaster.svelte
+index 5d6bd3e..39d29d2 100644
+--- a/node_modules/svelte-sonner/dist/Toaster.svelte
++++ b/node_modules/svelte-sonner/dist/Toaster.svelte
+@@ -733,9 +733,9 @@ function handleFocus(event) {
+ 	}
+ 
+ 	:global([data-rich-colors='true']) :global([data-sonner-toast][data-type='success']) {
+-		background: var(--success-bg);
+-		border-color: var(--success-border);
+-		color: var(--success-text);
++		background: var(--success-bg) !important;
++		border-color: var(--success-border) !important;
++		color: var(--success-text) !important;
+ 	}
+ 
+ 	:global([data-theme='dark']
+@@ -749,51 +749,51 @@ function handleFocus(event) {
+ 	:global([data-rich-colors='true']
+ 		[data-sonner-toast][data-type='success']
+ 		[data-close-button]) {
+-		background: var(--success-bg);
+-		border-color: var(--success-border);
+-		color: var(--success-text);
++		background: var(--success-bg) !important;
++		border-color: var(--success-border) !important;
++		color: var(--success-text) !important;
+ 	}
+ 
+ 	:global([data-rich-colors='true']) :global([data-sonner-toast][data-type='info']) {
+-		background: var(--info-bg);
+-		border-color: var(--info-border);
+-		color: var(--info-text);
++		background: var(--info-bg) !important;
++		border-color: var(--info-border) !important;
++		color: var(--info-text) !important;
+ 	}
+ 
+ 	:global([data-rich-colors='true']
+ 		[data-sonner-toast][data-type='info']
+ 		[data-close-button]) {
+-		background: var(--info-bg);
+-		border-color: var(--info-border);
+-		color: var(--info-text);
++		background: var(--info-bg) !important;
++		border-color: var(--info-border) !important;
++		color: var(--info-text) !important;
+ 	}
+ 
+ 	:global([data-rich-colors='true']) :global([data-sonner-toast][data-type='warning']) {
+-		background: var(--warning-bg);
+-		border-color: var(--warning-border);
+-		color: var(--warning-text);
++		background: var(--warning-bg) !important;
++		border-color: var(--warning-border) !important;
++		color: var(--warning-text) !important;
+ 	}
+ 
+ 	:global([data-rich-colors='true']
+ 		[data-sonner-toast][data-type='warning']
+ 		[data-close-button]) {
+-		background: var(--warning-bg);
+-		border-color: var(--warning-border);
+-		color: var(--warning-text);
++		background: var(--warning-bg) !important;
++		border-color: var(--warning-border) !important;
++		color: var(--warning-text) !important;
+ 	}
+ 
+ 	:global([data-rich-colors='true']) :global([data-sonner-toast][data-type='error']) {
+-		background: var(--error-bg);
+-		border-color: var(--error-border);
+-		color: var(--error-text);
++		background: var(--error-bg) !important;
++		border-color: var(--error-border) !important;
++		color: var(--error-text) !important;
+ 	}
+ 
+ 	:global([data-rich-colors='true']
+ 		[data-sonner-toast][data-type='error']
+ 		[data-close-button]) {
+-		background: var(--error-bg);
+-		border-color: var(--error-border);
+-		color: var(--error-text);
++		background: var(--error-bg) !important;
++		border-color: var(--error-border) !important;
++		color: var(--error-text) !important;
+ 	}
+ 
+ 	:global(.sonner-loading-wrapper) {
