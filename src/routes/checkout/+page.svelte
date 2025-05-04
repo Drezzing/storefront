@@ -91,7 +91,7 @@
                 </Accordion.Root>
             </div>
 
-            <div class="w-full rounded md:sticky md:top-4 md:w-[min(24rem,40vw)] lg:w-96">
+            <div class="w-full rounded md:sticky md:top-[72px] md:w-[min(24rem,40vw)] lg:w-96">
                 <h2 class="text-xl font-semibold">Votre commande</h2>
                 <div class="grid grid-cols-2">
                     <p class="mt-2 text-black/75">Commande</p>
