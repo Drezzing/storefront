@@ -1,7 +1,8 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
-import type { FilterProducts, FilterType } from "$lib/components/ProductFilter";
 import { SIZE_MAP } from "$lib/medusa/product";
+
+import type { FilterProducts, FilterType } from "./utils";
 
 export class ProductFilter {
     private products: FilterProducts;

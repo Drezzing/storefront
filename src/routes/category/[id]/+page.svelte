@@ -2,7 +2,8 @@
     import { goto } from "$app/navigation";
     import { page } from "$app/state";
     import ProductDisplay from "$lib/components/ProductDisplay.svelte";
-    import { ProductFilter, ProductFilterPanel } from "$lib/components/ProductFilter";
+    import { ProductFilter } from "$lib/components/ProductFilter/productFilter.svelte.js";
+    import ProductFilterPanel from "$lib/components/ProductFilter/ProductFilterPanel.svelte";
 
     let { data } = $props();
     const { title, products, thumbnail, description } = data;

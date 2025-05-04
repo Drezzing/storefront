@@ -1,4 +1,5 @@
-import { ProductFilter, type FilterProducts } from "$lib/components/ProductFilter";
+import { ProductFilter } from "$lib/components/ProductFilter/productFilter.svelte";
+import type { FilterProducts } from "$lib/components/ProductFilter/utils";
 import type { MedusaProduct, MedusaVariant } from "$lib/medusa/medusa";
 
 export const SIZE_MAP: Record<string, number> = {
