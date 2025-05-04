@@ -7,7 +7,7 @@
     import drezzing from "$lib/images/drezzing.png";
 </script>
 
-<header class="sticky top-0 bg-white z-50 mb-6 grid h-14 w-full grid-cols-3 items-center px-4 shadow lg:px-12">
+<header class="sticky top-0 z-50 mb-6 grid h-14 w-full grid-cols-3 items-center bg-white px-4 shadow lg:px-12">
     <div class="lg:hidden">
         <SidePanel>
             {#snippet trigger()}
