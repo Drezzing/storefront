@@ -2,11 +2,11 @@ import { fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 
-import { env } from "$env/dynamic/public";
 import { shippingFormSchema, userInfoFormSchema } from "$lib/checkout/formSchema";
+import env from "$lib/env/public";
 import { handleError } from "$lib/error.js";
-import { checkCartExists, medusa } from "$lib/medusa/medusa.js";
 import { getPriceDetails, type CheckoutData } from "$lib/medusa/checkout.js";
+import { checkCartExists, medusa } from "$lib/medusa/medusa.js";
 
 export const prerender = false;
 
@@ -44,7 +44,7 @@ export const load = async ({ cookies }) => {
         shippingForm: await superValidate(zod(shippingFormSchema), {
             id: "shipping",
             defaults: {
-                method: env.PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID,
+                method: env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"),
                 address: undefined,
                 complement: undefined,
                 city: undefined,
@@ -117,7 +117,7 @@ export const actions = {
             }),
         ];
 
-        if (form.data.method !== env.PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID) {
+        if (form.data.method !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID")) {
             // const country_code = cartInfo.cart.region.countries.find(
             //     (country) => country.name === form.data.country?.toUpperCase(),
             // );

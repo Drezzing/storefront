@@ -9,13 +9,13 @@
     import { type Infer, superForm, type SuperValidated } from "sveltekit-superforms";
     import { zodClient } from "sveltekit-superforms/adapters";
 
-    import { env } from "$env/dynamic/public";
     import { shippingFormSchema, type ShippingFormSchema } from "$lib/checkout/formSchema";
     import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
     import { ButtonState } from "$lib/components/StateButton/stateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
     import * as Select from "$lib/components/ui/select";
+    import env from "$lib/env/public";
     import type { ShippingOption } from "$lib/medusa/shipping";
     import { cn } from "$lib/utils";
 
@@ -64,7 +64,7 @@
         return { value: option.id, label: option.name };
     });
 
-    const shippingFormOpen = $derived(selected && selected.value !== env.PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID);
+    const shippingFormOpen = $derived(selected && selected.value !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"));
 
     onMount(() => {
         const select: HTMLButtonElement | null = document.querySelector("form[id='shipping'] > * > button");

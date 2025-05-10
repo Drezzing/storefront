@@ -1,13 +1,13 @@
 import { type PaymentIntent } from "@stripe/stripe-js";
 import { json } from "@sveltejs/kit";
 
+import { confirmationTokenData } from "$lib/checkout/formSchema.js";
+import { PaymentNotification } from "$lib/checkout/notification.js";
+import env from "$lib/env/public";
 import { handleError } from "$lib/error";
 import { checkCartExists, medusa } from "$lib/medusa/medusa";
 import { isVariantSoldout } from "$lib/medusa/product";
 import { stripe } from "$lib/payment/stripe.js";
-import { confirmationTokenData } from "$lib/checkout/formSchema.js";
-import { env } from "$env/dynamic/public";
-import { PaymentNotification } from "$lib/checkout/notification.js";
 
 /**
  * POST /api/checkout
@@ -50,7 +50,7 @@ export const POST = async ({ cookies, request }) => {
     const returnUrl = `/cart/complete?subscriber_key=${subcriberKey}`;
 
     const stripeConfirm = await stripe.paymentIntents.confirm(paymentId, {
-        return_url: env.PUBLIC_BASE_URL + returnUrl,
+        return_url: env.get("PUBLIC_BASE_URL") + returnUrl,
         confirmation_token: confirmationTokenValid.data.confirmationToken,
     });
 

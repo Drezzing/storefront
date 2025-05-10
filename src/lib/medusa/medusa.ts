@@ -1,12 +1,12 @@
-import { env } from "$env/dynamic/private";
+import env from "$lib/env/private";
 import type {
     AdminDiscountsRes,
     StoreCartsRes,
     StoreCollectionsRes,
+    StoreGetProductCategoriesCategoryRes,
     StoreOrdersRes,
     StoreProductsRes,
     StoreVariantsRes,
-    StoreGetProductCategoriesCategoryRes,
 } from "@medusajs/medusa";
 import Medusa from "@medusajs/medusa-js";
 
@@ -15,10 +15,10 @@ type EntityExist<K extends string, V> =
     | ({ [P in K]: null } & { err: Record<string, unknown> });
 
 export const medusa = new Medusa({
-    baseUrl: env.MEDUSA_BACKEND_URL,
+    baseUrl: env.get("MEDUSA_BACKEND_URL"),
     maxRetries: 3,
-    publishableApiKey: env.MEDUSA_PKEY,
-    apiKey: env.MEDUSA_API_TOKEN,
+    publishableApiKey: env.get("MEDUSA_PKEY"),
+    apiKey: env.get("MEDUSA_API_TOKEN"),
 });
 
 export type MedusaOrder = StoreOrdersRes["order"];

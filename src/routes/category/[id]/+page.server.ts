@@ -1,4 +1,4 @@
-import { env } from "$env/dynamic/private";
+import env from "$lib/env/private";
 import { handleError } from "$lib/error";
 import { medusa } from "$lib/medusa/medusa";
 import { getProducts } from "$lib/medusa/product.js";
@@ -20,7 +20,7 @@ export const load = async ({ params }) => {
     const { products } = await medusa.products
         .list({
             category_id: [category.id],
-            region_id: env.MEDUSA_REGION_ID,
+            region_id: env.get("MEDUSA_REGION_ID"),
         })
         .catch((err) => {
             return handleError(500, "CATEGORY_LOAD.PRODUCT_LIST_FAILED", { err: err.response.data });

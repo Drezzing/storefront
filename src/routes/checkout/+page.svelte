@@ -3,13 +3,13 @@
     import { untrack } from "svelte";
     import type { Infer, SuperValidated } from "sveltekit-superforms";
 
-    import { env } from "$env/dynamic/public";
-    import StripeForm from "$lib/checkout/StripeForm.svelte";
     import type { ShippingFormSchema, UserInfoFormSchema } from "$lib/checkout/formSchema";
     import ShippingForm from "$lib/checkout/ShippingForm.svelte";
+    import StripeForm from "$lib/checkout/StripeForm.svelte";
     import UserInfoForm from "$lib/checkout/UserInfoForm.svelte";
     import * as Accordion from "$lib/components/ui/accordion";
     import { Separator } from "$lib/components/ui/separator/index";
+    import env from "$lib/env/public";
     import type { PriceDetails } from "$lib/medusa/checkout.js";
 
     let { data, form } = $props();
@@ -18,7 +18,7 @@
     let value = $state("0");
     let currentState = $state(0);
 
-    const stripe = loadStripe(env.PUBLIC_STRIPE_API_KEY);
+    const stripe = loadStripe(env.get("PUBLIC_STRIPE_API_KEY"));
     let client_secret: string = $state("");
 
     $effect(() => {

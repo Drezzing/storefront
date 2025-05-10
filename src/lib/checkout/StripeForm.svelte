@@ -8,10 +8,10 @@
     import type { z } from "zod";
 
     import { goto } from "$app/navigation";
-    import { env } from "$env/dynamic/public";
     import { shippingFormSchema, userInfoFormSchema } from "$lib/checkout/formSchema";
     import StateButton from "$lib/components/StateButton/StateButton.svelte";
     import { ButtonState } from "$lib/components/StateButton/stateButton";
+    import env from "$lib/env/public";
     import { clientRequest, displayClientError } from "$lib/error";
 
     let {
@@ -70,7 +70,7 @@
         const createTokenResponse = await stripeSDK.createConfirmationToken({
             elements,
             params: {
-                return_url: env.PUBLIC_BASE_URL + "/cart/complete",
+                return_url: env.get("PUBLIC_BASE_URL") + "/cart/complete",
                 payment_method_data: {
                     billing_details: { email: userData.mail, name: userData.firstName + " " + userData.lastName },
                 },
