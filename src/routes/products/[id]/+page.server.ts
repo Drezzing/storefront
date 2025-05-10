@@ -1,6 +1,6 @@
-import { medusa } from "$lib/medusa/medusa";
-import { env } from "$env/dynamic/private";
+import env from "$lib/env/private";
 import { handleError } from "$lib/error.js";
+import { medusa } from "$lib/medusa/medusa";
 import { isVariantSoldout } from "$lib/medusa/product";
 
 export const prerender = false;
@@ -19,9 +19,11 @@ type StoreVariant = {
 };
 
 export const load = async ({ params }) => {
-    const products = await medusa.products.list({ handle: params.id, region_id: env.MEDUSA_REGION_ID }).catch((err) => {
-        return handleError(500, "PRODUCT_LOAD.PRODUCTS_LIST_FAILED", { err: err.response.data });
-    });
+    const products = await medusa.products
+        .list({ handle: params.id, region_id: env.get("MEDUSA_REGION_ID") })
+        .catch((err) => {
+            return handleError(500, "PRODUCT_LOAD.PRODUCTS_LIST_FAILED", { err: err.response.data });
+        });
 
     if (products.count <= 0) {
         return handleError(404, "PRODUCT_LOAD.PRODUCT_NOT_FOUND");

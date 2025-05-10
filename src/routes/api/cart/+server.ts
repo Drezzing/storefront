@@ -1,11 +1,12 @@
+import { json } from "@sveltejs/kit";
+
 import { dev } from "$app/environment";
-import { env } from "$env/dynamic/private";
 import { CartAdd, CartDelete } from "$lib/cart/cart";
+import env from "$lib/env/private";
 import { handleError } from "$lib/error";
 import { removeUnusedDiscounts } from "$lib/medusa/discount";
 import { checkCartExists, checkVariantExists, medusa } from "$lib/medusa/medusa";
 import { isVariantSoldout } from "$lib/medusa/product";
-import { json } from "@sveltejs/kit";
 
 export const DELETE = async ({ request, cookies }) => {
     const reqJson = await request.json().catch(async () => {
@@ -89,8 +90,8 @@ export const POST = async ({ request, getClientAddress, cookies }) => {
         ({ cart } = await medusa.carts
             .create({
                 items: [{ variant_id: cartAddValid.data.product_id, quantity: cartAddValid.data.quantity }],
-                sales_channel_id: env.MEDUSA_SALES_CHANNEL_ID,
-                region_id: env.MEDUSA_REGION_ID,
+                sales_channel_id: env.get("MEDUSA_SALES_CHANNEL_ID"),
+                region_id: env.get("MEDUSA_REGION_ID"),
                 context: {
                     ip: getClientAddress(),
                     user_agent: request.headers.get("user-agent"),

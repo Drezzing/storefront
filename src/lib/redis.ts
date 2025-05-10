@@ -1,5 +1,6 @@
 import { Redis } from "ioredis";
-import { env } from "$env/dynamic/private";
+
+import env from "$lib/env/private";
 
 export enum CacheTTL {
     Short = 5,
@@ -7,7 +8,7 @@ export enum CacheTTL {
     Long = 60 * 6,
 }
 
-const redis = new Redis(env.REDIS_URL, { lazyConnect: true });
+const redis = new Redis(env.get("REDIS_URL"), { lazyConnect: true });
 
 export const redisInit = async () => {
     if (redis.status === "connect" || redis.status === "connecting" || redis.status === "ready") return;

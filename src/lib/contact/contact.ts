@@ -1,4 +1,4 @@
-import { env } from "$env/dynamic/private";
+import env from "$lib/env/private";
 import { contactFormSchema } from "$lib/contact/schema";
 import { handleError } from "$lib/error.js";
 import { z } from "zod";
@@ -13,7 +13,7 @@ export const sendContact = async (data: z.infer<typeof contactFormSchema>) => {
         content: `**Nouvelle soumission de formulaire :**\n**Email :** \`${escape_md(email)}\`\n**Objet :** \`${escape_md(subject)}\`\n**Message :**\n\`\`\`${escape_md(content)}\`\`\``,
     };
 
-    const discordResponse = await fetch(env.DISCORD_WEBHOOK, {
+    const discordResponse = await fetch(env.get("DISCORD_WEBHOOK"), {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
