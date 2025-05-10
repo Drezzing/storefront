@@ -6,15 +6,16 @@ export class EnvParser<TSchema extends z.ZodSchema> {
     private parsedEnv: z.infer<TSchema>;
 
     constructor(env: Record<string, string | undefined>, schema: TSchema) {
-        for (const [key, value] of Object.entries(env)) {
+        const processedEnv = { ...env };
+        for (const [key, value] of Object.entries(processedEnv)) {
             if (key.endsWith("_FILE") && value) {
-                env[key.slice(0, -5)] = fs.readFileSync(value, "utf8").trim();
-                delete env[key];
+                processedEnv[key.slice(0, -5)] = fs.readFileSync(value, "utf8").trim();
+                delete processedEnv[key];
             }
         }
 
         if (!building) {
-            const result = schema.safeParse(env);
+            const result = schema.safeParse(processedEnv);
             if (!result.success) {
                 console.error("Environment variable validation failed:", result.error.format());
                 process.exit(1);
