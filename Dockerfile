@@ -3,6 +3,7 @@ WORKDIR /frontend
 
 COPY package*.json .
 RUN npm ci
+RUN npm run patch
 COPY . .
 # RUN mv .env.prod .env
 RUN npm run build
