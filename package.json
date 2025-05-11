@@ -32,7 +32,6 @@
         "formsnap": "^1.0.1",
         "globals": "^16.0.0",
         "mode-watcher": "^0.4.1",
-        "patch-package": "^8.0.0",
         "postcss": "^8.4.47",
         "prettier": "^3.5.3",
         "prettier-plugin-svelte": "^3.3.3",
@@ -53,5 +52,9 @@
     },
     "dependencies": {
         "pino": "^9.6.0"
+    },
+    "packageManager": "bun@1.2.13",
+    "patchedDependencies": {
+        "svelte-sonner@0.3.28": "patches/svelte-sonner@0.3.28.patch"
     }
 }
