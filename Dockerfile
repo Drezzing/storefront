@@ -5,6 +5,7 @@ RUN npm i -g bun@1.2.13
 
 COPY package.json .
 COPY bun.lock .
+COPY patches/* patches/
 RUN bun install --frozen-lockfile
 
 COPY . .
