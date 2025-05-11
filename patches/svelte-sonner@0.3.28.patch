@@ -1,7 +1,7 @@
-diff --git a/node_modules/svelte-sonner/dist/Toaster.svelte b/node_modules/svelte-sonner/dist/Toaster.svelte
-index 5d6bd3e..39d29d2 100644
---- a/node_modules/svelte-sonner/dist/Toaster.svelte
-+++ b/node_modules/svelte-sonner/dist/Toaster.svelte
+diff --git a/dist/Toaster.svelte b/dist/Toaster.svelte
+index 5d6bd3e1113924241d3e71afc4831cd7a724325a..39d29d24d5db38dc842b4e90b6ccccd2e6a44ec6 100644
+--- a/dist/Toaster.svelte
++++ b/dist/Toaster.svelte
 @@ -733,9 +733,9 @@ function handleFocus(event) {
  	}
  
