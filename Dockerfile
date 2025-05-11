@@ -1,7 +1,7 @@
 FROM node:22.15.0-alpine AS builder
 WORKDIR /frontend
 
-RUN npm i -g bun
+RUN npm i -g bun@1.2.13
 
 COPY package.json .
 COPY bun.lock .

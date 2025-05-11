@@ -22,7 +22,7 @@ jobs:
           node-version: 22
 
       - name: Install Bun
-        run: npm i -g bun
+        run: npm i -g bun@1.2.13
 
       - name: Install Dependencies
         run: bun install --frozen-lockfile
