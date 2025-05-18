@@ -19,6 +19,8 @@ WORKDIR /frontend
 COPY --from=builder /frontend/build build/
 COPY --from=builder /frontend/node_modules node_modules/
 
-EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
+    CMD wget --spider -nv -t1 "http://0.0.0.0:3000/health?partial=true"
+
 ENV NODE_ENV=production
 ENTRYPOINT [ "node", "--env-file=.env", "build" ]
