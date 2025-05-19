@@ -1,19 +1,19 @@
 import { json } from "@sveltejs/kit";
 
 import { dev } from "$app/environment";
-import { CartAdd, CartDelete } from "$lib/cart/cart";
 import env from "$lib/env/private";
 import { handleError } from "$lib/error";
 import { removeUnusedDiscounts } from "$lib/medusa/discount";
 import { checkCartExists, checkVariantExists, medusa } from "$lib/medusa/medusa";
 import { isVariantSoldout } from "$lib/medusa/product";
+import { cartAddProductSchema, cartDeleteProductSchema } from "$lib/schemas/cart";
 
 export const DELETE = async ({ request, cookies }) => {
     const reqJson = await request.json().catch(async () => {
         return handleError(400, "CART_DELETE.INVALID_BODY", { body: await request.text() });
     });
 
-    const cartDeleteValid = CartDelete.safeParse(reqJson);
+    const cartDeleteValid = cartDeleteProductSchema.safeParse(reqJson);
     if (!cartDeleteValid.success) {
         return handleError(422, "CART_DELETE.INVALID_DATA", { data: reqJson });
     }
@@ -47,7 +47,7 @@ export const POST = async ({ request, getClientAddress, cookies }) => {
         return handleError(400, "CART_POST.INVALID_BODY", { body: await request.text() });
     });
 
-    const cartAddValid = CartAdd.safeParse(reqJson);
+    const cartAddValid = cartAddProductSchema.safeParse(reqJson);
     if (!cartAddValid.success) {
         return handleError(422, "CART_POST.INVALID_DATA", { data: reqJson });
     }
