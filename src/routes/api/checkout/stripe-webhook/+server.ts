@@ -37,6 +37,8 @@ export const POST: RequestHandler = async ({ request }) => {
 
         // User cancelled the payment
         case "payment_intent.canceled": {
+            const cartId = event.data.object.metadata["resource_id"] as string;
+            await medusa.carts.deletePaymentSession(cartId, "stripe");
             break;
         }
 
