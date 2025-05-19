@@ -2,8 +2,8 @@ import { fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 
-import { contactFormSchema } from "$lib/contact/schema";
-import { sendContact } from "$lib/contact/contact.js";
+import { sendContact } from "$lib/contact/contact";
+import { contactFormSchema } from "$lib/schemas/contact";
 
 export const prerender = false;
 
