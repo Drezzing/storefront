@@ -13,7 +13,7 @@
     import { Input } from "$lib/components/ui/input";
     import * as Select from "$lib/components/ui/select";
     import { Textarea } from "$lib/components/ui/textarea";
-    import { contactFormSchema, contactSubjects } from "$lib/contact/schema";
+    import { contactFormSchema, contactSubjects } from "$lib/schemas/contact";
 
     const { data } = $props();
     const { contactForm } = data;
