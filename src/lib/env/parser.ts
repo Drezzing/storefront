@@ -1,8 +1,9 @@
-import { building } from "$app/environment";
 import fs from "fs";
-import { z } from "zod";
+import { z } from "zod/v4-mini";
 
-export class EnvParser<TSchema extends z.ZodSchema> {
+import { building } from "$app/environment";
+
+export class EnvParser<TSchema extends z.ZodMiniObject> {
     private parsedEnv: z.infer<TSchema>;
 
     constructor(env: Record<string, string | undefined>, schema: TSchema) {
@@ -17,7 +18,7 @@ export class EnvParser<TSchema extends z.ZodSchema> {
         if (!building) {
             const result = schema.safeParse(processedEnv);
             if (!result.success) {
-                console.error("Environment variable validation failed:", result.error.format());
+                console.error("Environment variable validation failed:", z.formatError(result.error));
                 process.exit(1);
             }
             this.parsedEnv = result.data;
