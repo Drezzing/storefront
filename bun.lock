@@ -46,6 +46,7 @@
     },
   },
   "patchedDependencies": {
+    "sveltekit-superforms@2.25.0": "patches/sveltekit-superforms@2.25.0.patch",
     "svelte-sonner@0.3.28": "patches/svelte-sonner@0.3.28.patch",
   },
   "packages": {

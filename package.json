@@ -56,6 +56,7 @@
     },
     "packageManager": "bun@1.2.13",
     "patchedDependencies": {
-        "svelte-sonner@0.3.28": "patches/svelte-sonner@0.3.28.patch"
+        "svelte-sonner@0.3.28": "patches/svelte-sonner@0.3.28.patch",
+        "sveltekit-superforms@2.25.0": "patches/sveltekit-superforms@2.25.0.patch"
     }
 }
