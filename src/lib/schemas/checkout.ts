@@ -2,6 +2,19 @@ import { z } from "zod/v4-mini";
 
 import env from "$lib/env/public";
 
+const nameRegex = z.regex(/^([a-zA-Zà-žÀ-Ž\- ']*)$/g, { error: "Contient des caractères non-autorisé" });
+
+export const userInfoFormSchema = z.object({
+    firstName: z
+        .string({ message: "Le prénom doit être une chaine de caractères" })
+        .check(nameRegex, z.minLength(1, { error: "Le prénom est requis" })),
+    lastName: z
+        .string({ message: "Le nom doit être une chaine de caractères" })
+        .check(nameRegex, z.minLength(1, { error: "Le nom est requis" })),
+
+    mail: z.email({ message: "L'adresse mail est invalide" }),
+});
+
 export const shippingFormSchema = z
     .object({
         method: z.string(),
@@ -49,6 +62,13 @@ export const shippingFormSchema = z
             //     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["country"], message: "Le pays est requis" });
         }
     });
+
+export const confirmationTokenData = z.object({
+    confirmationToken: z.string(),
+});
+
+export type UserInfoFormSchema = typeof userInfoFormSchema;
+export type UserInfoFormType = z.infer<UserInfoFormSchema>;
 
 export type ShippingFormSchema = typeof shippingFormSchema;
 export type ShippingFormType = z.infer<ShippingFormSchema>;

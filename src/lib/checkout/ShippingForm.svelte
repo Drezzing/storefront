@@ -6,10 +6,8 @@
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import { fly } from "svelte/transition";
-    import { type Infer, superForm, type SuperValidated } from "sveltekit-superforms";
-    import { zodClient } from "sveltekit-superforms/adapters";
+    import { superForm, type SuperValidated } from "sveltekit-superforms";
 
-    import { shippingFormSchema, type ShippingFormSchema } from "$lib/checkout/formSchema";
     import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
     import { ButtonState } from "$lib/components/StateButton/stateButton";
     import * as Form from "$lib/components/ui/form/index.js";
@@ -17,17 +15,17 @@
     import * as Select from "$lib/components/ui/select";
     import env from "$lib/env/public";
     import type { ShippingOption } from "$lib/medusa/shipping";
+    import { zod4MiniClient } from "$lib/schemas/adapters";
+    import { shippingFormSchema, type ShippingFormType } from "$lib/schemas/checkout";
     import { cn } from "$lib/utils";
 
-    const {
-        data = $bindable(),
-        options,
-    }: { data: SuperValidated<Infer<ShippingFormSchema>>; options: ShippingOption[] } = $props();
+    const { data = $bindable(), options }: { data: SuperValidated<ShippingFormType>; options: ShippingOption[] } =
+        $props();
 
     let submitState = $state(ButtonState.Idle);
 
     const form = superForm(data, {
-        validators: zodClient(shippingFormSchema),
+        validators: zod4MiniClient(shippingFormSchema),
         onSubmit() {
             submitState = ButtonState.Updating;
         },
