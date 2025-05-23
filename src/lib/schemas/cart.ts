@@ -1,13 +1,5 @@
 import { z } from "zod/v4-mini";
 
-export const cartName = z.regex(/^([a-zA-Zà-žÀ-Ž\- ']+)$/g);
-
-export const cartUserDataSchema = z.object({
-    firstName: cartName,
-    lastName: cartName,
-    mail: z.email(),
-});
-
 export const cartAddProductSchema = z.object({
     product_id: z.string().check(z.startsWith("variant_")),
     quantity: z.int().check(z.minimum(1), z.maximum(99)),
