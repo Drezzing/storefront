@@ -6,8 +6,7 @@
     import { toast } from "svelte-sonner";
     import { superForm } from "sveltekit-superforms";
 
-    import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
-    import { ButtonState } from "$lib/components/StateButton/stateButton";
+    import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input";
     import * as Select from "$lib/components/ui/select";
@@ -18,26 +17,26 @@
     const { data } = $props();
     const { contactForm } = data;
 
-    let submitState = $state(ButtonState.Idle);
+    let submitState = $state(ButtonStateEnum.Idle);
     // dirty workaround to force remount select field to reset it to placeholder
     let forceRemount = $state(true);
 
     const form = superForm(contactForm, {
         validators: zod4MiniClient(contactFormSchema),
         onSubmit() {
-            submitState = ButtonState.Updating;
+            submitState = ButtonStateEnum.Updating;
         },
         onUpdated({ form }) {
             if (!form.valid) {
-                submitState = ButtonState.Fail;
-                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+                submitState = ButtonStateEnum.Fail;
+                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
             } else {
-                submitState = ButtonState.Success;
+                submitState = ButtonStateEnum.Success;
                 // @ts-expect-error undefined to force placeholder
                 $formData.subject = undefined;
                 forceRemount = false;
                 setTimeout(() => (forceRemount = true), 0);
-                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
             }
         },
         onError({ result }) {
@@ -46,8 +45,8 @@
                 description: "Code erreur : " + message,
             });
 
-            submitState = ButtonState.Fail;
-            setTimeout(() => (submitState = ButtonState.Idle), 2500);
+            submitState = ButtonStateEnum.Fail;
+            setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
         },
     });
 
@@ -154,17 +153,23 @@
         </Form.Field>
 
         <div class="flex justify-center">
-            <SubmitFormButton buttonState={submitState}>
-                {#if submitState == ButtonState.Idle}
+            <StateButton state={submitState} type="formSubmit">
+                {#snippet idle()}
                     <Send class="mr-2" /> Envoyer
-                {:else if submitState == ButtonState.Updating}
+                {/snippet}
+
+                {#snippet updating()}
                     <LoaderCircle class="animate-spin"></LoaderCircle>
-                {:else if submitState == ButtonState.Success}
+                {/snippet}
+
+                {#snippet success()}
                     <Check /> Message envoyé
-                {:else if submitState == ButtonState.Fail}
+                {/snippet}
+
+                {#snippet fail()}
                     <X />
-                {/if}
-            </SubmitFormButton>
+                {/snippet}
+            </StateButton>
         </div>
     </form>
 </div>

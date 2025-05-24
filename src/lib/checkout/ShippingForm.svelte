@@ -8,8 +8,7 @@
     import { fly } from "svelte/transition";
     import { superForm, type SuperValidated } from "sveltekit-superforms";
 
-    import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
-    import { ButtonState } from "$lib/components/StateButton/stateButton";
+    import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
     import * as Select from "$lib/components/ui/select";
@@ -22,17 +21,17 @@
     const { data = $bindable(), options }: { data: SuperValidated<ShippingFormType>; options: ShippingOption[] } =
         $props();
 
-    let submitState = $state(ButtonState.Idle);
+    let submitState = $state(ButtonStateEnum.Idle);
 
     const form = superForm(data, {
         validators: zod4MiniClient(shippingFormSchema),
         onSubmit() {
-            submitState = ButtonState.Updating;
+            submitState = ButtonStateEnum.Updating;
         },
         onUpdated({ form }) {
             if (!form.valid) {
-                submitState = ButtonState.Fail;
-                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+                submitState = ButtonStateEnum.Fail;
+                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
             }
         },
         onError({ result }) {
@@ -41,17 +40,16 @@
                 description: "Code erreur : " + message,
             });
 
-            submitState = ButtonState.Fail;
-            setTimeout(() => (submitState = ButtonState.Idle), 2500);
+            submitState = ButtonStateEnum.Fail;
+            setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
         },
         onResult({ result }) {
             // result.type always be "success" but we handle error if needed
             if (result.type === "error") {
-                submitState = ButtonState.Fail;
-                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+                submitState = ButtonStateEnum.Fail;
+                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
                 toast.error("Une erreur est survenue");
-            }
-        },
+            },
     });
     const { form: formData, enhance } = form;
 
@@ -59,15 +57,14 @@
         const option = options.find((option) => option.id === $formData.method);
         if (!option) return undefined;
 
-        return { value: option.id, label: option.name };
+        return { value: option.id, label: option.name
     });
-
     const shippingFormOpen = $derived(selected && selected.value !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"));
 
     onMount(() => {
         const select: HTMLButtonElement | null = document.querySelector("form[id='shipping'] > * > button");
         if (select) {
-            select.focus();
+           select.focus();
         }
     });
 </script>
@@ -161,16 +158,22 @@
     {/if}
 
     <div class="mt-4 w-16 justify-self-end">
-        <SubmitFormButton buttonState={submitState}>
-            {#if submitState == ButtonState.Idle}
+        <StateButton state={submitState} type="formSubmit">
+            {#snippet idle()}
                 <ChevronRight strokeWidth={1.5} />
-            {:else if submitState == ButtonState.Updating}
+            {/snippet}
+
+            {#snippet updating()}
                 <LoaderCircle class="animate-spin"></LoaderCircle>
-            {:else if submitState == ButtonState.Success}
+            {/snippet}
+
+            {#snippet success()}
                 <Check />
-            {:else if submitState == ButtonState.Fail}
+            {/snippet}
+
+            {#snippet fail()}
                 <X />
-            {/if}
-        </SubmitFormButton>
+            {/snippet}
+        </StateButton>
     </div>
 </form>

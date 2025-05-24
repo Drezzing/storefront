@@ -8,8 +8,7 @@
 
     import { goto } from "$app/navigation";
     import type { ShippingFormType, UserInfoFormType } from "$lib/schemas/checkout";
-    import StateButton from "$lib/components/StateButton/StateButton.svelte";
-    import { ButtonState } from "$lib/components/StateButton/stateButton";
+    import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import env from "$lib/env/public";
     import { clientRequest, displayClientError } from "$lib/error";
 
@@ -45,16 +44,16 @@
     const stripeLoaderPromise = Promise.all([stripe, getClientSecret()]);
 
     let elements: StripeElements | undefined = $state();
-    let validateButtonState: ButtonState = $state(ButtonState.Idle);
+    let validateButtonState = $state(ButtonStateEnum.Idle);
 
     const submitCheckout = async (e: Event) => {
         e.preventDefault();
-        validateButtonState = ButtonState.Updating;
+        validateButtonState = ButtonStateEnum.Updating;
         const stripeSDK = await stripe;
 
         if (!stripeSDK || !elements) {
-            validateButtonState = ButtonState.Fail;
-            setTimeout(() => (validateButtonState = ButtonState.Idle), 2500);
+            validateButtonState = ButtonStateEnum.Fail;
+            setTimeout(() => (validateButtonState = ButtonStateEnum.Idle), 2500);
             return toast.error("Une erreur est survenue.", {
                 description: "Impossible de charger Stripe.",
             });
@@ -62,8 +61,8 @@
 
         const elementsValid = await elements.submit();
         if (elementsValid.error) {
-            validateButtonState = ButtonState.Fail;
-            setTimeout(() => (validateButtonState = ButtonState.Idle), 2500);
+            validateButtonState = ButtonStateEnum.Fail;
+            setTimeout(() => (validateButtonState = ButtonStateEnum.Idle), 2500);
             return;
         }
         const createTokenResponse = await stripeSDK.createConfirmationToken({
@@ -77,8 +76,8 @@
         });
 
         if (createTokenResponse.error) {
-            validateButtonState = ButtonState.Fail;
-            setTimeout(() => (validateButtonState = ButtonState.Idle), 2500);
+            validateButtonState = ButtonStateEnum.Fail;
+            setTimeout(() => (validateButtonState = ButtonStateEnum.Idle), 2500);
             return toast.error("Une erreur est survenue.", {
                 description: createTokenResponse.error.message,
             });
@@ -97,14 +96,14 @@
         });
 
         if (!submitTokenResponse.success) {
-            validateButtonState = ButtonState.Fail;
-            setTimeout(() => (validateButtonState = ButtonState.Idle), 2500);
+            validateButtonState = ButtonStateEnum.Fail;
+            setTimeout(() => (validateButtonState = ButtonStateEnum.Idle), 2500);
             return displayClientError(submitTokenResponse);
         } else if (submitTokenResponse.data.status === "requires_action") {
             const { error } = await stripeSDK.handleNextAction({ clientSecret: submitTokenResponse.data.clientSecret });
             if (error) {
-                validateButtonState = ButtonState.Fail;
-                setTimeout(() => (validateButtonState = ButtonState.Idle), 2500);
+                validateButtonState = ButtonStateEnum.Fail;
+                setTimeout(() => (validateButtonState = ButtonStateEnum.Idle), 2500);
                 return toast.error("Une erreur est survenue.", {
                     description: error.message,
                 });
@@ -168,17 +167,18 @@
         </Elements>
 
         <div class="mt-4 w-32 justify-self-center">
-            <StateButton buttonState={validateButtonState} type="submit">
-                {#if validateButtonState === ButtonState.Idle}
+            <StateButton state={validateButtonState} type="submit">
+                {#snippet idle()}
                     <p>Valider</p>
-                {:else if validateButtonState === ButtonState.Updating}
-                    <LoaderCircle class="animate-spin" />
-                {:else if validateButtonState === ButtonState.Success}
-                    <!-- should not be seen, user is redirected to other page -->
-                    <p>Validé</p>
-                {:else if validateButtonState === ButtonState.Fail}
+                {/snippet}
+
+                {#snippet updating()}
+                    <LoaderCircle class="animate-spin"></LoaderCircle>
+                {/snippet}
+
+                {#snippet fail()}
                     <X />
-                {/if}
+                {/snippet}
             </StateButton>
         </div>
     </form>

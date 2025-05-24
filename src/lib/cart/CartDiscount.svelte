@@ -8,15 +8,14 @@
     import X from "@lucide/svelte/icons/x";
 
     import CartDeleteButton from "$lib/cart/CartDeleteButton.svelte";
-    import StateButton from "$lib/components/StateButton/StateButton.svelte";
-    import { ButtonState } from "$lib/components/StateButton/stateButton";
+    import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import Input from "$lib/components/ui/input/input.svelte";
     import Label from "$lib/components/ui/label/label.svelte";
     import { Separator } from "$lib/components/ui/separator/index.js";
     import { clientRequest, displayClientError } from "$lib/error.js";
     import type { DiscountType } from "$lib/medusa/discount.js";
 
-    let discountState = $state(ButtonState.Idle);
+    let discountState = $state(ButtonStateEnum.Idle);
     let discountCode = $state("");
 
     const postCartDiscount = async (e: SubmitEvent) => {
@@ -26,7 +25,7 @@
             return;
         }
 
-        discountState = ButtonState.Updating;
+        discountState = ButtonStateEnum.Updating;
 
         const response = await clientRequest<{ total: number; discount: DiscountType }>(
             "DISCOUNT_CART_POST",
@@ -39,15 +38,15 @@
 
         if (!response.success) {
             displayClientError(response);
-            discountState = ButtonState.Fail;
+            discountState = ButtonStateEnum.Fail;
         } else {
-            discountState = ButtonState.Success;
+            discountState = ButtonStateEnum.Success;
             discountCode = "";
             discount = response.data.discount;
             total = response.data.total;
         }
 
-        setTimeout(() => (discountState = ButtonState.Idle), 2500);
+        setTimeout(() => (discountState = ButtonStateEnum.Idle), 2500);
     };
 
     const deleteCartDiscount = async () => {
@@ -65,7 +64,7 @@
         } else {
             total = response.data.total;
             discount = null;
-            discountState = ButtonState.Idle;
+            discountState = ButtonStateEnum.Idle;
             discountCode = "";
         }
     };
@@ -76,19 +75,23 @@
     <form class="flex flex-row items-center gap-2" onsubmit={postCartDiscount}>
         <Label for="discount-code" class="w-auto shrink-0 text-base">Code promotionnel :</Label>
         <Input id="discount-code" class="h-12 focus-visible:ring-offset-0" bind:value={discountCode} />
-        <div class="w-auto">
-            <StateButton buttonState={discountState} type="submit">
-                {#if discountState == ButtonState.Idle}
-                    <SendHorizontal strokeWidth={1.5} />
-                {:else if discountState == ButtonState.Updating}
-                    <LoaderCircle class="animate-spin"></LoaderCircle>
-                {:else if discountState == ButtonState.Success}
-                    <Check />
-                {:else if discountState == ButtonState.Fail}
-                    <X />
-                {/if}
-            </StateButton>
-        </div>
+        <StateButton state={discountState} type="submit">
+            {#snippet idle()}
+                <SendHorizontal strokeWidth={1.5} />
+            {/snippet}
+
+            {#snippet updating()}
+                <LoaderCircle class="animate-spin"></LoaderCircle>
+            {/snippet}
+
+            {#snippet success()}
+                <Check />
+            {/snippet}
+
+            {#snippet fail()}
+                <X />
+            {/snippet}
+        </StateButton>
     </form>
 {:else}
     <div class="flex flex-row justify-between">

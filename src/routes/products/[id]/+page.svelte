@@ -1,11 +1,11 @@
 <script lang="ts">
+    import LoaderCircle from "@lucide/svelte/icons/loader-circle";
     import ShoppingBag from "@lucide/svelte/icons/shopping-bag";
     import { error } from "@sveltejs/kit";
 
     import OptionPicker from "$lib/components/OptionPicker.svelte";
     import QuantitySelector from "$lib/components/QuantitySelector.svelte";
-    import StateButton from "$lib/components/StateButton/StateButton.svelte";
-    import { ButtonState, type StateButtonContent } from "$lib/components/StateButton/stateButton.js";
+    import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import { Separator } from "$lib/components/ui/separator";
@@ -51,20 +51,14 @@
     let carouselImages = $derived([...variant.images, ...commonImages]);
     let imageCount = $derived(carouselImages.length);
 
-    const cartButtonStates: StateButtonContent = {
-        Idle: "Ajouter au panier",
-        Updating: "Ajout en cours",
-        Success: "Ajouté au panier",
-        Fail: "Echec de l'ajout",
-    };
-    let cartButtonState = $state<ButtonState>(ButtonState.Idle);
+    let buttonState = $state(ButtonStateEnum.Idle);
 
     const addToCart = async () => {
         if (variant.soldout) {
             return;
         }
 
-        cartButtonState = ButtonState.Updating;
+        buttonState = ButtonStateEnum.Updating;
 
         const response = await clientRequest("PRODUCT_CART_POST", "/api/cart", {
             method: "POST",
@@ -79,8 +73,8 @@
             displayClientError(response);
         }
 
-        cartButtonState = response.success ? ButtonState.Success : ButtonState.Fail;
-        setTimeout(() => (cartButtonState = ButtonState.Idle), 2500);
+        buttonState = response.success ? ButtonStateEnum.Success : ButtonStateEnum.Fail;
+        setTimeout(() => (buttonState = ButtonStateEnum.Idle), 2500);
     };
 </script>
 
@@ -144,17 +138,34 @@
 
             <div class="mt-2 grid grid-cols-[100px_auto] gap-4 lg:grid-cols-[125px_auto] lg:gap-6">
                 <QuantitySelector bind:value={itemQuantity} min={1} max={99} />
-                <div class="w-full">
-                    <StateButton
-                        buttonState={variant.soldout ? ButtonState.Updating : cartButtonState}
-                        on:click={addToCart}
-                    >
+                <StateButton
+                    class="w-full"
+                    state={variant.soldout ? ButtonStateEnum.Updating : buttonState}
+                    onclick={addToCart}
+                >
+                    {#snippet idle()}
                         <ShoppingBag strokeWidth={2.25} class="size-4" />
-                        <p class="text-wrap">
-                            {variant.soldout ? "Produit plus disponible à la vente" : cartButtonStates[cartButtonState]}
-                        </p>
-                    </StateButton>
-                </div>
+                        <p class="text-wrap">Ajouter au panier</p>
+                    {/snippet}
+
+                    {#snippet updating()}
+                        {#if variant.soldout}
+                            <p class="text-wrap">Produit plus disponible à la vente</p>
+                        {:else}
+                            <LoaderCircle class="animate-spin" />
+                        {/if}
+                    {/snippet}
+
+                    {#snippet success()}
+                        <ShoppingBag strokeWidth={2.25} class="size-4" />
+                        <p class="text-wrap">Ajouté au panier</p>
+                    {/snippet}
+
+                    {#snippet fail()}
+                        <ShoppingBag strokeWidth={2.25} class="size-4" />
+                        <p class="text-wrap">Echec de l'ajout</p>
+                    {/snippet}
+                </StateButton>
             </div>
         </div>
     </div>

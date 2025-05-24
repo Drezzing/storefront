@@ -7,26 +7,25 @@
     import { toast } from "svelte-sonner";
     import { superForm, type SuperValidated } from "sveltekit-superforms";
 
-    import { zod4MiniClient } from "$lib/schemas/adapters";
-    import { userInfoFormSchema, type UserInfoFormType } from "$lib/schemas/checkout";
-    import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
-    import { ButtonState } from "$lib/components/StateButton/stateButton";
+    import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
+    import { zod4MiniClient } from "$lib/schemas/adapters";
+    import { userInfoFormSchema, type UserInfoFormType } from "$lib/schemas/checkout";
 
     const { data = $bindable() }: { data: SuperValidated<UserInfoFormType> } = $props();
 
-    let submitState = $state(ButtonState.Idle);
+    let submitState = $state(ButtonStateEnum.Idle);
 
     const form = superForm(data, {
         validators: zod4MiniClient(userInfoFormSchema),
         onSubmit() {
-            submitState = ButtonState.Updating;
+            submitState = ButtonStateEnum.Updating;
         },
         onUpdated({ form }) {
             if (!form.valid) {
-                submitState = ButtonState.Fail;
-                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+                submitState = ButtonStateEnum.Fail;
+                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
             }
         },
         onError({ result }) {
@@ -35,14 +34,14 @@
                 description: "Code erreur : " + message,
             });
 
-            submitState = ButtonState.Fail;
-            setTimeout(() => (submitState = ButtonState.Idle), 2500);
+            submitState = ButtonStateEnum.Fail;
+            setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
         },
         onResult({ result }) {
             // result.type always be "success" but we handle error if needed
             if (result.type === "error") {
-                submitState = ButtonState.Fail;
-                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+                submitState = ButtonStateEnum.Fail;
+                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
                 toast.error("Une erreur est survenue");
             }
         },
@@ -95,16 +94,22 @@
     </Form.Field>
 
     <div class="w-16 justify-self-end md:col-span-2">
-        <SubmitFormButton buttonState={submitState}>
-            {#if submitState == ButtonState.Idle}
+        <StateButton state={submitState} type="formSubmit">
+            {#snippet idle()}
                 <ChevronRight strokeWidth={1.5} />
-            {:else if submitState == ButtonState.Updating}
+            {/snippet}
+
+            {#snippet updating()}
                 <LoaderCircle class="animate-spin"></LoaderCircle>
-            {:else if submitState == ButtonState.Success}
+            {/snippet}
+
+            {#snippet success()}
                 <Check />
-            {:else if submitState == ButtonState.Fail}
+            {/snippet}
+
+            {#snippet fail()}
                 <X />
-            {/if}
-        </SubmitFormButton>
+            {/snippet}
+        </StateButton>
     </div>
 </form>

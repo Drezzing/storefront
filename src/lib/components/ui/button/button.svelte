@@ -13,6 +13,10 @@
                 secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                 ghost: "hover:bg-accent hover:text-accent-foreground",
                 link: "text-primary underline-offset-4 hover:underline",
+                drezzing: "bg-d-darkgray text-primary-foreground hover:bg-d-darkgray/90",
+                updating: "bg-[#363636] text-primary-foreground hover:bg-[#363636]",
+                success: "bg-d-success text-primary-foreground disabled:bg-green-600 disabled:opacity-100",
+                error: "bg-red-600 text-primary-foreground hover:bg-red-600 disabled:opacity-100",
             },
             size: {
                 default: "h-10 px-4 py-2",
