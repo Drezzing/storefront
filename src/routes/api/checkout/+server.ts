@@ -1,13 +1,13 @@
 import { type PaymentIntent } from "@stripe/stripe-js";
 import { json } from "@sveltejs/kit";
 
-import { confirmationTokenData } from "$lib/checkout/formSchema.js";
 import { PaymentNotification } from "$lib/checkout/notification.js";
 import env from "$lib/env/public";
 import { handleError } from "$lib/error";
 import { checkCartExists, medusa } from "$lib/medusa/medusa";
 import { isVariantSoldout } from "$lib/medusa/product";
 import { stripe } from "$lib/payment/stripe.js";
+import { confirmationTokenData } from "$lib/schemas/checkout";
 
 /**
  * POST /api/checkout

@@ -5,10 +5,9 @@
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import { Address, Elements, PaymentElement } from "svelte-stripe";
-    import type { z } from "zod";
 
     import { goto } from "$app/navigation";
-    import { shippingFormSchema, userInfoFormSchema } from "$lib/checkout/formSchema";
+    import type { ShippingFormType, UserInfoFormType } from "$lib/schemas/checkout";
     import StateButton from "$lib/components/StateButton/StateButton.svelte";
     import { ButtonState } from "$lib/components/StateButton/stateButton";
     import env from "$lib/env/public";
@@ -21,8 +20,8 @@
         client_secret = $bindable(),
     }: {
         stripe: Promise<Stripe | null>;
-        userData: z.infer<typeof userInfoFormSchema>;
-        shippingData: z.infer<typeof shippingFormSchema>;
+        userData: UserInfoFormType;
+        shippingData: ShippingFormType;
         client_secret: string;
     } = $props();
 

@@ -1,16 +1,12 @@
-import { z } from "zod";
-import { medusa, type MedusaCart } from "./medusa";
 import { handleError } from "$lib/error";
+
+import { medusa, type MedusaCart } from "./medusa";
 
 export type DiscountType = {
     code: string;
     amount: number;
     type: "fixed" | "percentage" | "free_shipping";
 };
-
-export const DiscountAddDelete = z.object({
-    discount_code: z.string().min(1),
-});
 
 export const removeUnusedDiscounts = async (cart: MedusaCart, caller: string) => {
     const unsed = cart.discounts.filter((discount) => {

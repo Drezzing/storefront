@@ -1,5 +1,6 @@
 import { handleError } from "$lib/error.js";
-import { DiscountAddDelete, removeUnusedDiscounts, type DiscountType } from "$lib/medusa/discount.js";
+import { removeUnusedDiscounts, type DiscountType } from "$lib/medusa/discount.js";
+import { discountAddDeleteSchema } from "$lib/schemas/discount.js";
 import { checkCartExists, checkDiscountExist, medusa } from "$lib/medusa/medusa";
 import { json } from "@sveltejs/kit";
 
@@ -10,7 +11,7 @@ export const POST = async ({ cookies, request }) => {
         return handleError(400, "DISCOUNT_POST.INVALID_BODY", { body: await request.text() });
     });
 
-    const discountAddValid = DiscountAddDelete.safeParse(reqJson);
+    const discountAddValid = discountAddDeleteSchema.safeParse(reqJson);
     if (!discountAddValid.success) {
         return handleError(422, "DISCOUNT_POST.INVALID_DATA", { data: reqJson });
     }
@@ -70,7 +71,7 @@ export const DELETE = async ({ cookies, request }) => {
         return handleError(400, "DISCOUNT_DELETE.INVALID_BODY", { body: await request.text() });
     });
 
-    const discountAddValid = DiscountAddDelete.safeParse(reqJson);
+    const discountAddValid = discountAddDeleteSchema.safeParse(reqJson);
     if (!discountAddValid.success) {
         return handleError(422, "DISCOUNT_DELETE.INVALID_DATA", { data: reqJson });
     }

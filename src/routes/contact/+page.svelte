@@ -5,7 +5,6 @@
     import X from "@lucide/svelte/icons/x";
     import { toast } from "svelte-sonner";
     import { superForm } from "sveltekit-superforms";
-    import { zodClient } from "sveltekit-superforms/adapters";
 
     import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
     import { ButtonState } from "$lib/components/StateButton/stateButton";
@@ -13,7 +12,8 @@
     import { Input } from "$lib/components/ui/input";
     import * as Select from "$lib/components/ui/select";
     import { Textarea } from "$lib/components/ui/textarea";
-    import { contactFormSchema, contactSubjects } from "$lib/contact/schema";
+    import { zod4MiniClient } from "$lib/schemas/adapters";
+    import { contactFormSchema, contactSubjects } from "$lib/schemas/contact";
 
     const { data } = $props();
     const { contactForm } = data;
@@ -23,7 +23,7 @@
     let forceRemount = $state(true);
 
     const form = superForm(contactForm, {
-        validators: zodClient(contactFormSchema),
+        validators: zod4MiniClient(contactFormSchema),
         onSubmit() {
             submitState = ButtonState.Updating;
         },

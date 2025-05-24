@@ -1,13 +1,12 @@
 import env from "$lib/env/private";
-import { contactFormSchema } from "$lib/contact/schema";
 import { handleError } from "$lib/error.js";
-import { z } from "zod";
+import { type ContactFromType } from "$lib/schemas/contact";
 
 const escape_md = (input: string) => {
     return input.replace(/([`\-#*_~|])/g, "\\$1");
 };
 
-export const sendContact = async (data: z.infer<typeof contactFormSchema>) => {
+export const sendContact = async (data: ContactFromType) => {
     const { email, subject, content } = data;
     const discordMessage = {
         content: `**Nouvelle soumission de formulaire :**\n**Email :** \`${escape_md(email)}\`\n**Objet :** \`${escape_md(subject)}\`\n**Message :**\n\`\`\`${escape_md(content)}\`\`\``,

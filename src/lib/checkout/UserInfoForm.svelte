@@ -5,21 +5,21 @@
     import X from "@lucide/svelte/icons/x";
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
-    import { type Infer, superForm, type SuperValidated } from "sveltekit-superforms";
-    import { zodClient } from "sveltekit-superforms/adapters";
+    import { superForm, type SuperValidated } from "sveltekit-superforms";
 
-    import { userInfoFormSchema, type UserInfoFormSchema } from "$lib/checkout/formSchema";
+    import { zod4MiniClient } from "$lib/schemas/adapters";
+    import { userInfoFormSchema, type UserInfoFormType } from "$lib/schemas/checkout";
     import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
     import { ButtonState } from "$lib/components/StateButton/stateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
 
-    const { data = $bindable() }: { data: SuperValidated<Infer<UserInfoFormSchema>> } = $props();
+    const { data = $bindable() }: { data: SuperValidated<UserInfoFormType> } = $props();
 
     let submitState = $state(ButtonState.Idle);
 
     const form = superForm(data, {
-        validators: zodClient(userInfoFormSchema),
+        validators: zod4MiniClient(userInfoFormSchema),
         onSubmit() {
             submitState = ButtonState.Updating;
         },

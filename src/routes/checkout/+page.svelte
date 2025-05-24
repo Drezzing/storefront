@@ -1,9 +1,8 @@
 <script lang="ts">
     import { loadStripe } from "@stripe/stripe-js";
     import { untrack } from "svelte";
-    import type { Infer, SuperValidated } from "sveltekit-superforms";
+    import type { SuperValidated } from "sveltekit-superforms";
 
-    import type { ShippingFormSchema, UserInfoFormSchema } from "$lib/checkout/formSchema";
     import ShippingForm from "$lib/checkout/ShippingForm.svelte";
     import StripeForm from "$lib/checkout/StripeForm.svelte";
     import UserInfoForm from "$lib/checkout/UserInfoForm.svelte";
@@ -11,6 +10,7 @@
     import { Separator } from "$lib/components/ui/separator/index";
     import env from "$lib/env/public";
     import type { PriceDetails } from "$lib/medusa/checkout.js";
+    import type { ShippingFormType, UserInfoFormType } from "$lib/schemas/checkout";
 
     let { data, form } = $props();
     const checkoutData = $state(data);
@@ -27,10 +27,10 @@
         untrack(() => (value = String(Number(value) + 1)));
 
         if (form.form.id === "info") {
-            checkoutData.userInfoForm = form.form as SuperValidated<Infer<UserInfoFormSchema>>;
+            checkoutData.userInfoForm = form.form as SuperValidated<UserInfoFormType>;
             untrack(() => (currentState = Math.max(currentState, 1)));
         } else if (form.form.id === "shipping") {
-            checkoutData.shippingForm = form.form as SuperValidated<Infer<ShippingFormSchema>>;
+            checkoutData.shippingForm = form.form as SuperValidated<ShippingFormType>;
             checkoutData.priceDetails = form.priceDetails as PriceDetails;
             untrack(() => (currentState = Math.max(currentState, 2)));
         }

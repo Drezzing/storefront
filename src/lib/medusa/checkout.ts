@@ -1,6 +1,9 @@
-import type { Infer, SuperValidated } from "sveltekit-superforms";
+import type { SuperValidated } from "sveltekit-superforms";
+import type { z } from "zod/v4-mini";
+
+import type { ShippingFormSchema, UserInfoFormSchema } from "$lib/schemas/checkout";
+
 import type { MedusaCart } from "./medusa";
-import type { ShippingFormSchema, UserInfoFormSchema } from "$lib/checkout/formSchema";
 import type { ShippingOption } from "./shipping";
 
 export type PriceDetails = {
@@ -22,8 +25,8 @@ export const getPriceDetails = (cart: MedusaCart): PriceDetails => {
 export type CheckoutData =
     | {
           cart: true;
-          userInfoForm: SuperValidated<Infer<UserInfoFormSchema>>;
-          shippingForm: SuperValidated<Infer<ShippingFormSchema>>;
+          userInfoForm: SuperValidated<z.output<UserInfoFormSchema>>;
+          shippingForm: SuperValidated<z.output<ShippingFormSchema>>;
           shippingOptions: ShippingOption[];
           priceDetails: PriceDetails;
       }
