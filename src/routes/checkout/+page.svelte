@@ -85,7 +85,7 @@
                                 userData={checkoutData.userInfoForm.data}
                                 shippingData={checkoutData.shippingForm.data}
                                 bind:client_secret
-                            />
+                            /> -->
                         </Accordion.Content>
                     </Accordion.Item>
                 </Accordion.Root>

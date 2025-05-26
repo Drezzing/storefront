@@ -50,7 +50,7 @@
                 setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
                 toast.error("Une erreur est survenue");
             }
-        }
+        },
     });
     const { form: formData, enhance } = form;
 
@@ -58,14 +58,14 @@
         const option = options.find((option) => option.id === $formData.method);
         if (!option) return undefined;
 
-        return { value: option.id, label: option.name
+        return { value: option.id, label: option.name };
     });
     const shippingFormOpen = $derived(selected && selected.value !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"));
 
     onMount(() => {
         const select: HTMLButtonElement | null = document.querySelector("form[id='shipping'] > * > button");
         if (select) {
-           select.focus();
+            select.focus();
         }
     });
 </script>
@@ -78,26 +78,22 @@
     use:enhance
 >
     <Form.Field {form} name="method">
-        <Form.Control let:attrs>
-            <Form.Label>Mode de livraison</Form.Label>
-            <Select.Root
-                {selected}
-                onSelectedChange={(v) => {
-                    if (v) {
-                        $formData.method = v.value;
-                    }
-                }}
-            >
-                <Select.Trigger {...attrs}>
-                    <Select.Value placeholder="Mode de livraison" />
-                </Select.Trigger>
-                <Select.Content>
-                    {#each options as option (option.id)}
-                        <Select.Item value={option.id} label={option.name} />
-                    {/each}
-                </Select.Content>
-            </Select.Root>
-            <input hidden bind:value={$formData.method} name={attrs.name} />
+        <Form.Control>
+            {#snippet children({ props })}
+                <Form.Label>Mode de livraison</Form.Label>
+                <Select.Root type="single" bind:value={$formData.method} name={props.name}>
+                    <Select.Trigger {...props}>
+                        {$formData.method
+                            ? options.find((option) => option.id === $formData.method)?.name
+                            : "Mode de livraison"}
+                    </Select.Trigger>
+                    <Select.Content>
+                        {#each options as option (option.id)}
+                            <Select.Item value={option.id} label={option.name} />
+                        {/each}
+                    </Select.Content>
+                </Select.Root>
+            {/snippet}
         </Form.Control>
         <Form.FieldErrors />
     </Form.Field>
@@ -106,9 +102,9 @@
         <div transition:fly={{ duration: 250 }}>
             <Form.Field {form} name="address" class="mb-4 mt-4">
                 <Form.Control>
-                    {#snippet children({ attrs }: { attrs: object })}
+                    {#snippet children({ props })}
                         <Form.Label>Adresse</Form.Label>
-                        <Input {...attrs} bind:value={$formData.address} placeholder="123 rue exemple" />
+                        <Input {...props} bind:value={$formData.address} placeholder="123 rue exemple" />
                     {/snippet}
                 </Form.Control>
                 <Form.FieldErrors />
@@ -116,9 +112,9 @@
 
             <Form.Field {form} name="complement" class="mb-4">
                 <Form.Control>
-                    {#snippet children({ attrs }: { attrs: object })}
+                    {#snippet children({ props })}
                         <Form.Label>Complément (Optionel)</Form.Label>
-                        <Input {...attrs} bind:value={$formData.complement} placeholder="Appartement A123" />
+                        <Input {...props} bind:value={$formData.complement} placeholder="Appartement A123" />
                     {/snippet}
                 </Form.Control>
                 <Form.FieldErrors />
@@ -127,9 +123,9 @@
             <div class="space-y-4 sm:grid sm:grid-cols-[70%_auto] sm:gap-x-2 sm:space-y-0">
                 <Form.Field {form} name="city">
                     <Form.Control>
-                        {#snippet children({ attrs }: { attrs: object })}
+                        {#snippet children({ props })}
                             <Form.Label>Ville</Form.Label>
-                            <Input {...attrs} bind:value={$formData.city} placeholder="Paris" />
+                            <Input {...props} bind:value={$formData.city} placeholder="Paris" />
                         {/snippet}
                     </Form.Control>
                     <Form.FieldErrors />
@@ -137,9 +133,9 @@
 
                 <Form.Field {form} name="postal_code">
                     <Form.Control>
-                        {#snippet children({ attrs }: { attrs: object })}
+                        {#snippet children({ props })}
                             <Form.Label>Code postal</Form.Label>
-                            <Input {...attrs} bind:value={$formData.postal_code} placeholder="75000" />
+                            <Input {...props} bind:value={$formData.postal_code} placeholder="75000" />
                         {/snippet}
                     </Form.Control>
                     <Form.FieldErrors />

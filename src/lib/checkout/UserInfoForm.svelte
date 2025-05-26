@@ -65,9 +65,9 @@
 >
     <Form.Field {form} name="firstName">
         <Form.Control>
-            {#snippet children({ attrs }: { attrs: object })}
+            {#snippet children({ props })}
                 <Form.Label>Prénom</Form.Label>
-                <Input {...attrs} bind:value={$formData.firstName} />
+                <Input bind:value={$formData.firstName} {...props} />
             {/snippet}
         </Form.Control>
         <Form.FieldErrors />
@@ -75,9 +75,9 @@
 
     <Form.Field {form} name="lastName">
         <Form.Control>
-            {#snippet children({ attrs }: { attrs: object })}
+            {#snippet children({ props })}
                 <Form.Label>Nom</Form.Label>
-                <Input {...attrs} bind:value={$formData.lastName} />
+                <Input {...props} bind:value={$formData.lastName} />
             {/snippet}
         </Form.Control>
         <Form.FieldErrors />
@@ -85,9 +85,9 @@
 
     <Form.Field {form} name="mail" class="md:col-span-2">
         <Form.Control>
-            {#snippet children({ attrs }: { attrs: object })}
+            {#snippet children({ props })}
                 <Form.Label>Adresse mail</Form.Label>
-                <Input {...attrs} bind:value={$formData.mail} />
+                <Input {...props} bind:value={$formData.mail} />
             {/snippet}
         </Form.Control>
         <Form.FieldErrors />
