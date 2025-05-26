@@ -49,7 +49,8 @@
                 submitState = ButtonStateEnum.Fail;
                 setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
                 toast.error("Une erreur est survenue");
-            },
+            }
+        }
     });
     const { form: formData, enhance } = form;
 
