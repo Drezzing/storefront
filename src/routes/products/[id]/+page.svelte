@@ -15,18 +15,8 @@
     let { data } = $props();
     const { title, description, thumbnail, commonImages, collection, options, variants } = data;
 
-    let api: CarouselAPI | undefined = $state(undefined);
-    let currentImage = $state(1);
-
-    $effect(() => {
-        if (api) {
-            api.on("select", (api) => {
-                currentImage = api.selectedScrollSnap() + 1;
-            });
-        }
-    });
-
     let itemQuantity = $state(1);
+    let buttonState = $state(ButtonStateEnum.Idle);
 
     if (options.has("Taille")) {
         options.get("Taille")!.sort((a, b) => SIZE_MAP[a.toLowerCase()] - SIZE_MAP[b.toLowerCase()]);
@@ -48,10 +38,6 @@
 
         return v;
     });
-    let carouselImages = $derived([...variant.images, ...commonImages]);
-    let imageCount = $derived(carouselImages.length);
-
-    let buttonState = $state(ButtonStateEnum.Idle);
 
     const addToCart = async () => {
         if (variant.soldout) {
@@ -76,6 +62,20 @@
         buttonState = response.success ? ButtonStateEnum.Success : ButtonStateEnum.Fail;
         setTimeout(() => (buttonState = ButtonStateEnum.Idle), 2500);
     };
+
+    let api = $state<CarouselAPI>();
+    let carouselImages = $derived([...variant.images, ...commonImages]);
+
+    let currentImage = $state(1);
+    let imageCount = $derived(carouselImages.length);
+
+    $effect(() => {
+        if (api) {
+            api.on("select", (api) => {
+                currentImage = api.selectedScrollSnap() + 1;
+            });
+        }
+    });
 </script>
 
 <svelte:head>
@@ -97,7 +97,7 @@
     </div>
 
     <div class="flex flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center xl:gap-24">
-        <Carousel.Root bind:api class="max-w-[600px]">
+        <Carousel.Root setApi={(emblaApi) => (api = emblaApi)} class="max-w-[600px]">
             <Carousel.Content>
                 {#each carouselImages as image, i (image.url)}
                     <Carousel.Item>
