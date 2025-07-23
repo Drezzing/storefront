@@ -25,6 +25,8 @@
 
     const form = superForm(data, {
         validators: zod4MiniClient(shippingFormSchema),
+        resetForm: false,
+        invalidateAll: false,
         onSubmit() {
             submitState = ButtonStateEnum.Updating;
         },
@@ -43,24 +45,12 @@
             submitState = ButtonStateEnum.Fail;
             setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
         },
-        onResult({ result }) {
-            // result.type always be "success" but we handle error if needed
-            if (result.type === "error") {
-                submitState = ButtonStateEnum.Fail;
-                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
-                toast.error("Une erreur est survenue");
-            }
+        onResult() {
+            submitState = ButtonStateEnum.Idle;
         },
     });
     const { form: formData, enhance } = form;
-
-    let selected = $derived.by(() => {
-        const option = options.find((option) => option.id === $formData.method);
-        if (!option) return undefined;
-
-        return { value: option.id, label: option.name };
-    });
-    const shippingFormOpen = $derived(selected && selected.value !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"));
+    const shippingFormOpen = $derived($formData.method !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"));
 
     onMount(() => {
         const select: HTMLButtonElement | null = document.querySelector("form[id='shipping'] > * > button");

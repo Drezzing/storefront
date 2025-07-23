@@ -24,6 +24,8 @@
         client_secret: string;
     } = $props();
 
+    let userName = $derived(userData.firstName + " " + userData.lastName);
+
     const getClientSecret = async () => {
         if (!client_secret) {
             const response = await clientRequest<{ client_secret: string }>("CART_CHECKOUT_POST", "/api/checkout", {
@@ -140,22 +142,24 @@
             theme="flat"
             bind:elements
         >
-            <Address
-                fields={{ phone: "never" }}
-                mode="billing"
-                autocomplete={{ mode: "disabled" }}
-                allowedCountries={["FR"]}
-                defaultValues={{
-                    name: userData.firstName + " " + userData.lastName,
-                    address: {
-                        line1: shippingData.address,
-                        line2: shippingData.complement,
-                        postal_code: shippingData.postal_code,
-                        city: shippingData.city,
-                        country: "FR",
-                    },
-                }}
-            />
+            {#key [shippingData, userName]}
+                <Address
+                    fields={{ phone: "never" }}
+                    mode="billing"
+                    autocomplete={{ mode: "disabled" }}
+                    allowedCountries={["FR"]}
+                    defaultValues={{
+                        name: userName,
+                        address: {
+                            line1: shippingData.address,
+                            line2: shippingData.complement,
+                            postal_code: shippingData.postal_code,
+                            city: shippingData.city,
+                            country: "FR",
+                        },
+                    }}
+                />
+            {/key}
 
             <PaymentElement
                 options={{

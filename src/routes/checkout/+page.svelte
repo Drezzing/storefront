@@ -1,7 +1,6 @@
 <script lang="ts">
     import { loadStripe } from "@stripe/stripe-js";
     import { untrack } from "svelte";
-    import type { SuperValidated } from "sveltekit-superforms";
 
     import ShippingForm from "$lib/checkout/ShippingForm.svelte";
     import StripeForm from "$lib/checkout/StripeForm.svelte";
@@ -9,8 +8,6 @@
     import * as Accordion from "$lib/components/ui/accordion";
     import { Separator } from "$lib/components/ui/separator/index";
     import env from "$lib/env/public";
-    import type { PriceDetails } from "$lib/medusa/checkout.js";
-    import type { ShippingFormType, UserInfoFormType } from "$lib/schemas/checkout";
 
     let { data, form } = $props();
     const checkoutData = $state(data);
@@ -26,12 +23,12 @@
 
         untrack(() => (value = String(Number(value) + 1)));
 
-        if (form.form.id === "info") {
-            checkoutData.userInfoForm = form.form as SuperValidated<UserInfoFormType>;
+        if (form.userInfoForm) {
+            checkoutData.userInfoForm = form.userInfoForm;
             untrack(() => (currentState = Math.max(currentState, 1)));
-        } else if (form.form.id === "shipping") {
-            checkoutData.shippingForm = form.form as SuperValidated<ShippingFormType>;
-            checkoutData.priceDetails = form.priceDetails as PriceDetails;
+        } else if (form.shippingForm && form.priceDetails) {
+            checkoutData.shippingForm = form.shippingForm;
+            checkoutData.priceDetails = form.priceDetails;
             untrack(() => (currentState = Math.max(currentState, 2)));
         }
     });
@@ -53,11 +50,11 @@
     {#if checkoutData.cart}
         <div class="flex flex-col items-start justify-center gap-4 md:flex-row lg:gap-8">
             <div class="w-full grow space-y-4 md:w-auto">
-                <Accordion.Root bind:value>
+                <Accordion.Root type="single" bind:value>
                     <Accordion.Item value="0">
                         <Accordion.Trigger>Informations</Accordion.Trigger>
                         <Accordion.Content>
-                            <UserInfoForm bind:data={checkoutData.userInfoForm} />
+                            <UserInfoForm data={checkoutData.userInfoForm} />
                         </Accordion.Content>
                     </Accordion.Item>
 

@@ -13,12 +13,14 @@
     import { zod4MiniClient } from "$lib/schemas/adapters";
     import { userInfoFormSchema, type UserInfoFormType } from "$lib/schemas/checkout";
 
-    const { data = $bindable() }: { data: SuperValidated<UserInfoFormType> } = $props();
+    const { data }: { data: SuperValidated<UserInfoFormType> } = $props();
 
     let submitState = $state(ButtonStateEnum.Idle);
 
     const form = superForm(data, {
         validators: zod4MiniClient(userInfoFormSchema),
+        resetForm: false,
+        invalidateAll: false,
         onSubmit() {
             submitState = ButtonStateEnum.Updating;
         },
@@ -37,17 +39,13 @@
             submitState = ButtonStateEnum.Fail;
             setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
         },
-        onResult({ result }) {
-            // result.type always be "success" but we handle error if needed
-            if (result.type === "error") {
-                submitState = ButtonStateEnum.Fail;
-                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
-                toast.error("Une erreur est survenue");
-            }
+        onResult() {
+            submitState = ButtonStateEnum.Idle;
         },
     });
 
     const { form: formData, enhance } = form;
+
     onMount(() => {
         const input: HTMLInputElement | null = document.querySelector("input[name='firstName']");
         if (input) {

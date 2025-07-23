@@ -60,10 +60,10 @@ export const load = async ({ cookies }) => {
 
 export const actions = {
     userInfo: async (event) => {
-        const form = await superValidate(event, zod4Mini(userInfoFormSchema));
-        if (!form.valid) {
+        const userInfoForm = await superValidate(event, zod4Mini(userInfoFormSchema));
+        if (!userInfoForm.valid) {
             return fail(400, {
-                form,
+                userInfoForm,
                 success: false,
             });
         }
@@ -75,14 +75,16 @@ export const actions = {
             return handleError(404, "CHECKOUT_USERINFO_ACTION.CART_NOT_FOUND", { error: cartInfo.err });
         }
 
-        const cartUpdated = await medusa.carts.update(cartInfo.cart.id, { email: form.data.mail }).catch((err) => {
-            return handleError(500, "CHECKOUT_USERINFO_ACTION.UPDATE_CART_FAILED", { error: err.response.data });
-        });
+        const cartUpdated = await medusa.carts
+            .update(cartInfo.cart.id, { email: userInfoForm.data.mail })
+            .catch((err) => {
+                return handleError(500, "CHECKOUT_USERINFO_ACTION.UPDATE_CART_FAILED", { error: err.response.data });
+            });
 
         await medusa.admin.customers
             .update(cartUpdated.cart.customer_id, {
-                first_name: form.data.firstName,
-                last_name: form.data.lastName,
+                first_name: userInfoForm.data.firstName,
+                last_name: userInfoForm.data.lastName,
             })
             .catch((err) => {
                 return handleError(500, "CHECKOUT_USERINFO_ACTION.UPDATE_CUSTOMER_FAILED", {
@@ -90,14 +92,14 @@ export const actions = {
                 });
             });
 
-        return { form, success: true };
+        return { userInfoForm, success: true };
     },
 
     shipping: async (event) => {
-        const form = await superValidate(event, zod4Mini(shippingFormSchema));
-        if (!form.valid) {
+        const shippingForm = await superValidate(event, zod4Mini(shippingFormSchema));
+        if (!shippingForm.valid) {
             return fail(400, {
-                form,
+                shippingForm,
                 success: false,
             });
         }
@@ -110,19 +112,19 @@ export const actions = {
         }
 
         const promises = [
-            medusa.carts.addShippingMethod(cartInfo.cart.id, { option_id: form.data.method }).catch((err) => {
+            medusa.carts.addShippingMethod(cartInfo.cart.id, { option_id: shippingForm.data.method }).catch((err) => {
                 return handleError(500, "CHECKOUT_SHIPPING_ACTION.UPDATE_SHIPPING_METHOD_FAILED", {
                     error: err.response.data,
                 });
             }),
         ];
 
-        if (form.data.method !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID")) {
+        if (shippingForm.data.method !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID")) {
             // const country_code = cartInfo.cart.region.countries.find(
             //     (country) => country.name === form.data.country?.toUpperCase(),
             // );
 
-            const shippingAddress = form.data as Required<ShippingFormType>;
+            const shippingAddress = shippingForm.data as Required<ShippingFormType>;
             const shppingUpdate = medusa.carts
                 .update(cartInfo.cart.id, {
                     shipping_address: {
@@ -143,6 +145,6 @@ export const actions = {
 
         const [cartUpdated] = await Promise.all(promises);
 
-        return { form, success: true, priceDetails: getPriceDetails(cartUpdated.cart) };
+        return { shippingForm, success: true, priceDetails: getPriceDetails(cartUpdated.cart) };
     },
 };
