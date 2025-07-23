@@ -28,7 +28,7 @@
     <div class="mx-4 space-y-3">
         <h2 class="font-bold">Prix</h2>
         <span>{filter.selectedPrices[0]}€</span> à <span>{filter.selectedPrices[1]}€</span>
-        <Slider class="mx-[8px] w-auto" bind:value={filter.selectedPrices} min={0} max={100} step={5} />
+        <Slider class="mr-[8px] w-auto" bind:value={filter.selectedPrices} type="multiple" min={0} max={100} step={5} />
     </div>
 
     {#each filter.getOptions(filterType) as option (option)}

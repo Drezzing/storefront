@@ -25,7 +25,8 @@
     <Sheet.Trigger>
         {@render trigger()}
     </Sheet.Trigger>
-    <Sheet.Content class="overflow-y-auto" side="left" inTransitionConfig={{ x: -250, duration: 350 }}>
+    <Sheet.Content class="overflow-y-auto" side="left">
+        <!-- {#snippet chlidren()}{/snippet} -->
         {#if title || description}
             <Sheet.Header>
                 {#if title}

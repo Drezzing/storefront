@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Input, type FormInputEvent } from "$lib/components/ui/input";
+    import { Input } from "$lib/components/ui/input";
     import { Button } from "$lib/components/ui/button/index.js";
 
     let {
@@ -9,7 +9,11 @@
         step = 1,
     }: { value: number; min: number; max: number; step?: number } = $props();
 
-    function validateValue(input: FormInputEvent<InputEvent>): void {
+    function validateValue(
+        input: Event & {
+            currentTarget: EventTarget & HTMLInputElement;
+        },
+    ): void {
         // @ts-expect-error value is defined
         const inputValue = input.target?.value as string;
         let parsedInput = Number.parseInt(inputValue);
@@ -41,7 +45,7 @@
     <!-- <Button class="bg-transparent text-black w-1 rounded-sm">-</Button> -->
     <Input
         bind:value
-        on:input={(input) => validateValue(input)}
+        oninput={validateValue}
         class="h-12 w-full border-0 py-0 text-center focus-visible:ring-0 focus-visible:ring-offset-0"
     />
     {@render button(
