@@ -1,4 +1,6 @@
 <script>
+    import { RenderScan } from "svelte-render-scan";
+
     import { Toaster } from "$lib/components/ui/sonner";
 
     import Header from "../lib/components/Header.svelte";
@@ -6,6 +8,7 @@
     import "../app.css";
 
     import { page } from "$app/state";
+    import { dev } from "$app/environment";
 </script>
 
 <svelte:head>
@@ -14,6 +17,10 @@
     <meta property="og:site_name" content="DreZZing" />
     <meta property="og:locale" content="fr_FR" />
 </svelte:head>
+
+{#if dev}
+    <RenderScan />
+{/if}
 
 <Header></Header>
 
