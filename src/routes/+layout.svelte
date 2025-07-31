@@ -24,7 +24,7 @@
 
 <Header></Header>
 
-<Toaster richColors closeButton duration={2500} />
+<Toaster richColors closeButton duration={2500} theme="light" />
 
 <main class="min-h-screen">
     <slot></slot>
