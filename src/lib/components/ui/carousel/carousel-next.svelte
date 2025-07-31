@@ -20,7 +20,7 @@
     {variant}
     {size}
     class={cn(
-        "absolute size-8 touch-manipulation rounded-full",
+        "absolute size-8 cursor-pointer touch-manipulation rounded-full",
         emblaCtx.orientation === "horizontal"
             ? "top-1/2 -right-12 -translate-y-1/2"
             : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
