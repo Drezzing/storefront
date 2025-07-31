@@ -73,7 +73,7 @@
     </div>
 
     <!-- Ligne de séparation -->
-    <Separator class="my-6 h-[2px] rounded bg-dgray" />
+    <Separator class="bg-dgray my-6 h-[2px] rounded" />
 
     <!-- Message de contact -->
     <div class="flex flex-col items-center gap-1 md:flex-row md:justify-around">

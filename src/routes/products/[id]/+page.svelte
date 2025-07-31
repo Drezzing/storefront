@@ -104,15 +104,15 @@
                         <img
                             src={image.url}
                             alt={image.alt}
-                            class="m-auto size-[min(90vw,600px)] rounded-lg bg-dgray/10 object-scale-down md:min-h-[600px] md:min-w-[600px]"
+                            class="bg-dgray/10 m-auto size-[min(90vw,600px)] rounded-lg object-scale-down md:min-h-[600px] md:min-w-[600px]"
                             loading={i === 0 ? "eager" : "lazy"}
                         />
                     </Carousel.Item>
                 {/each}
             </Carousel.Content>
-            <Carousel.Previous class="left-2 border-0 bg-transparent hover:bg-dgray" />
-            <Carousel.Next class="right-2 border-0 bg-transparent hover:bg-dgray" />
-            <p class="mt-2 text-center text-xs text-d-darkgray">Image {currentImage} sur {imageCount}</p>
+            <Carousel.Previous class="hover:bg-dgray left-2 border-0 bg-transparent" />
+            <Carousel.Next class="hover:bg-dgray right-2 border-0 bg-transparent" />
+            <p class="text-d-darkgray mt-2 text-center text-xs">Image {currentImage} sur {imageCount}</p>
         </Carousel.Root>
 
         <div class="flex w-full max-w-[850px] flex-col gap-4 lg:w-auto lg:grow lg:gap-16">

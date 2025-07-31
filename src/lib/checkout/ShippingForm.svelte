@@ -90,7 +90,7 @@
 
     {#if shippingFormOpen}
         <div transition:fly={{ duration: 250 }}>
-            <Form.Field {form} name="address" class="mb-4 mt-4">
+            <Form.Field {form} name="address" class="mt-4 mb-4">
                 <Form.Control>
                     {#snippet children({ props })}
                         <Form.Label>Adresse</Form.Label>
@@ -110,7 +110,7 @@
                 <Form.FieldErrors />
             </Form.Field>
 
-            <div class="space-y-4 sm:grid sm:grid-cols-[70%_auto] sm:gap-x-2 sm:space-y-0">
+            <div class="space-y-4 sm:grid sm:grid-cols-[70%_auto] sm:space-y-0 sm:gap-x-2">
                 <Form.Field {form} name="city">
                     <Form.Control>
                         {#snippet children({ props })}

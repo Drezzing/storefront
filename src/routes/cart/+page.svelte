@@ -48,7 +48,7 @@
 
                 <a
                     href="/checkout"
-                    class="flex h-10 w-full items-center justify-center rounded bg-d-darkgray text-white transition-colors duration-75 hover:bg-d-darkgray/85"
+                    class="bg-d-darkgray hover:bg-d-darkgray/85 flex h-10 w-full items-center justify-center rounded text-white transition-colors duration-75"
                     >Commander</a
                 >
                 <!-- <CartStripe /> -->

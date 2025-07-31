@@ -22,7 +22,7 @@
         </div>
     {/snippet}
     {#snippet title()}
-        <h2 class="mx-4 mb-6 mt-3 text-2xl font-bold">Filtrer par</h2>
+        <h2 class="mx-4 mt-3 mb-6 text-2xl font-bold">Filtrer par</h2>
     {/snippet}
 
     <div class="mx-4 space-y-3">

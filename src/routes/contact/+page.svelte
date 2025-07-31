@@ -85,7 +85,7 @@
                     <Select.Root type="single" bind:value={$formData.subject} name={props.name}>
                         <Select.Trigger
                             {...props}
-                            class="ring-offset-0 focus-visible:ring-2 focus-visible:ring-d-darkgray focus-visible:ring-offset-0 data-[escapee]:ring-2 data-[escapee]:ring-d-darkgray"
+                            class="focus-visible:ring-d-darkgray data-[escapee]:ring-d-darkgray ring-offset-0 focus-visible:ring-2 focus-visible:ring-offset-0 data-[escapee]:ring-2"
                         >
                             {$formData.subject ? $formData.subject : "Mode de livraison"}
                         </Select.Trigger>
@@ -106,7 +106,7 @@
                     <Form.Label>Message</Form.Label>
                     <Textarea
                         {...props}
-                        class="ring-offset-0 focus-visible:ring-d-darkgray focus-visible:ring-offset-0"
+                        class="focus-visible:ring-d-darkgray ring-offset-0 focus-visible:ring-offset-0"
                         placeholder="Rédigez votre message"
                         bind:value={$formData.content}
                         cols={30}
