@@ -87,7 +87,7 @@
                             {...props}
                             class="focus-visible:ring-d-darkgray data-[escapee]:ring-d-darkgray ring-offset-0 focus-visible:ring-2 focus-visible:ring-offset-0 data-[escapee]:ring-2"
                         >
-                            {$formData.subject ? $formData.subject : "Mode de livraison"}
+                            {$formData.subject ? $formData.subject : "Objet"}
                         </Select.Trigger>
                         <Select.Content>
                             {#each contactSubjects as subject (subject)}
