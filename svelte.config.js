@@ -15,6 +15,9 @@ const config = {
         prerender: {
             crawl: false,
         },
+        experimental: {
+            remoteFunctions: true,
+        },
     },
 };
 
