@@ -25,10 +25,17 @@
         <h2 class="mx-4 mt-3 mb-6 text-2xl font-bold">Filtrer par</h2>
     {/snippet}
 
-    <div class="mx-4 space-y-3">
-        <h2 class="font-bold">Prix</h2>
-        <span>{filter.selectedPrices[0]}€</span> à <span>{filter.selectedPrices[1]}€</span>
-        <Slider class="mr-[8px] w-auto" bind:value={filter.selectedPrices} type="multiple" min={0} max={100} step={5} />
+    <div class="mx-4">
+        <h2 class="mb-2 font-bold">Prix</h2>
+        <span>{filter.selectedPrices[0]}€ à {filter.selectedPrices[1]}€</span>
+        <Slider
+            class="mt-3 mr-[8px] w-auto"
+            bind:value={filter.selectedPrices}
+            type="multiple"
+            min={0}
+            max={100}
+            step={5}
+        />
     </div>
 
     {#each filter.getOptions(filterType) as option (option)}
