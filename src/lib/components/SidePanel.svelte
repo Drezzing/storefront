@@ -26,7 +26,6 @@
         {@render trigger()}
     </Sheet.Trigger>
     <Sheet.Content class="overflow-y-auto" side="left">
-        <!-- {#snippet chlidren()}{/snippet} -->
         {#if title || description}
             <Sheet.Header>
                 {#if title}
