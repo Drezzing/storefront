@@ -23,6 +23,7 @@ export class EnvParser<TSchema extends z.ZodMiniObject> {
             }
             this.parsedEnv = result.data;
         } else {
+            // @ts-expect-error env variables are not know at build time
             this.parsedEnv = {};
         }
     }
