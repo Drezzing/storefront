@@ -6,7 +6,8 @@
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import { fly } from "svelte/transition";
-    import { superForm, type SuperValidated } from "sveltekit-superforms";
+    import { superForm, type SuperValidated, type Infer } from "sveltekit-superforms";
+    import { zod4Client } from "sveltekit-superforms/adapters";
 
     import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import * as Form from "$lib/components/ui/form/index.js";
@@ -14,17 +15,18 @@
     import * as Select from "$lib/components/ui/select";
     import env from "$lib/env/public";
     import type { ShippingOption } from "$lib/medusa/shipping";
-    import { zod4MiniClient } from "$lib/schemas/adapters";
-    import { shippingFormSchema, type ShippingFormType } from "$lib/schemas/checkout";
+    import { shippingFormSchema, type ShippingFormSchema } from "$lib/schemas/checkout";
     import { cn } from "$lib/utils";
 
-    const { data = $bindable(), options }: { data: SuperValidated<ShippingFormType>; options: ShippingOption[] } =
-        $props();
+    const {
+        data = $bindable(),
+        options,
+    }: { data: SuperValidated<Infer<ShippingFormSchema>>; options: ShippingOption[] } = $props();
 
     let submitState = $state(ButtonStateEnum.Idle);
 
     const form = superForm(data, {
-        validators: zod4MiniClient(shippingFormSchema),
+        validators: zod4Client(shippingFormSchema),
         resetForm: false,
         invalidateAll: false,
         onSubmit() {

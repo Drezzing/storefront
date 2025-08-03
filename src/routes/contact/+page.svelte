@@ -5,13 +5,13 @@
     import X from "@lucide/svelte/icons/x";
     import { toast } from "svelte-sonner";
     import { superForm } from "sveltekit-superforms";
+    import { zod4Client } from "sveltekit-superforms/adapters";
 
     import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input";
     import * as Select from "$lib/components/ui/select";
     import { Textarea } from "$lib/components/ui/textarea";
-    import { zod4MiniClient } from "$lib/schemas/adapters";
     import { contactFormSchema, contactSubjects } from "$lib/schemas/contact";
 
     const { data } = $props();
@@ -20,7 +20,7 @@
     let submitState = $state(ButtonStateEnum.Idle);
 
     const form = superForm(contactForm, {
-        validators: zod4MiniClient(contactFormSchema),
+        validators: zod4Client(contactFormSchema),
         onSubmit() {
             submitState = ButtonStateEnum.Updating;
         },

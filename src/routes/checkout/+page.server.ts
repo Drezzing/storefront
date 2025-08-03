@@ -1,11 +1,11 @@
 import { fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms";
+import { zod4 } from "sveltekit-superforms/adapters";
 
 import env from "$lib/env/public";
 import { handleError } from "$lib/error.js";
 import { getPriceDetails, type CheckoutData } from "$lib/medusa/checkout.js";
 import { checkCartExists, medusa } from "$lib/medusa/medusa.js";
-import { zod4Mini } from "$lib/schemas/adapters.js";
 import { shippingFormSchema, userInfoFormSchema, type ShippingFormType } from "$lib/schemas/checkout";
 
 export const prerender = false;
@@ -38,10 +38,10 @@ export const load = async ({ cookies }) => {
 
     return {
         cart: true,
-        userInfoForm: await superValidate(zod4Mini(userInfoFormSchema), {
+        userInfoForm: await superValidate(zod4(userInfoFormSchema), {
             id: "info",
         }),
-        shippingForm: await superValidate(zod4Mini(shippingFormSchema), {
+        shippingForm: await superValidate(zod4(shippingFormSchema), {
             id: "shipping",
             defaults: {
                 method: env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"),
@@ -60,7 +60,7 @@ export const load = async ({ cookies }) => {
 
 export const actions = {
     userInfo: async (event) => {
-        const userInfoForm = await superValidate(event, zod4Mini(userInfoFormSchema));
+        const userInfoForm = await superValidate(event, zod4(userInfoFormSchema));
         if (!userInfoForm.valid) {
             return fail(400, {
                 userInfoForm,
@@ -96,7 +96,7 @@ export const actions = {
     },
 
     shipping: async (event) => {
-        const shippingForm = await superValidate(event, zod4Mini(shippingFormSchema));
+        const shippingForm = await superValidate(event, zod4(shippingFormSchema));
         if (!shippingForm.valid) {
             return fail(400, {
                 shippingForm,
