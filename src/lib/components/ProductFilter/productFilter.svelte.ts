@@ -1,4 +1,4 @@
-import { SvelteMap, SvelteSet } from "svelte/reactivity";
+import { SvelteMap, SvelteSet, SvelteURLSearchParams } from "svelte/reactivity";
 
 import { SIZE_MAP } from "$lib/medusa/product";
 
@@ -6,11 +6,11 @@ import type { FilterProducts, FilterType } from "./utils";
 
 export class ProductFilter {
     private products: FilterProducts;
-    private productsOptions = new Map<string, Map<string, Set<string>>>();
+    private productsOptions = new SvelteMap<string, Map<string, Set<string>>>();
 
-    private options = new Map<string, string[]>();
+    private options = new SvelteMap<string, string[]>();
     public selectedProducts = $derived.by(() => this.filterProducts());
-    public selectedOptions = new SvelteMap<string, SvelteSet<string>>();
+    public selectedOptions = new SvelteMap<string, Set<string>>();
     public selectedPrices = $state([0, 100]);
     public selectedCount = $derived(this.selectedProducts.length);
 
@@ -69,16 +69,16 @@ export class ProductFilter {
     }
 
     private generateOptions() {
-        const allOptions = new Map<string, Set<string>>();
+        const allOptions = new SvelteMap<string, Set<string>>();
         for (const product of this.products) {
-            this.productsOptions.set(product.handle, new Map());
+            this.productsOptions.set(product.handle, new SvelteMap());
             for (const [key, values] of product.options) {
                 if (allOptions.has(key)) {
                     values.forEach((value) => allOptions.get(key)?.add(value));
                 } else {
-                    allOptions.set(key, new Set(values));
+                    allOptions.set(key, new SvelteSet(values));
                 }
-                this.productsOptions.get(product.handle)?.set(key, new Set(values));
+                this.productsOptions.get(product.handle)?.set(key, new SvelteSet(values));
             }
         }
         for (const [key, values] of allOptions) {
@@ -136,7 +136,7 @@ export class ProductFilter {
     }
 
     private serializeFilter() {
-        const searchParams = new URLSearchParams();
+        const searchParams = new SvelteURLSearchParams();
         for (const [key, values] of this.selectedOptions) {
             for (const value of values) {
                 searchParams.append(key, value);
