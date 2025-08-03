@@ -6,8 +6,7 @@
     import { toast } from "svelte-sonner";
     import { superForm } from "sveltekit-superforms";
 
-    import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
-    import { ButtonState } from "$lib/components/StateButton/stateButton";
+    import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input";
     import * as Select from "$lib/components/ui/select";
@@ -18,26 +17,22 @@
     const { data } = $props();
     const { contactForm } = data;
 
-    let submitState = $state(ButtonState.Idle);
-    // dirty workaround to force remount select field to reset it to placeholder
-    let forceRemount = $state(true);
+    let submitState = $state(ButtonStateEnum.Idle);
 
     const form = superForm(contactForm, {
         validators: zod4MiniClient(contactFormSchema),
         onSubmit() {
-            submitState = ButtonState.Updating;
+            submitState = ButtonStateEnum.Updating;
         },
         onUpdated({ form }) {
             if (!form.valid) {
-                submitState = ButtonState.Fail;
-                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+                submitState = ButtonStateEnum.Fail;
+                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
             } else {
-                submitState = ButtonState.Success;
+                submitState = ButtonStateEnum.Success;
                 // @ts-expect-error undefined to force placeholder
                 $formData.subject = undefined;
-                forceRemount = false;
-                setTimeout(() => (forceRemount = true), 0);
-                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
             }
         },
         onError({ result }) {
@@ -46,8 +41,8 @@
                 description: "Code erreur : " + message,
             });
 
-            submitState = ButtonState.Fail;
-            setTimeout(() => (submitState = ButtonState.Idle), 2500);
+            submitState = ButtonStateEnum.Fail;
+            setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
         },
     });
 
@@ -55,15 +50,6 @@
 
     // @ts-expect-error undefined to force placeholder
     $formData.subject = undefined;
-
-    let selected = $derived(
-        $formData.subject
-            ? {
-                  value: $formData.subject,
-                  label: $formData.subject,
-              }
-            : undefined,
-    );
 </script>
 
 <svelte:head>
@@ -85,30 +71,23 @@
     <form id="info" method="POST" class="space-y-4" use:enhance>
         <Form.Field {form} name="email">
             <Form.Control>
-                {#snippet children({ attrs }: { attrs: object })}
+                {#snippet children({ props })}
                     <Form.Label>Adresse mail</Form.Label>
-                    <Input {...attrs} bind:value={$formData.email} placeholder="mon.address@domain.ext" />
+                    <Input {...props} bind:value={$formData.email} placeholder="mon.address@domain.ext" />
                 {/snippet}
             </Form.Control>
             <Form.FieldErrors />
         </Form.Field>
-        {#if forceRemount}
-            <Form.Field {form} name="subject">
-                <Form.Control let:attrs>
+        <Form.Field {form} name="subject">
+            <Form.Control>
+                {#snippet children({ props })}
                     <Form.Label>Objet</Form.Label>
-                    <Select.Root
-                        {selected}
-                        onSelectedChange={(v) => {
-                            if (v) {
-                                $formData.subject = v.value as (typeof contactSubjects)[number];
-                            }
-                        }}
-                    >
+                    <Select.Root type="single" bind:value={$formData.subject} name={props.name}>
                         <Select.Trigger
-                            {...attrs}
-                            class="ring-offset-0 focus-visible:ring-2 focus-visible:ring-d-darkgray focus-visible:ring-offset-0 data-[escapee]:ring-2 data-[escapee]:ring-d-darkgray"
+                            {...props}
+                            class="focus-visible:ring-d-darkgray data-[escapee]:ring-d-darkgray ring-offset-0 focus-visible:ring-2 focus-visible:ring-offset-0 data-[escapee]:ring-2"
                         >
-                            <Select.Value placeholder="Mode de livraison" />
+                            {$formData.subject ? $formData.subject : "Mode de livraison"}
                         </Select.Trigger>
                         <Select.Content>
                             {#each contactSubjects as subject (subject)}
@@ -116,37 +95,22 @@
                             {/each}
                         </Select.Content>
                     </Select.Root>
-                    <input hidden bind:value={$formData.subject} name={attrs.name} />
-                </Form.Control>
-                <Form.FieldErrors />
-            </Form.Field>
-        {:else}
-            <!-- dummy component to prevent layout shift when remounting -->
-            <Form.Field {form} name="subject">
-                <Form.Control let:attrs>
-                    <Form.Label>Objet</Form.Label>
-                    <Select.Root>
-                        <Select.Trigger {...attrs} class="data-[escapee]:ring-2 ">
-                            <Select.Value placeholder="Mode de livraison" />
-                        </Select.Trigger>
-                        <Select.Content></Select.Content>
-                    </Select.Root>
-                </Form.Control>
-                <Form.FieldErrors />
-            </Form.Field>
-        {/if}
+                {/snippet}
+            </Form.Control>
+            <Form.FieldErrors />
+        </Form.Field>
 
         <Form.Field {form} name="content">
             <Form.Control>
-                {#snippet children({ attrs }: { attrs: object })}
+                {#snippet children({ props })}
                     <Form.Label>Message</Form.Label>
                     <Textarea
-                        {...attrs}
+                        {...props}
+                        class="focus-visible:ring-d-darkgray ring-offset-0 focus-visible:ring-offset-0"
+                        placeholder="Rédigez votre message"
                         bind:value={$formData.content}
                         cols={30}
                         rows={10}
-                        placeholder="Rédigez votre message"
-                        class="ring-offset-0 focus-visible:ring-d-darkgray focus-visible:ring-offset-0"
                     />
                 {/snippet}
             </Form.Control>
@@ -154,17 +118,23 @@
         </Form.Field>
 
         <div class="flex justify-center">
-            <SubmitFormButton buttonState={submitState}>
-                {#if submitState == ButtonState.Idle}
+            <StateButton state={submitState} type="formSubmit">
+                {#snippet idle()}
                     <Send class="mr-2" /> Envoyer
-                {:else if submitState == ButtonState.Updating}
+                {/snippet}
+
+                {#snippet updating()}
                     <LoaderCircle class="animate-spin"></LoaderCircle>
-                {:else if submitState == ButtonState.Success}
+                {/snippet}
+
+                {#snippet success()}
                     <Check /> Message envoyé
-                {:else if submitState == ButtonState.Fail}
+                {/snippet}
+
+                {#snippet fail()}
                     <X />
-                {/if}
-            </SubmitFormButton>
+                {/snippet}
+            </StateButton>
         </div>
     </form>
 </div>

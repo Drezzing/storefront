@@ -8,8 +8,7 @@
     import { fly } from "svelte/transition";
     import { superForm, type SuperValidated } from "sveltekit-superforms";
 
-    import SubmitFormButton from "$lib/checkout/SubmitFormButton.svelte";
-    import { ButtonState } from "$lib/components/StateButton/stateButton";
+    import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
     import * as Select from "$lib/components/ui/select";
@@ -22,17 +21,19 @@
     const { data = $bindable(), options }: { data: SuperValidated<ShippingFormType>; options: ShippingOption[] } =
         $props();
 
-    let submitState = $state(ButtonState.Idle);
+    let submitState = $state(ButtonStateEnum.Idle);
 
     const form = superForm(data, {
         validators: zod4MiniClient(shippingFormSchema),
+        resetForm: false,
+        invalidateAll: false,
         onSubmit() {
-            submitState = ButtonState.Updating;
+            submitState = ButtonStateEnum.Updating;
         },
         onUpdated({ form }) {
             if (!form.valid) {
-                submitState = ButtonState.Fail;
-                setTimeout(() => (submitState = ButtonState.Idle), 2500);
+                submitState = ButtonStateEnum.Fail;
+                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
             }
         },
         onError({ result }) {
@@ -41,28 +42,15 @@
                 description: "Code erreur : " + message,
             });
 
-            submitState = ButtonState.Fail;
-            setTimeout(() => (submitState = ButtonState.Idle), 2500);
+            submitState = ButtonStateEnum.Fail;
+            setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
         },
-        onResult({ result }) {
-            // result.type always be "success" but we handle error if needed
-            if (result.type === "error") {
-                submitState = ButtonState.Fail;
-                setTimeout(() => (submitState = ButtonState.Idle), 2500);
-                toast.error("Une erreur est survenue");
-            }
+        onResult() {
+            submitState = ButtonStateEnum.Idle;
         },
     });
     const { form: formData, enhance } = form;
-
-    let selected = $derived.by(() => {
-        const option = options.find((option) => option.id === $formData.method);
-        if (!option) return undefined;
-
-        return { value: option.id, label: option.name };
-    });
-
-    const shippingFormOpen = $derived(selected && selected.value !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"));
+    const shippingFormOpen = $derived($formData.method !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"));
 
     onMount(() => {
         const select: HTMLButtonElement | null = document.querySelector("form[id='shipping'] > * > button");
@@ -80,37 +68,33 @@
     use:enhance
 >
     <Form.Field {form} name="method">
-        <Form.Control let:attrs>
-            <Form.Label>Mode de livraison</Form.Label>
-            <Select.Root
-                {selected}
-                onSelectedChange={(v) => {
-                    if (v) {
-                        $formData.method = v.value;
-                    }
-                }}
-            >
-                <Select.Trigger {...attrs}>
-                    <Select.Value placeholder="Mode de livraison" />
-                </Select.Trigger>
-                <Select.Content>
-                    {#each options as option (option.id)}
-                        <Select.Item value={option.id} label={option.name} />
-                    {/each}
-                </Select.Content>
-            </Select.Root>
-            <input hidden bind:value={$formData.method} name={attrs.name} />
+        <Form.Control>
+            {#snippet children({ props })}
+                <Form.Label>Mode de livraison</Form.Label>
+                <Select.Root type="single" bind:value={$formData.method} name={props.name}>
+                    <Select.Trigger {...props}>
+                        {$formData.method
+                            ? options.find((option) => option.id === $formData.method)?.name
+                            : "Mode de livraison"}
+                    </Select.Trigger>
+                    <Select.Content>
+                        {#each options as option (option.id)}
+                            <Select.Item value={option.id} label={option.name} />
+                        {/each}
+                    </Select.Content>
+                </Select.Root>
+            {/snippet}
         </Form.Control>
         <Form.FieldErrors />
     </Form.Field>
 
     {#if shippingFormOpen}
         <div transition:fly={{ duration: 250 }}>
-            <Form.Field {form} name="address" class="mb-4 mt-4">
+            <Form.Field {form} name="address" class="mt-4 mb-4">
                 <Form.Control>
-                    {#snippet children({ attrs }: { attrs: object })}
+                    {#snippet children({ props })}
                         <Form.Label>Adresse</Form.Label>
-                        <Input {...attrs} bind:value={$formData.address} placeholder="123 rue exemple" />
+                        <Input {...props} bind:value={$formData.address} placeholder="123 rue exemple" />
                     {/snippet}
                 </Form.Control>
                 <Form.FieldErrors />
@@ -118,20 +102,20 @@
 
             <Form.Field {form} name="complement" class="mb-4">
                 <Form.Control>
-                    {#snippet children({ attrs }: { attrs: object })}
+                    {#snippet children({ props })}
                         <Form.Label>Complément (Optionel)</Form.Label>
-                        <Input {...attrs} bind:value={$formData.complement} placeholder="Appartement A123" />
+                        <Input {...props} bind:value={$formData.complement} placeholder="Appartement A123" />
                     {/snippet}
                 </Form.Control>
                 <Form.FieldErrors />
             </Form.Field>
 
-            <div class="space-y-4 sm:grid sm:grid-cols-[70%_auto] sm:gap-x-2 sm:space-y-0">
+            <div class="space-y-4 sm:grid sm:grid-cols-[70%_auto] sm:space-y-0 sm:gap-x-2">
                 <Form.Field {form} name="city">
                     <Form.Control>
-                        {#snippet children({ attrs }: { attrs: object })}
+                        {#snippet children({ props })}
                             <Form.Label>Ville</Form.Label>
-                            <Input {...attrs} bind:value={$formData.city} placeholder="Paris" />
+                            <Input {...props} bind:value={$formData.city} placeholder="Paris" />
                         {/snippet}
                     </Form.Control>
                     <Form.FieldErrors />
@@ -139,9 +123,9 @@
 
                 <Form.Field {form} name="postal_code">
                     <Form.Control>
-                        {#snippet children({ attrs }: { attrs: object })}
+                        {#snippet children({ props })}
                             <Form.Label>Code postal</Form.Label>
-                            <Input {...attrs} bind:value={$formData.postal_code} placeholder="75000" />
+                            <Input {...props} bind:value={$formData.postal_code} placeholder="75000" />
                         {/snippet}
                     </Form.Control>
                     <Form.FieldErrors />
@@ -161,16 +145,22 @@
     {/if}
 
     <div class="mt-4 w-16 justify-self-end">
-        <SubmitFormButton buttonState={submitState}>
-            {#if submitState == ButtonState.Idle}
+        <StateButton state={submitState} type="formSubmit">
+            {#snippet idle()}
                 <ChevronRight strokeWidth={1.5} />
-            {:else if submitState == ButtonState.Updating}
+            {/snippet}
+
+            {#snippet updating()}
                 <LoaderCircle class="animate-spin"></LoaderCircle>
-            {:else if submitState == ButtonState.Success}
+            {/snippet}
+
+            {#snippet success()}
                 <Check />
-            {:else if submitState == ButtonState.Fail}
+            {/snippet}
+
+            {#snippet fail()}
                 <X />
-            {/if}
-        </SubmitFormButton>
+            {/snippet}
+        </StateButton>
     </div>
 </form>

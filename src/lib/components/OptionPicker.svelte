@@ -7,11 +7,9 @@
 
 <RadioGroup.Root class="flex flex-row flex-wrap justify-start gap-4" bind:value>
     {#each choices as choice (choice)}
-        <RadioGroup.Item id={choice} value={choice} class="hidden">
-            {choice}
-        </RadioGroup.Item>
+        <RadioGroup.Item id={choice} value={choice} class="hidden" />
         <Label
-            class="cursor-pointer rounded-md bg-transparent px-4 py-3 text-center ring-1 ring-black transition-colors hover:bg-d-darkgray hover:text-white {choice ===
+            class="hover:bg-d-darkgray cursor-pointer rounded-md bg-transparent px-4 py-3 text-center ring-1 ring-black transition-colors hover:text-white {choice ===
             value
                 ? 'bg-d-darkgray text-white'
                 : 'bg-transparent ring-1'}"

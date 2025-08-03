@@ -1,8 +1,6 @@
-export enum ButtonState {
+export enum ButtonStateEnum {
     Idle = "Idle",
     Updating = "Updating",
     Success = "Success",
     Fail = "Fail",
 }
-
-export type StateButtonContent = Record<keyof typeof ButtonState, string>;

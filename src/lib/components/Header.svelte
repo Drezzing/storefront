@@ -11,10 +11,10 @@
     <div class="lg:hidden">
         <SidePanel>
             {#snippet trigger()}
-                <Menu strokeWidth={2} size={28} class="mt-1 stroke-d-darkgray" />
+                <Menu strokeWidth={2} size={28} class="stroke-d-darkgray mt-1" />
             {/snippet}
 
-            <ul class="ml-2 mt-4 space-y-4 text-lg">
+            <ul class="mt-4 ml-2 space-y-4 text-lg">
                 <li><a href="/">Accueil</a></li>
                 <li><a href="/collections">Collections</a></li>
                 <li><a href="/categories">Catégories</a></li>

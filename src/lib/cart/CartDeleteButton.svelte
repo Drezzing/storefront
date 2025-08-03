@@ -3,13 +3,20 @@
     import trash from "$lib/images/trash.svg?raw";
 
     import LoaderCircle from "@lucide/svelte/icons/loader-circle";
-    import type { MouseEventHandler } from "svelte/elements";
 
-    let { onclick }: { onclick: MouseEventHandler<HTMLButtonElement> } = $props();
+    type OnclickEvent =
+        | (MouseEvent & {
+              currentTarget: EventTarget & HTMLButtonElement;
+          })
+        | (MouseEvent & {
+              currentTarget: EventTarget & HTMLAnchorElement;
+          });
+
+    let { onclick }: { onclick: (e: OnclickEvent) => unknown } = $props();
 
     let buttonState = $state(0);
 
-    const onclickWrapper = async (e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) => {
+    const onclickWrapper = async (e: OnclickEvent) => {
         buttonState = 1;
         await onclick(e);
         buttonState = 0;
@@ -18,7 +25,7 @@
 
 <Button
     class="h-7 bg-transparent stroke-black py-1 font-normal text-black ring-[1.5px] ring-black transition-all duration-75 hover:bg-transparent hover:stroke-red-600 hover:ring-red-600"
-    onclick={onclickWrapper}
+    onclick={(e) => onclickWrapper(e)}
     disabled={Boolean(buttonState)}
 >
     {#if buttonState == 0}

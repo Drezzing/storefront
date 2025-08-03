@@ -3,7 +3,7 @@
     import Instagram from "$lib/images/instagram.svg?raw";
 </script>
 
-<footer class="mt-6 flex w-full flex-col items-center gap-8 bg-dblack py-6 text-white lg:gap-16 lg:py-12">
+<footer class="bg-dblack mt-6 flex w-full flex-col items-center gap-8 py-6 text-white lg:gap-16 lg:py-12">
     <div class="grid grid-cols-2 gap-16 lg:gap-64">
         <div class="justify-self-end">
             <div class="flex flex-col gap-8">
@@ -31,7 +31,7 @@
         </div>
     </div>
 
-    <hr class="border-1 w-full border-white lg:hidden" />
+    <hr class="w-full border-1 border-white lg:hidden" />
 
     <div class="grid grid-rows-2 items-center justify-items-center gap-4 lg:grid-cols-2 lg:grid-rows-1 lg:gap-24">
         <a href="/cgv" class="text-center lg:justify-self-end"
