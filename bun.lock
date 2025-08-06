@@ -7,6 +7,7 @@
         "pino": "^9.6.0",
       },
       "devDependencies": {
+        "@internationalized/date": "^3.8.2",
         "@lucide/svelte": "^0.536.0",
         "@medusajs/medusa-js": "^6.1.10",
         "@stripe/stripe-js": "^3.5.0",
@@ -24,7 +25,7 @@
         "eslint-plugin-svelte": "^3.11.0",
         "formsnap": "^2.0.1",
         "globals": "^16.3.0",
-        "mode-watcher": "^1.0.7",
+        "mode-watcher": "^1.0.8",
         "paneforge": "^1.0.2",
         "prettier": "^3.6.2",
         "prettier-plugin-svelte": "^3.4.0",
@@ -160,7 +161,7 @@
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.2", "", {}, "sha512-xeO57FpIu4p1Ri3Jq/EXq4ClRm86dVF2z/+kvFnyqVYRavTZmaFaUBbWCOuuTh0o/g7DSsk6kc2vrS4Vl5oPOQ=="],
 
-    "@internationalized/date": ["@internationalized/date@3.5.6", "", { "dependencies": { "@swc/helpers": "^0.5.0" } }, "sha512-jLxQjefH9VI5P9UQuqB6qNKnvFt1Ky1TPIzHGsIlCi7sZZoMR8SdYbBGRvM0y+Jtb+ez4ieBzmiAUcpmPYpyOw=="],
+    "@internationalized/date": ["@internationalized/date@3.8.2", "", { "dependencies": { "@swc/helpers": "^0.5.0" } }, "sha512-/wENk7CbvLbkUvX1tu0mwq49CVkkWpkXubGel6birjRPyo6uQ4nQpnq5xZu823zRCwwn82zgHrvgF1vZyvmVgA=="],
 
     "@ioredis/as-callback": ["@ioredis/as-callback@3.0.0", "", {}, "sha512-Kqv1rZ3WbgOrS+hgzJ5xG5WQuhvzzSTRYvNeyPMLOAM78MHSnuKI20JeJGbpuAt//LCuP0vsexZcorqW7kWhJg=="],
 
