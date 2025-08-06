@@ -15,6 +15,7 @@
         "patch": "patch-package"
     },
     "devDependencies": {
+        "@internationalized/date": "^3.8.2",
         "@lucide/svelte": "^0.536.0",
         "@medusajs/medusa-js": "^6.1.10",
         "@stripe/stripe-js": "^3.5.0",
@@ -32,7 +33,7 @@
         "eslint-plugin-svelte": "^3.11.0",
         "formsnap": "^2.0.1",
         "globals": "^16.3.0",
-        "mode-watcher": "^1.0.7",
+        "mode-watcher": "^1.0.8",
         "paneforge": "^1.0.2",
         "prettier": "^3.6.2",
         "prettier-plugin-svelte": "^3.4.0",

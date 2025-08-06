@@ -22,10 +22,10 @@
         </div>
     {/snippet}
     {#snippet title()}
-        <h2 class="mx-4 mt-3 mb-6 text-2xl font-bold">Filtrer par</h2>
+        <h2 class="mx-4 mt-3 text-2xl font-bold">Filtrer par</h2>
     {/snippet}
 
-    <div class="mx-4">
+    <div class="mx-8">
         <h2 class="mb-2 font-bold">Prix</h2>
         <span>{filter.selectedPrices[0]}€ à {filter.selectedPrices[1]}€</span>
         <Slider
@@ -40,9 +40,9 @@
 
     {#each filter.getOptions(filterType) as option (option)}
         {@const values = filter.getValues(option)}
-        <Separator class="mx-2 my-6 h-[2px] w-auto bg-[#EEEEEE] md:rounded-full" />
+        <Separator class="mx-8 my-4 h-[2px] bg-[#EEEEEE] data-[orientation=horizontal]:w-auto md:rounded-full" />
 
-        <div class="mx-4 space-y-3">
+        <div class="mx-8 space-y-3">
             <h3 class="font-bold">{option}</h3>
 
             {#each values || [] as value (value)}
