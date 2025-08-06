@@ -83,10 +83,7 @@
                 {#snippet children({ props })}
                     <Form.Label>Objet</Form.Label>
                     <Select.Root type="single" bind:value={$formData.subject} name={props.name}>
-                        <Select.Trigger
-                            {...props}
-                            class="focus-visible:ring-d-darkgray data-[escapee]:ring-d-darkgray ring-offset-0 focus-visible:ring-2 focus-visible:ring-offset-0 data-[escapee]:ring-2"
-                        >
+                        <Select.Trigger {...props} class="w-full">
                             {$formData.subject ? $formData.subject : "Objet"}
                         </Select.Trigger>
                         <Select.Content>
@@ -106,11 +103,10 @@
                     <Form.Label>Message</Form.Label>
                     <Textarea
                         {...props}
-                        class="focus-visible:ring-d-darkgray ring-offset-0 focus-visible:ring-offset-0"
                         placeholder="Rédigez votre message"
+                        class="min-h-[15em]"
                         bind:value={$formData.content}
                         cols={30}
-                        rows={10}
                     />
                 {/snippet}
             </Form.Control>

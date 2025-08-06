@@ -74,7 +74,7 @@
             {#snippet children({ props })}
                 <Form.Label>Mode de livraison</Form.Label>
                 <Select.Root type="single" bind:value={$formData.method} name={props.name}>
-                    <Select.Trigger {...props}>
+                    <Select.Trigger {...props} class="w-full">
                         {$formData.method
                             ? options.find((option) => option.id === $formData.method)?.name
                             : "Mode de livraison"}
