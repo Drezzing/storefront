@@ -1,7 +1,8 @@
-import { error } from "@sveltejs/kit";
-import { logger } from "$lib/logger";
-import { dev } from "$app/environment";
+import { error, isHttpError } from "@sveltejs/kit";
 import { toast } from "svelte-sonner";
+
+import { dev } from "$app/environment";
+import { logger } from "$lib/logger";
 
 type SuccessResponse<T> = {
     success: true;
@@ -54,6 +55,22 @@ export const handleError = (
         error(status, { message: errID });
     } else {
         error(status, { message: errID, userMessage: message.userMessage });
+    }
+};
+
+export const displayRemoteFunctionError = (e: unknown) => {
+    if (isHttpError(e)) {
+        toast.error(e.body.userMessage ?? "Une erreur est survenue.", {
+            description: `Code erreur : ${e.body.message}`,
+            action: {
+                label: "Copier",
+                onClick: () => {
+                    navigator.clipboard.writeText(e.body.message);
+                },
+            },
+        });
+    } else {
+        throw e;
     }
 };
 
