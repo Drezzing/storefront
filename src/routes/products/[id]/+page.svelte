@@ -3,13 +3,14 @@
     import ShoppingBag from "@lucide/svelte/icons/shopping-bag";
     import { error } from "@sveltejs/kit";
 
+    import { addProductToCart } from "$lib/cart/cart.remote.js";
     import OptionPicker from "$lib/components/OptionPicker.svelte";
     import QuantitySelector from "$lib/components/QuantitySelector.svelte";
     import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import type { CarouselAPI } from "$lib/components/ui/carousel/context.js";
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import { Separator } from "$lib/components/ui/separator";
-    import { clientRequest, displayClientError } from "$lib/error.js";
+    import { displayRemoteFunctionError } from "$lib/error.js";
     import { SIZE_MAP } from "$lib/medusa/product";
 
     let { data } = $props();
@@ -46,20 +47,13 @@
 
         buttonState = ButtonStateEnum.Updating;
 
-        const response = await clientRequest("PRODUCT_CART_POST", "/api/cart", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                product_id: variant.id,
-                quantity: itemQuantity,
-            }),
-        });
-
-        if (!response.success) {
-            displayClientError(response);
+        try {
+            await addProductToCart({ product_id: variant.id, quantity: itemQuantity });
+            buttonState = ButtonStateEnum.Success;
+        } catch (e) {
+            buttonState = ButtonStateEnum.Fail;
+            displayRemoteFunctionError(e);
         }
-
-        buttonState = response.success ? ButtonStateEnum.Success : ButtonStateEnum.Fail;
         setTimeout(() => (buttonState = ButtonStateEnum.Idle), 2500);
     };
 

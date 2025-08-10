@@ -1,8 +1,9 @@
 <script lang="ts">
     import type { CartItemType } from "$lib/cart/cart";
     import CartDeleteButton from "$lib/cart/CartDeleteButton.svelte";
-    import { clientRequest, displayClientError } from "$lib/error";
+    import { displayRemoteFunctionError } from "$lib/error";
     import type { DiscountType } from "$lib/medusa/discount";
+    import { removeCartItem } from "./cart.remote";
 
     let {
         total = $bindable(),
@@ -14,23 +15,15 @@
     const deleteCartItem = async (itemID: string) => {
         if (!items) return;
 
-        const response = await clientRequest<{ total: number; discart_discount: boolean }>(
-            "CART_CART_DELETE",
-            "/api/cart",
-            {
-                method: "DELETE",
-                body: JSON.stringify({ item_id: itemID }),
-            },
-        );
-
-        if (!response.success) {
-            displayClientError(response);
-        } else {
+        try {
+            const response = await removeCartItem({ item_id: itemID });
             items = items.filter((item) => item.id !== itemID);
-            total = response.data.total;
-            if (response.data.discart_discount) {
+            total = response.total;
+            if (response.discart_discount) {
                 discount = null;
             }
+        } catch (e) {
+            displayRemoteFunctionError(e);
         }
     };
 </script>
