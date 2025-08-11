@@ -1,7 +1,16 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { cubicOut } from "svelte/easing";
 import type { TransitionConfig } from "svelte/transition";
+import { twMerge } from "tailwind-merge";
+
+import { query } from "$app/server";
+
+// Remote functions currently invalidate load function if no refresh is specified,
+// this helper forces an empty refresh so load function isn't re-run
+const dummyQuery = query(() => {});
+export const forceNoRefresh = async () => {
+    await dummyQuery().refresh();
+};
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));

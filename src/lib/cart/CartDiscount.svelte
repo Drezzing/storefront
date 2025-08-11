@@ -12,7 +12,8 @@
     import Input from "$lib/components/ui/input/input.svelte";
     import Label from "$lib/components/ui/label/label.svelte";
     import { Separator } from "$lib/components/ui/separator/index.js";
-    import { clientRequest, displayClientError } from "$lib/error.js";
+    import { addDiscountToCart, deleteDiscountFromCart } from "$lib/discount/discount.remote";
+    import { displayRemoteFunctionError } from "$lib/error.js";
     import type { DiscountType } from "$lib/medusa/discount.js";
 
     let discountState = $state(ButtonStateEnum.Idle);
@@ -27,26 +28,17 @@
 
         discountState = ButtonStateEnum.Updating;
 
-        const response = await clientRequest<{ total: number; discount: DiscountType }>(
-            "DISCOUNT_CART_POST",
-            "/api/discount",
-            {
-                method: "POST",
-                body: JSON.stringify({ discount_code: discountCode }),
-            },
-        );
-
-        if (!response.success) {
-            displayClientError(response);
-            discountState = ButtonStateEnum.Fail;
-        } else {
-            discountState = ButtonStateEnum.Success;
+        try {
+            const response = await addDiscountToCart({ discount_code: discountCode });
+            discountState = ButtonStateEnum.Idle;
             discountCode = "";
-            discount = response.data.discount;
-            total = response.data.total;
+            discount = response.discount;
+            total = response.total;
+        } catch (e) {
+            displayRemoteFunctionError(e);
+            discountState = ButtonStateEnum.Fail;
+            setTimeout(() => (discountState = ButtonStateEnum.Idle), 2500);
         }
-
-        setTimeout(() => (discountState = ButtonStateEnum.Idle), 2500);
     };
 
     const deleteCartDiscount = async () => {
@@ -54,18 +46,12 @@
             return;
         }
 
-        const response = await clientRequest<{ total: number }>("CART_CART_DELETE", "/api/discount", {
-            method: "DELETE",
-            body: JSON.stringify({ discount_code: discount.code }),
-        });
-
-        if (!response.success) {
-            displayClientError(response);
-        } else {
-            total = response.data.total;
+        try {
+            const response = await deleteDiscountFromCart({ discount_code: discount.code });
+            total = response.total;
             discount = null;
-            discountState = ButtonStateEnum.Idle;
-            discountCode = "";
+        } catch (e) {
+            displayRemoteFunctionError(e);
         }
     };
 </script>
