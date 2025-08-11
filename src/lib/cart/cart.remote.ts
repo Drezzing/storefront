@@ -6,6 +6,7 @@ import { removeUnusedDiscounts } from "$lib/medusa/discount";
 import { checkCartExists, checkVariantExists, medusa } from "$lib/medusa/medusa";
 import { isVariantSoldout } from "$lib/medusa/product";
 import { cartAddProductSchema, cartDeleteProductSchema } from "$lib/schemas/cart";
+import { forceNoRefresh } from "$lib/utils";
 
 export const addProductToCart = command(cartAddProductSchema, async ({ product_id, quantity }) => {
     const request = getRequestEvent();
@@ -66,6 +67,8 @@ export const addProductToCart = command(cartAddProductSchema, async ({ product_i
         sameSite: "strict",
         maxAge: 60 * 60 * 24 * 30, // 1 mounth
     });
+
+    await forceNoRefresh();
 });
 
 export const removeCartItem = command(cartDeleteProductSchema, async ({ item_id }) => {
@@ -89,5 +92,8 @@ export const removeCartItem = command(cartDeleteProductSchema, async ({ item_id 
     });
 
     const removedDiscounts = await removeUnusedDiscounts(cartUpdated.cart, "CART_DELETE");
+
+    await forceNoRefresh();
+
     return { total: cartUpdated.cart.total || 0, discart_discount: removedDiscounts.length >= 1 };
 });
