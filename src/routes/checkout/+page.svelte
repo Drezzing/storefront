@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { loadStripe } from "@stripe/stripe-js";
     import { untrack } from "svelte";
 
     import ShippingForm from "$lib/checkout/ShippingForm.svelte";
@@ -7,16 +6,12 @@
     import UserInfoForm from "$lib/checkout/UserInfoForm.svelte";
     import * as Accordion from "$lib/components/ui/accordion";
     import { Separator } from "$lib/components/ui/separator/index";
-    import env from "$lib/env/public";
 
     let { data, form } = $props();
     const checkoutData = $state(data);
 
     let value = $state("0");
     let currentState = $state(0);
-
-    const stripe = loadStripe(env.get("PUBLIC_STRIPE_API_KEY"));
-    let client_secret: string = $state("");
 
     $effect(() => {
         if (!form || !form.success || !checkoutData.cart) return;
@@ -78,10 +73,8 @@
                         >
                         <Accordion.Content>
                             <StripeForm
-                                {stripe}
                                 userData={checkoutData.userInfoForm.data}
                                 shippingData={checkoutData.shippingForm.data}
-                                bind:client_secret
                             />
                         </Accordion.Content>
                     </Accordion.Item>

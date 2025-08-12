@@ -1,7 +1,7 @@
 <script lang="ts">
     import LoaderCircle from "@lucide/svelte/icons/loader-circle";
     import X from "@lucide/svelte/icons/x";
-    import { type PaymentIntent, type Stripe, type StripeElements } from "@stripe/stripe-js";
+    import { loadStripe, type Stripe, type StripeElements } from "@stripe/stripe-js";
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import { Address, Elements, PaymentElement } from "svelte-stripe";
@@ -10,40 +10,41 @@
     import type { ShippingFormType, UserInfoFormType } from "$lib/schemas/checkout";
     import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import env from "$lib/env/public";
-    import { clientRequest, displayClientError } from "$lib/error";
+    import { displayRemoteFunctionError } from "$lib/error";
+    import { getClientSecret, submitConfirmationToken } from "./checkout.remote";
 
     let {
-        stripe,
         userData,
         shippingData,
-        client_secret = $bindable(),
     }: {
-        stripe: Promise<Stripe | null>;
         userData: UserInfoFormType;
         shippingData: ShippingFormType;
-        client_secret: string;
     } = $props();
 
     let userName = $derived(userData.firstName + " " + userData.lastName);
 
-    const getClientSecret = async () => {
-        if (!client_secret) {
-            const response = await clientRequest<{ client_secret: string }>("CART_CHECKOUT_POST", "/api/checkout", {
-                method: "GET",
-            });
+    let stripeSDK: Stripe | null = $state(null);
+    let clientSecret: string | undefined = $state(undefined);
 
-            if (!response.success) {
-                displayClientError(response);
-                return;
-            } else {
-                client_secret = response.data.client_secret;
-            }
+    onMount(async () => {
+        [clientSecret, stripeSDK] = await Promise.all([
+            loadClientSecret(),
+            loadStripe(env.get("PUBLIC_STRIPE_API_KEY")),
+        ]);
+    });
+
+    const loadClientSecret = async () => {
+        if (!clientSecret) {
+            return clientSecret;
         }
-
-        return client_secret;
+        try {
+            const response = await getClientSecret();
+            return response.client_secret;
+        } catch (e) {
+            displayRemoteFunctionError(e);
+            throw e;
+        }
     };
-
-    const stripeLoaderPromise = Promise.all([stripe, getClientSecret()]);
 
     let elements: StripeElements | undefined = $state();
     let validateButtonState = $state(ButtonStateEnum.Idle);
@@ -51,7 +52,6 @@
     const submitCheckout = async (e: Event) => {
         e.preventDefault();
         validateButtonState = ButtonStateEnum.Updating;
-        const stripeSDK = await stripe;
 
         if (!stripeSDK || !elements) {
             validateButtonState = ButtonStateEnum.Fail;
@@ -67,6 +67,7 @@
             setTimeout(() => (validateButtonState = ButtonStateEnum.Idle), 2500);
             return;
         }
+
         const createTokenResponse = await stripeSDK.createConfirmationToken({
             elements,
             params: {
@@ -85,34 +86,29 @@
             });
         }
 
-        const submitTokenResponse = await clientRequest<{
-            status: PaymentIntent.Status;
-            clientSecret: string;
-            redirect: string;
-        }>("CART_CHECKOUT_POST", "/api/checkout", {
-            method: "POST",
-            body: JSON.stringify({ confirmationToken: createTokenResponse.confirmationToken?.id }),
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+        try {
+            const submitTokenResponse = await submitConfirmationToken({
+                confirmationToken: createTokenResponse.confirmationToken?.id,
+            });
 
-        if (!submitTokenResponse.success) {
+            if (submitTokenResponse.status === "requires_action") {
+                const { error } = await stripeSDK.handleNextAction({ clientSecret: submitTokenResponse.clientSecret });
+                if (error) {
+                    validateButtonState = ButtonStateEnum.Fail;
+                    setTimeout(() => (validateButtonState = ButtonStateEnum.Idle), 2500);
+                    return toast.error("Une erreur est survenue.", {
+                        description: error.message,
+                    });
+                }
+            }
+
+            if (submitTokenResponse.status !== "canceled") {
+                goto(submitTokenResponse.redirect);
+            }
+        } catch (e) {
             validateButtonState = ButtonStateEnum.Fail;
             setTimeout(() => (validateButtonState = ButtonStateEnum.Idle), 2500);
-            return displayClientError(submitTokenResponse);
-        } else if (submitTokenResponse.data.status === "requires_action") {
-            const { error } = await stripeSDK.handleNextAction({ clientSecret: submitTokenResponse.data.clientSecret });
-            if (error) {
-                validateButtonState = ButtonStateEnum.Fail;
-                setTimeout(() => (validateButtonState = ButtonStateEnum.Idle), 2500);
-                return toast.error("Une erreur est survenue.", {
-                    description: error.message,
-                });
-            }
-        }
-        if (submitTokenResponse.data.status !== "canceled") {
-            goto(submitTokenResponse.data.redirect);
+            return displayRemoteFunctionError(e);
         }
     };
 
@@ -127,63 +123,59 @@
     });
 </script>
 
-{#await stripeLoaderPromise}
-    <p class="text-center">Chargement...</p>
-{:then [stripe, clientSecret]}
-    <form class="px-2" onsubmit={submitCheckout}>
-        <Elements
-            {stripe}
-            {clientSecret}
-            locale="fr-FR"
-            rules={{
-                ".Input": { border: "none" },
-                ".Input:focus": { outline: "solid 2px black", boxShadow: "none" },
-            }}
-            theme="flat"
-            bind:elements
-        >
-            {#key [shippingData, userName]}
-                <Address
-                    fields={{ phone: "never" }}
-                    mode="billing"
-                    autocomplete={{ mode: "disabled" }}
-                    allowedCountries={["FR"]}
-                    defaultValues={{
-                        name: userName,
-                        address: {
-                            line1: shippingData.address,
-                            line2: shippingData.complement,
-                            postal_code: shippingData.postal_code,
-                            city: shippingData.city,
-                            country: "FR",
-                        },
-                    }}
-                />
-            {/key}
-
-            <PaymentElement
-                options={{
-                    layout: "accordion",
-                    wallets: { applePay: "auto", googlePay: "auto" },
-                    fields: { billingDetails: { email: "never", name: "never" } },
+<form class="px-2" onsubmit={submitCheckout}>
+    <Elements
+        stripe={stripeSDK}
+        {clientSecret}
+        locale="fr-FR"
+        rules={{
+            ".Input": { border: "none" },
+            ".Input:focus": { outline: "solid 2px black", boxShadow: "none" },
+        }}
+        theme="flat"
+        bind:elements
+    >
+        {#key [shippingData, userName]}
+            <Address
+                fields={{ phone: "never" }}
+                mode="billing"
+                autocomplete={{ mode: "disabled" }}
+                allowedCountries={["FR"]}
+                defaultValues={{
+                    name: userName,
+                    address: {
+                        line1: shippingData.address,
+                        line2: shippingData.complement,
+                        postal_code: shippingData.postal_code,
+                        city: shippingData.city,
+                        country: "FR",
+                    },
                 }}
             />
-        </Elements>
+        {/key}
 
-        <div class="mt-4 w-32 justify-self-center">
-            <StateButton state={validateButtonState} type="submit">
-                {#snippet idle()}
-                    <p>Valider</p>
-                {/snippet}
+        <PaymentElement
+            options={{
+                layout: "accordion",
+                wallets: { applePay: "auto", googlePay: "auto" },
+                fields: { billingDetails: { email: "never", name: "never" } },
+            }}
+        />
+    </Elements>
 
-                {#snippet updating()}
-                    <LoaderCircle class="animate-spin"></LoaderCircle>
-                {/snippet}
+    <div class="mt-4 w-32 justify-self-center">
+        <StateButton state={validateButtonState} type="submit">
+            {#snippet idle()}
+                <p>Valider</p>
+            {/snippet}
 
-                {#snippet fail()}
-                    <X />
-                {/snippet}
-            </StateButton>
-        </div>
-    </form>
-{/await}
+            {#snippet updating()}
+                <LoaderCircle class="animate-spin"></LoaderCircle>
+            {/snippet}
+
+            {#snippet fail()}
+                <X />
+            {/snippet}
+        </StateButton>
+    </div>
+</form>
