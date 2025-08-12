@@ -74,6 +74,9 @@ export const displayRemoteFunctionError = (e: unknown) => {
     }
 };
 
+/**
+ * @deprecated Use remote functions instead
+ */
 export const clientRequest = async <T>(
     requester: string,
     url: string,
@@ -99,6 +102,9 @@ export const clientRequest = async <T>(
     }
 };
 
+/**
+ * @deprecated Use remote functions with displayRemoteFunctionError instead
+ */
 export const displayClientError = async (response: ErrorResponse, message?: string) => {
     if (response.response.status === 429) {
         const retryAfter = response.response.headers.get("Retry-after");
