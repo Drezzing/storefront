@@ -1,11 +1,9 @@
-import { command, getRequestEvent, query } from "$app/server";
+import { command, getRequestEvent } from "$app/server";
 import { handleError } from "$lib/error";
 import { removeUnusedDiscounts, type DiscountType } from "$lib/medusa/discount";
 import { checkCartExists, checkDiscountExist, medusa } from "$lib/medusa/medusa";
 import { discountAddOrDeleteSchema } from "$lib/schemas/discount";
 import { forceNoRefresh } from "$lib/utils";
-
-export const test = query("unchecked", () => {});
 
 export const addDiscountToCart = command(discountAddOrDeleteSchema, async ({ discount_code }) => {
     const request = getRequestEvent();
