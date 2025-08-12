@@ -34,7 +34,7 @@
     });
 
     const loadClientSecret = async () => {
-        if (!clientSecret) {
+        if (clientSecret) {
             return clientSecret;
         }
         try {
