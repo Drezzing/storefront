@@ -1,13 +1,14 @@
 import type { PaymentIntent } from "@stripe/stripe-js";
 
 import { command, getRequestEvent, query } from "$app/server";
-import env from "$lib/env/public";
 import { PaymentNotification } from "$lib/checkout/notification";
+import env from "$lib/env/public";
 import { handleError } from "$lib/error";
 import { checkCartExists, medusa } from "$lib/medusa/medusa";
 import { isVariantSoldout } from "$lib/medusa/product";
 import { stripe } from "$lib/payment/stripe.js";
 import { confirmationTokenData } from "$lib/schemas/checkout";
+import { forceNoRefresh } from "$lib/utils";
 
 export const getClientSecret = query(async () => {
     const request = getRequestEvent();
@@ -98,6 +99,8 @@ export const submitConfirmationToken = command(confirmationTokenData, async ({ c
             error: `Client secret is null for payment intent ${paymentId}`,
         });
     }
+
+    await forceNoRefresh();
 
     return {
         status: stripeConfirm.status,
