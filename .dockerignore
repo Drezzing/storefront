@@ -17,6 +17,7 @@ Dockerfile
 node_modules
 build
 package
+dist
 
 README.md
 error.log

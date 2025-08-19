@@ -17,6 +17,7 @@ FROM node:22.15.0-alpine
 WORKDIR /frontend
 
 COPY --from=builder /frontend/build build/
+COPY --from=builder /frontend/dist dist/
 COPY --from=builder /frontend/node_modules node_modules/
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \

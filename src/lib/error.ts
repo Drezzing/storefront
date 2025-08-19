@@ -1,7 +1,8 @@
-import { error } from "@sveltejs/kit";
-import { logger } from "$lib/logger";
-import { dev } from "$app/environment";
+import { error, isHttpError } from "@sveltejs/kit";
 import { toast } from "svelte-sonner";
+
+import { dev } from "$app/environment";
+import { logger } from "$lib/logger";
 
 type SuccessResponse<T> = {
     success: true;
@@ -57,6 +58,25 @@ export const handleError = (
     }
 };
 
+export const displayRemoteFunctionError = (e: unknown) => {
+    if (isHttpError(e)) {
+        toast.error(e.body.userMessage ?? "Une erreur est survenue.", {
+            description: `Code erreur : ${e.body.message}`,
+            action: {
+                label: "Copier",
+                onClick: () => {
+                    navigator.clipboard.writeText(e.body.message);
+                },
+            },
+        });
+    } else {
+        throw e;
+    }
+};
+
+/**
+ * @deprecated Use remote functions instead
+ */
 export const clientRequest = async <T>(
     requester: string,
     url: string,
@@ -82,6 +102,9 @@ export const clientRequest = async <T>(
     }
 };
 
+/**
+ * @deprecated Use remote functions with displayRemoteFunctionError instead
+ */
 export const displayClientError = async (response: ErrorResponse, message?: string) => {
     if (response.response.status === 429) {
         const retryAfter = response.response.headers.get("Retry-after");

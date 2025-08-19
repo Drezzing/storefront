@@ -1,32 +1,29 @@
-import { handleError } from "$lib/error.js";
-import { removeUnusedDiscounts, type DiscountType } from "$lib/medusa/discount.js";
-import { discountAddDeleteSchema } from "$lib/schemas/discount.js";
+import { command, getRequestEvent } from "$app/server";
+import { handleError } from "$lib/error";
+import { removeUnusedDiscounts, type DiscountType } from "$lib/medusa/discount";
 import { checkCartExists, checkDiscountExist, medusa } from "$lib/medusa/medusa";
-import { json } from "@sveltejs/kit";
+import { discountAddOrDeleteSchema } from "$lib/schemas/discount";
+import { forceNoRefresh } from "$lib/utils";
 
-export const POST = async ({ cookies, request }) => {
-    const cart = cookies.get("panier");
+export const addDiscountToCart = command(discountAddOrDeleteSchema, async ({ discount_code }) => {
+    const request = getRequestEvent();
+    const cart = request.cookies.get("panier");
 
-    const reqJson = await request.json().catch(async () => {
-        return handleError(400, "DISCOUNT_POST.INVALID_BODY", { body: await request.text() });
-    });
-
-    const discountAddValid = discountAddDeleteSchema.safeParse(reqJson);
-    if (!discountAddValid.success) {
-        return handleError(422, "DISCOUNT_POST.INVALID_DATA", { data: reqJson });
-    }
-
-    const [cartInfo, discountInfo] = await Promise.all([
-        checkCartExists(cart),
-        checkDiscountExist(discountAddValid.data.discount_code),
-    ]);
+    const [cartInfo, discountInfo] = await Promise.all([checkCartExists(cart), checkDiscountExist(discount_code)]);
 
     if (cartInfo.err) {
         return handleError(404, "DISCOUNT_POST.CART_NOT_EXIST", cartInfo.err);
     }
 
     if (discountInfo.err) {
-        return handleError(404, "DISCOUNT_POST.DISCOUNT_NOT_EXIST", discountInfo.err);
+        return handleError(
+            404,
+            {
+                message: "DISCOUNT_POST.DISCOUNT_NOT_EXIST",
+                userMessage: "Ce code promotionnel n'existe pas.",
+            },
+            discountInfo.err,
+        );
     }
 
     if (cartInfo.cart.discounts.length >= 1) {
@@ -61,25 +58,16 @@ export const POST = async ({ cookies, request }) => {
         },
     } satisfies { total: number; discount: DiscountType };
 
-    return json(discountReturn, { status: 200 });
-};
+    await forceNoRefresh();
 
-export const DELETE = async ({ cookies, request }) => {
-    const cart = cookies.get("panier");
+    return discountReturn;
+});
 
-    const reqJson = await request.json().catch(async () => {
-        return handleError(400, "DISCOUNT_DELETE.INVALID_BODY", { body: await request.text() });
-    });
+export const deleteDiscountFromCart = command(discountAddOrDeleteSchema, async ({ discount_code }) => {
+    const request = getRequestEvent();
+    const cart = request.cookies.get("panier");
 
-    const discountAddValid = discountAddDeleteSchema.safeParse(reqJson);
-    if (!discountAddValid.success) {
-        return handleError(422, "DISCOUNT_DELETE.INVALID_DATA", { data: reqJson });
-    }
-
-    const [cartInfo, discountInfo] = await Promise.all([
-        checkCartExists(cart),
-        checkDiscountExist(discountAddValid.data.discount_code),
-    ]);
+    const [cartInfo, discountInfo] = await Promise.all([checkCartExists(cart), checkDiscountExist(discount_code)]);
 
     if (cartInfo.err) {
         return handleError(404, "DISCOUNT_DELETE.CART_NOT_EXIST", cartInfo.err);
@@ -93,5 +81,7 @@ export const DELETE = async ({ cookies, request }) => {
         return handleError(500, "DISCOUNT_DELETE.DISCOUNT_DELETE_FAILED", err.response.data);
     });
 
-    return json({ total: cartUpdated.cart.total || 0 });
-};
+    await forceNoRefresh();
+
+    return { total: cartUpdated.cart.total || 0 };
+});
