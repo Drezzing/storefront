@@ -18,6 +18,9 @@ export const privateEnvSchema = z.object({
     STRIPE_WEBHOOK_KEY: z.string().check(z.startsWith("whsec_")),
     STRIPE_API_KEY: z.string().check(z.startsWith("sk_")),
 
+    MONDIAL_RELAY_ENSEIGNE: z.string(),
+    MONDIAN_RELAY_API1_PRIVATE_KEY: z.string(),
+
     DISCORD_WEBHOOK: z.url(),
 
     REDIS_URL: z.url(),

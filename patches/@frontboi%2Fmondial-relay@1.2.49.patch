@@ -1,0 +1,101 @@
+diff --git a/node_modules/@frontboi/mondial-relay/.bun-tag-51ca6e2d7f472dba b/.bun-tag-51ca6e2d7f472dba
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/@frontboi/mondial-relay/.bun-tag-649196a68320f6d1 b/.bun-tag-649196a68320f6d1
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/@frontboi/mondial-relay/.bun-tag-d63a4d0215916b0 b/.bun-tag-d63a4d0215916b0
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/@frontboi/mondial-relay/.bun-tag-e56c51750fccb221 b/.bun-tag-e56c51750fccb221
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/dist/esm/browser/index.js b/dist/esm/browser/index.js
+index afab07a755c74b07a96c5020b64d943cbd76a3d4..7cf5d6e86f601458ba248d8f6ac525520021a4a5 100644
+--- a/dist/esm/browser/index.js
++++ b/dist/esm/browser/index.js
+@@ -1 +1 @@
+-export { default as ParcelShopSelector } from './ParcelShopSelector';
++export { default as ParcelShopSelector } from './ParcelShopSelector/index.js';
+diff --git a/dist/esm/common/index.js b/dist/esm/common/index.js
+index 1b2d4bb04581a72f802a2b25d3f05a0a90249561..3d5f88b3549d0f9b215116b60c30b17d9936814c 100644
+--- a/dist/esm/common/index.js
++++ b/dist/esm/common/index.js
+@@ -1 +1 @@
+-export { default as getDeliveryPrice } from './getDeliveryPrice';
++export { default as getDeliveryPrice } from './getDeliveryPrice/index.js';
+diff --git a/dist/esm/index.js b/dist/esm/index.js
+index 498fd62c78ec9f555aedd96c2063dcfaac6b9be0..8628afa8001165ef753a2fd1a0a316324cedbe07 100644
+--- a/dist/esm/index.js
++++ b/dist/esm/index.js
+@@ -1,2 +1,2 @@
+-export * from './common';
+-export * from './types';
++export * from './common/index.js';
++export * from './types/index.js';
+diff --git a/dist/esm/node/api_v1/index.js b/dist/esm/node/api_v1/index.js
+index fe6a2427ffd1cce728ede327818b6eeda7085c9f..d0f268eaac644d8fe6d1dc4da4ab57c1acd4cb84 100644
+--- a/dist/esm/node/api_v1/index.js
++++ b/dist/esm/node/api_v1/index.js
+@@ -1,4 +1,4 @@
+-import { executeApiCall } from './lib/utils';
++import { executeApiCall } from './lib/utils.js';
+ const outputXML = false;
+ /**
+  * Searches for postal codes based on the search criteria.
+diff --git a/dist/esm/node/api_v1/lib/utils.js b/dist/esm/node/api_v1/lib/utils.js
+index 6afce0dd39e4d4eb9d8bae17ff158ea1cf80fc5f..52245413b6dc09bdd8e681518751338c29460031 100644
+--- a/dist/esm/node/api_v1/lib/utils.js
++++ b/dist/esm/node/api_v1/lib/utils.js
+@@ -1,4 +1,4 @@
+-import statusCodes from './statusCodes';
++import statusCodes from './statusCodes.js';
+ import crypto from 'crypto';
+ import * as soap from 'soap';
+ const apiUrl = 'https://api.mondialrelay.com/WebService.asmx?WSDL';
+diff --git a/dist/esm/node/createShipment/index.js b/dist/esm/node/createShipment/index.js
+index 36325c0ba683b72167a8ebd82a21a5f5b63bfa8a..1fa3ed340be9ad33fbbf899af48488bbc92edb31 100644
+--- a/dist/esm/node/createShipment/index.js
++++ b/dist/esm/node/createShipment/index.js
+@@ -1,5 +1,5 @@
+-import { generateXML } from '../lib';
+-import { ShipContextSchema, ShipmentSchema, ShipOutputOptionsSchema } from './schemas';
++import { generateXML } from '../lib/index.js';
++import { ShipContextSchema, ShipmentSchema, ShipOutputOptionsSchema } from './schemas.js';
+ import axios from 'axios';
+ /**
+  * Creates a Mondial Relay shipment using API v2. The parameters are validated before sending the request.
+diff --git a/dist/esm/node/index.js b/dist/esm/node/index.js
+index f0a614db0fa198dd1a91740281e9d71c4460e1fc..1860e579cfc7464c80d0ed177c1928d79af7fcd0 100644
+--- a/dist/esm/node/index.js
++++ b/dist/esm/node/index.js
+@@ -1,3 +1,4 @@
+-export { default as createShipment } from './createShipment';
+-export * from './api_v1';
+-export * from './lib';
++export { default as createShipment } from './createShipment/index.js';
++export * from './api_v1/index.js';
++export * from "./api_v1/lib/utils.js"
++export * from './lib/index.js';
+diff --git a/dist/esm/types/index.js b/dist/esm/types/index.js
+index 4fb46a961bf97281546d2656a787a320d0b04ce4..8e4f892337f6ce30d93c4cebd3f3425d23026941 100644
+--- a/dist/esm/types/index.js
++++ b/dist/esm/types/index.js
+@@ -1,4 +1,4 @@
+-export * from './args';
+-export * from './parcel-shop';
+-export * from './ship';
+-export * from './values';
++export * from './args.js';
++export * from './parcel-shop.js';
++export * from './ship.js';
++export * from './values.js';
+diff --git a/dist/types/node/index.d.ts b/dist/types/node/index.d.ts
+index f0a614db0fa198dd1a91740281e9d71c4460e1fc..b13d4976460e2d3f6d673f8709217466ffcb5173 100644
+--- a/dist/types/node/index.d.ts
++++ b/dist/types/node/index.d.ts
+@@ -1,3 +1,4 @@
+ export { default as createShipment } from './createShipment';
+ export * from './api_v1';
++export * from "./api_v1/lib/utils"
+ export * from './lib';
