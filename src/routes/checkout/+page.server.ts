@@ -38,8 +38,15 @@ export const load = async ({ cookies }) => {
 
     return {
         cart: true,
+        // @ts-expect-error undefined to force select on placeholder
         userInfoForm: await superValidate(zod4(userInfoFormSchema), {
             id: "info",
+            defaults: {
+                firstName: "",
+                lastName: "",
+                mail: "",
+                profile: undefined,
+            },
         }),
         shippingForm: await superValidate(zod4(shippingFormSchema), {
             id: "shipping",
@@ -85,6 +92,9 @@ export const actions = {
             .update(cartUpdated.cart.customer_id, {
                 first_name: userInfoForm.data.firstName,
                 last_name: userInfoForm.data.lastName,
+                metadata: {
+                    profile: userInfoForm.data.profile,
+                },
             })
             .catch((err) => {
                 return handleError(500, "CHECKOUT_USERINFO_ACTION.UPDATE_CUSTOMER_FAILED", {

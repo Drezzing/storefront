@@ -11,6 +11,7 @@
     import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import * as Form from "$lib/components/ui/form/index.js";
     import { Input } from "$lib/components/ui/input/index.js";
+    import * as Select from "$lib/components/ui/select";
     import { userInfoFormSchema, type UserInfoFormSchema } from "$lib/schemas/checkout";
 
     const { data }: { data: SuperValidated<Infer<UserInfoFormSchema>> } = $props();
@@ -86,6 +87,25 @@
             {#snippet children({ props })}
                 <Form.Label>Adresse mail</Form.Label>
                 <Input {...props} bind:value={$formData.mail} />
+            {/snippet}
+        </Form.Control>
+        <Form.FieldErrors />
+    </Form.Field>
+
+    <Form.Field {form} name="profile" class="md:col-span-2">
+        <Form.Control>
+            {#snippet children({ props })}
+                <Form.Label>Profile</Form.Label>
+                <Select.Root type="single" bind:value={$formData.profile} name={props.name}>
+                    <Select.Trigger {...props} class="w-full">
+                        {$formData.profile ? $formData.profile : "Profile"}
+                    </Select.Trigger>
+                    <Select.Content>
+                        {#each Object.values(userInfoFormSchema.shape.profile.def.entries) as value (value)}
+                            <Select.Item {value} label={value} />
+                        {/each}
+                    </Select.Content>
+                </Select.Root>
             {/snippet}
         </Form.Control>
         <Form.FieldErrors />

@@ -13,6 +13,24 @@ export const userInfoFormSchema = z.object({
         .check(nameRegex, z.minLength(1, { error: "Le nom est requis" })),
 
     mail: z.email({ message: "L'adresse mail est invalide" }),
+    profile: z.enum(
+        [
+            "Prep'Isima 1",
+            "Prep'Isima 2",
+            "ZZ1",
+            "ZZ2",
+            "ZZ3",
+            "ZApp1",
+            "ZApp2",
+            "ZApp3",
+            "Master 1",
+            "Master 2",
+            "Enseignant",
+            "Personnel administratif",
+            "Intervenant extérieur",
+        ],
+        { error: "Le profile est requis" },
+    ),
 });
 
 export const shippingFormSchema = z
