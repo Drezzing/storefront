@@ -4,7 +4,7 @@ import { executeApiCall } from "@frontboi/mondial-relay/node";
 import { query } from "$app/server";
 import env from "$lib/env/private";
 import type { SearchParcelResults, SearchZipCodeResults } from "$lib/mondial-relay/types";
-import { mondialRelayParcelSearchSchema } from "$lib/schemas/mondial-relay";
+import { mondialRelayParcelSearchSchema, mondialRelayPositionSearchSchema } from "$lib/schemas/mondial-relay";
 
 const normalizeText = (str: string) => {
     return str
@@ -57,7 +57,7 @@ export const getParcelFromCity = query(mondialRelayParcelSearchSchema, async ({ 
         Pays: "FR",
         Ville: normalizeText(ville),
         CP: cp,
-        NbResult: "15",
+        NombreResultats: "15",
         PrivateKey: env.get("MONDIAN_RELAY_API1_PRIVATE_KEY"),
     };
 
@@ -66,6 +66,35 @@ export const getParcelFromCity = query(mondialRelayParcelSearchSchema, async ({ 
         return [];
     }
 
-    console.log(results.PointsRelais.PointRelais_Details[0]);
+    return results.PointsRelais.PointRelais_Details;
+});
+
+export const getParcelFromPos = query(mondialRelayPositionSearchSchema, async ({ lat, lon }) => {
+    const formatNumber = (num: number) => {
+        const isNegative = num < 0;
+        if (isNegative) {
+            return `-${num.toFixed(7).slice(1).padStart(10, "0")}`;
+        } else {
+            return num.toFixed(7).padStart(10, "0");
+        }
+    };
+
+    const args = {
+        Enseigne: env.get("MONDIAL_RELAY_ENSEIGNE"),
+        Pays: "FR",
+        Latitude: formatNumber(lat),
+        Longitude: formatNumber(lon),
+        NombreResultats: "5",
+        PrivateKey: env.get("MONDIAN_RELAY_API1_PRIVATE_KEY"),
+    };
+
+    // @ts-expect-error missing lat/lon type in lib
+    const results = (await executeApiCall(args, "WSI4_PointRelais_Recherche")) as SearchParcelResults;
+    if (results.PointsRelais === undefined) {
+        return [];
+    }
+
+    console.log(results);
+
     return results.PointsRelais.PointRelais_Details;
 });

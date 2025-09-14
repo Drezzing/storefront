@@ -9,7 +9,6 @@ export type LongLat = {
 export class ParcelSelector {
     currPos: LongLat = $state({ lat: 45.7590854638952, lon: 3.11063876048111 });
     parcels = new SvelteMap<string, MondialRelayPointRelay>();
-    selected: MondialRelayPointRelay | null = $state(null);
 
     addParcels(newParcels: MondialRelayPointRelay[]) {
         for (const newParcel of newParcels) {

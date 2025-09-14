@@ -1,18 +1,19 @@
 <script lang="ts">
-    import { Debounced } from "runed";
-    import { onDestroy, onMount } from "svelte";
-    import { MapLibre, NavigationControl, ScaleControl, Marker, Popup } from "svelte-maplibre-gl";
-    import SearchIcon from "@lucide/svelte/icons/search";
     import LocateIcon from "@lucide/svelte/icons/locate";
+    import SearchIcon from "@lucide/svelte/icons/search";
+    import maplibregl from "maplibre-gl";
+    import { Debounced } from "runed";
+    import { MapLibre, Marker, NavigationControl, Popup, ScaleControl } from "svelte-maplibre-gl";
 
-    import { browser } from "$app/environment";
-    import { getCityFromName, getParcelFromCity } from "$lib/mondial-relay/mondial-relay.remote.js";
+    import { ParcelSelector } from "$lib/components/ParcelSelector/parcelSelector.svelte.js";
     import Button from "$lib/components/ui/button/button.svelte";
     import Input from "$lib/components/ui/input/input.svelte";
     import Label from "$lib/components/ui/label/label.svelte";
-
-    import { ParcelSelector } from "./parcelSelector.svelte.js";
+    import { getCityFromName, getParcelFromCity, getParcelFromPos } from "$lib/mondial-relay/mondial-relay.remote.js";
+    import type { MondialRelayPointRelay } from "$lib/mondial-relay/types.js";
     import { cn } from "$lib/utils.js";
+
+    let { selectedParcel = $bindable(null) }: { selectedParcel: MondialRelayPointRelay | null } = $props();
 
     const parcelSelector = new ParcelSelector();
 
@@ -25,6 +26,8 @@
         return { ville: inputData.ville, cp: inputData.cp };
     }, 250);
 
+    let map = $state<maplibregl.Map | undefined>(undefined);
+
     let displaySuggestion = $state(false);
     let suggestionList = $state<HTMLUListElement | null>(null);
     let suggestions = $derived.by(async () => {
@@ -36,13 +39,14 @@
 
     let hoverParcel = $state<string | null>(null);
 
-    $inspect("raw data", inputData);
-    $inspect("debounced data", inputDataDebounced.current);
-    $inspect("parcels", parcelSelector.parcels);
-    $inspect(hoverParcel);
-    $inspect("selected", parcelSelector.selected);
+    // $inspect("raw data", inputData);
+    // $inspect("debounced data", inputDataDebounced.current);
+    // $inspect("raw position", parcelSelector.currPos);
+    // $inspect("debounced position", currPosDebounced.current);
+    // $inspect("parcels", parcelSelector.parcels);
+    // $inspect("selected", parcelSelector.selected);
 
-    const handleClick = (e: PointerEvent) => {
+    const handleClick = (e: MouseEvent) => {
         if (e.target) {
             const targetElId = (e.target as HTMLElement).id;
             if (targetElId === "ville" || targetElId === "cp" || targetElId.startsWith("suggestion-")) {
@@ -51,14 +55,9 @@
         }
         displaySuggestion = false;
     };
-
-    onMount(() => document.addEventListener("click", handleClick));
-    onDestroy(() => {
-        if (browser) {
-            document.removeEventListener("click", handleClick);
-        }
-    });
 </script>
+
+<svelte:document onclick={handleClick} />
 
 {#snippet openingTimeFromMondialRelay(day: string, times: string[])}
     {@const [timeMorning, timeAfternoon] = ParcelSelector.formatOpeningTime(times)}
@@ -103,11 +102,9 @@
                                 class="absolute right-0 left-0 z-10 mt-1 max-h-60 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
                             >
                                 {#each suggestionsList as suggestion (suggestion.Ville + suggestion.CP)}
-                                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                                    <li
+                                    <button
                                         id={`suggestion-${suggestion.Ville}-${suggestion.CP}`}
-                                        class="cursor-pointer px-3 py-2 hover:bg-gray-100"
+                                        class="w-full cursor-pointer px-3 py-2 text-left hover:bg-gray-100"
                                         onclick={() => {
                                             displaySuggestion = false;
                                             inputData.ville = suggestion.Ville;
@@ -116,7 +113,7 @@
                                         }}
                                     >
                                         {suggestion.Ville} ({suggestion.CP})
-                                    </li>
+                                    </button>
                                 {/each}
                             </ul>
                         {/if}
@@ -155,19 +152,29 @@
             <Button size="icon"><LocateIcon /></Button>
         </div>
     </div>
-    <div class="flex h-full flex-col gap-2 md:flex-row">
+    <div class="flex h-full flex-col-reverse gap-2 md:flex-row">
         <div class="max-h-64 w-full overflow-y-auto md:max-h-96 md:w-2/3">
             <div class="pr-2 pl-1">
                 {#each parcelSelector.parcels as [, parcel], i (parcel.Num)}
                     <button
                         class={cn(
-                            "peer/{i} my-1 w-full cursor-pointer rounded px-2 py-1 text-left",
+                            "my-1 w-full cursor-pointer rounded px-2 py-1 text-left",
                             hoverParcel === parcel.Num ? "bg-gray-100" : "bg-white",
-                            parcelSelector.selected?.Num === parcel.Num ? "outline-2" : "outline-0",
+                            selectedParcel?.Num === parcel.Num ? "outline-2" : "outline-0",
                         )}
                         onmouseenter={() => (hoverParcel = parcel.Num)}
                         onmouseleave={() => (hoverParcel = null)}
-                        onclick={() => (parcelSelector.selected = parcel)}
+                        onclick={() => {
+                            selectedParcel = parcel;
+                            if (map) {
+                                map.flyTo({
+                                    center: {
+                                        lat: parseFloat(parcel.Latitude.replace(",", ".")),
+                                        lon: parseFloat(parcel.Longitude.replace(",", ".")),
+                                    },
+                                });
+                            }
+                        }}
                     >
                         <div>
                             <p class="capitalize">{i + 1} - {parcel.LgAdr1}</p>
@@ -179,10 +186,14 @@
             </div>
         </div>
         <MapLibre
-            class="h-96 w-full"
-            zoom={14}
+            class="h-[35vh] w-full md:h-96"
+            zoom={12}
             style="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
             bind:center={parcelSelector.currPos}
+            bind:map
+            ondragend={async () => {
+                parcelSelector.addParcels(await getParcelFromPos(parcelSelector.currPos));
+            }}
         >
             <NavigationControl />
             <ScaleControl />
@@ -198,9 +209,11 @@
                             role="button"
                             tabindex="0"
                             class={cn(
-                                "size-5 cursor-pointer rounded-full text-center shadow outline-black",
-                                hoverParcel === parcel.Num ? "bg-gray-100" : "bg-white",
-                                parcelSelector.selected?.Num === parcel.Num ? "font-bold outline-2" : "outline-1",
+                                "flex size-6 cursor-pointer items-center justify-center rounded-full bg-white outline-1 outline-black",
+                                {
+                                    "bg-d-darkgray text-white": selectedParcel?.Num === parcel.Num,
+                                    "font-medium outline-2": hoverParcel === parcel.Num,
+                                },
                             )}
                             onmouseenter={() => (hoverParcel = parcel.Num)}
                             onmouseleave={() => (hoverParcel = null)}
@@ -212,7 +225,7 @@
                         closeButton={false}
                         onopen={() => {
                             hoverParcel = parcel.Num;
-                            parcelSelector.selected = parcel;
+                            selectedParcel = parcel;
                         }}
                         maxWidth="376px"
                     >
