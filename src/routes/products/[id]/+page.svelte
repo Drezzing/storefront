@@ -1,6 +1,7 @@
 <script lang="ts">
     import LoaderCircle from "@lucide/svelte/icons/loader-circle";
     import ShoppingBag from "@lucide/svelte/icons/shopping-bag";
+    import InfoIcon from "@lucide/svelte/icons/info";
     import { error } from "@sveltejs/kit";
 
     import { addProductToCart } from "$lib/cart/cart.remote.js";
@@ -12,6 +13,7 @@
     import { Separator } from "$lib/components/ui/separator";
     import { displayRemoteFunctionError } from "$lib/error.js";
     import { SIZE_MAP } from "$lib/medusa/product";
+    import * as Tooltip from "$lib/components/ui/tooltip/index.js";
 
     let { data } = $props();
     const { title, description, thumbnail, commonImages, collection, options, variants } = data;
@@ -114,6 +116,9 @@
                 <h1 class="text-xl font-bold">{title}</h1>
                 <p>{(variant.price / 100).toFixed(2)}€</p>
                 <p class="mt-2">{description}</p>
+                {#if collection.metadata?.cpv}
+                    <a class="underline" href={collection.metadata.cpv as string}>Conditions particulières de ventes</a>
+                {/if}
             </div>
 
             <div>
@@ -123,7 +128,25 @@
                         <Separator class="my-4" />
                     {/if}
                     <div class="grid grid-cols-[100px_auto] items-center gap-4 lg:grid-cols-[125px_auto] lg:gap-6">
-                        <h2>{option.option}</h2>
+                        {#if collection.metadata?.["guide-taille"] && option.option === "Taille"}
+                            <div class="flex flex-row items-center gap-4">
+                                <h2>{option.option}</h2>
+                                <Tooltip.Provider>
+                                    <Tooltip.Root>
+                                        <Tooltip.Trigger>
+                                            <a href={collection.metadata?.["guide-taille"] as string}
+                                                ><InfoIcon strokeWidth={1.5} /></a
+                                            ></Tooltip.Trigger
+                                        >
+                                        <Tooltip.Content>
+                                            <p>Guide des tailles</p>
+                                        </Tooltip.Content>
+                                    </Tooltip.Root>
+                                </Tooltip.Provider>
+                            </div>
+                        {:else}
+                            <h2>{option.option}</h2>
+                        {/if}
                         <OptionPicker choices={options.get(option.option) ?? []} bind:value={option.value} />
                     </div>
                 {/each}

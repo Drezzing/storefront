@@ -82,7 +82,11 @@ export const load = async ({ params }) => {
         description: product.description || "Placeholder description blabla",
         thumbnail: product.thumbnail || "",
         commonImages: commonImages,
-        collection: product.collection || { handle: "placeholder", title: "Placeholder" },
+        collection: product.collection || {
+            handle: "placeholder",
+            title: "Placeholder",
+            metadata: {} as Record<string, unknown>,
+        },
         options: optionMap,
         variants: variantMap,
     };
