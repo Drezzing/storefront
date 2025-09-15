@@ -23,6 +23,7 @@ export const userInfoFormSchema = z.object({
             "ZApp1",
             "ZApp2",
             "ZApp3",
+            "ZZ+",
             "Master 1",
             "Master 2",
             "Enseignant",
