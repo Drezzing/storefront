@@ -15,7 +15,7 @@
         name="description"
         content="Découvrez les dernières sorties et collections sur la page d'accueil de Drezzing."
     />
-    <meta property="og:title" content="Acceuil" />
+    <meta property="og:title" content="Accueil" />
     <meta
         property="og:description"
         content="Découvrez les dernières sorties et collections sur la page d'accueil de Drezzing."
