@@ -9,6 +9,7 @@ COPY patches/* patches/
 RUN bun install --frozen-lockfile
 
 COPY . .
+RUN npm run prepare
 RUN npm run build
 RUN rm -rf node_modules && bun install --frozen-lockfile --production
 
