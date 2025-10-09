@@ -2,7 +2,6 @@
     import LoaderCircle from "@lucide/svelte/icons/loader-circle";
     import ShoppingBag from "@lucide/svelte/icons/shopping-bag";
     import InfoIcon from "@lucide/svelte/icons/info";
-    import { error } from "@sveltejs/kit";
 
     import { addProductToCart } from "$lib/cart/cart.remote.js";
     import OptionPicker from "$lib/components/OptionPicker.svelte";
@@ -14,6 +13,7 @@
     import { displayRemoteFunctionError } from "$lib/error.js";
     import { SIZE_MAP } from "$lib/medusa/product";
     import * as Tooltip from "$lib/components/ui/tooltip/index.js";
+    import { ProductSelector } from "./productSelector.svelte.js";
 
     let { data } = $props();
     const { title, description, thumbnail, commonImages, collection, options, variants } = data;
@@ -25,32 +25,17 @@
         options.get("Taille")!.sort((a, b) => SIZE_MAP[a.toLowerCase()] - SIZE_MAP[b.toLowerCase()]);
     }
 
-    let selectedOptions = $state<{ option: string; value: string }[]>([]);
-    options.forEach((values, key) => {
-        selectedOptions.push({ option: key, value: values[0] });
-    });
-
-    let variant = $derived.by(() => {
-        const optionsSet = new Set(selectedOptions.map((option) => option.value));
-        const v = variants.find((variant) => {
-            return (
-                variant.options.size === optionsSet.size && [...variant.options].every((value) => optionsSet.has(value))
-            );
-        });
-        if (v === undefined) error(500);
-
-        return v;
-    });
+    const productSelector = new ProductSelector(options, variants);
 
     const addToCart = async () => {
-        if (variant.soldout) {
+        if (productSelector.selectedVariant.soldout) {
             return;
         }
 
         buttonState = ButtonStateEnum.Updating;
 
         try {
-            await addProductToCart({ product_id: variant.id, quantity: itemQuantity });
+            await addProductToCart({ product_id: productSelector.selectedVariant.id, quantity: itemQuantity });
             buttonState = ButtonStateEnum.Success;
         } catch (e) {
             buttonState = ButtonStateEnum.Fail;
@@ -60,7 +45,7 @@
     };
 
     let api = $state<CarouselAPI>();
-    let carouselImages = $derived([...variant.images, ...commonImages]);
+    let carouselImages = $derived([...productSelector.selectedVariant.images, ...commonImages]);
 
     let currentImage = $state(1);
     let imageCount = $derived(carouselImages.length);
@@ -114,7 +99,7 @@
         <div class="flex w-full max-w-[850px] flex-col gap-4 lg:w-auto lg:grow lg:gap-16">
             <div>
                 <h1 class="text-xl font-bold">{title}</h1>
-                <p>{(variant.price / 100).toFixed(2)}€</p>
+                <p>{(productSelector.selectedVariant.price / 100).toFixed(2)}€</p>
                 <p class="mt-2">{description}</p>
                 {#if collection.metadata?.cpv}
                     <a class="underline" href={collection.metadata.cpv as string}>Conditions particulières de ventes</a>
@@ -123,7 +108,7 @@
 
             <div>
                 <Separator class="mb-4 lg:hidden" />
-                {#each selectedOptions as option, i (option.option)}
+                {#each productSelector.selectedOptions as option, i (option.option)}
                     {#if i > 0}
                         <Separator class="my-4" />
                     {/if}
@@ -147,7 +132,10 @@
                         {:else}
                             <h2>{option.option}</h2>
                         {/if}
-                        <OptionPicker choices={options.get(option.option) ?? []} bind:value={option.value} />
+                        <OptionPicker
+                            choices={productSelector.availableOptions.get(option.option) ?? []}
+                            bind:value={option.value}
+                        />
                     </div>
                 {/each}
                 <Separator class="mt-4 lg:hidden" />
@@ -157,7 +145,7 @@
                 <QuantitySelector bind:value={itemQuantity} min={1} max={99} />
                 <StateButton
                     class="w-full"
-                    state={variant.soldout ? ButtonStateEnum.Updating : buttonState}
+                    state={productSelector.selectedVariant.soldout ? ButtonStateEnum.Updating : buttonState}
                     onclick={addToCart}
                 >
                     {#snippet idle()}
@@ -166,7 +154,7 @@
                     {/snippet}
 
                     {#snippet updating()}
-                        {#if variant.soldout}
+                        {#if productSelector.selectedVariant.soldout}
                             <p class="text-wrap">Produit plus disponible à la vente</p>
                         {:else}
                             <LoaderCircle class="animate-spin" />
