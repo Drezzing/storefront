@@ -2,21 +2,9 @@ import env from "$lib/env/private";
 import { handleError } from "$lib/error.js";
 import { medusa } from "$lib/medusa/medusa";
 import { isVariantSoldout } from "$lib/medusa/product";
+import type { StoreImage, StoreVariant } from "$lib/products/products";
 
 export const prerender = false;
-
-type StoreImage = {
-    url: string;
-    alt: string;
-};
-
-type StoreVariant = {
-    id: string;
-    options: Set<string>;
-    price: number;
-    soldout: boolean;
-    images: Array<StoreImage>;
-};
 
 export const load = async ({ params }) => {
     const products = await medusa.products
@@ -29,6 +17,9 @@ export const load = async ({ params }) => {
         return handleError(404, "PRODUCT_LOAD.PRODUCT_NOT_FOUND");
     }
     const product = products.products[0];
+    if (product.options === undefined) {
+        return handleError(500, "PRODUCT_LOAD.PRODUCT_OPTIONS_UNAVAILABLE");
+    }
 
     const optionMap = new Map<string, Array<string>>();
 
@@ -64,10 +55,16 @@ export const load = async ({ params }) => {
             commonImages.push(storeImage);
         }
     }
-
     const variantMap = new Array<StoreVariant>();
     for (const variant of product.variants) {
-        const variantOptions = new Set<string>(variant.options?.map((option) => option.value));
+        const variantOptions = new Set(
+            variant.options?.map((medusaOption) => {
+                return {
+                    option: product.options!.find((option) => option.id === medusaOption.option_id)?.title as string,
+                    value: medusaOption.value,
+                };
+            }),
+        );
         variantMap.push({
             id: variant.id!,
             options: variantOptions,
