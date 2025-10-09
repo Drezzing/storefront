@@ -23,7 +23,7 @@
             class={cn(
                 "hover:bg-d-darkgray cursor-pointer rounded-md bg-transparent px-4 py-3 text-center ring-1 ring-black transition-colors hover:text-white",
                 choice.value === value && !choice.disabled ? "bg-d-darkgray text-white" : "bg-transparent ring-1",
-                "transition-all delay-1000 aria-disabled:cursor-auto aria-disabled:text-gray-500 aria-disabled:ring-gray-400 aria-disabled:hover:bg-white aria-disabled:hover:text-gray-500",
+                "aria-disabled:cursor-auto aria-disabled:text-gray-500 aria-disabled:ring-gray-400 aria-disabled:hover:bg-white aria-disabled:hover:text-gray-500",
             )}
             for={choice.value}>{choice.value}</Label
         >
