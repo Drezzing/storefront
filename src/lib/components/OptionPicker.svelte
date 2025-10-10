@@ -16,7 +16,7 @@
 </script>
 
 <RadioGroup.Root class="flex flex-row flex-wrap justify-start gap-4" bind:value>
-    {#each choices as choice (choice)}
+    {#each choices as choice (choice.value)}
         <RadioGroup.Item id={choice.value} value={choice.value} class="hidden" disabled={choice.disabled} />
         <Label
             aria-disabled={choice.disabled}
