@@ -15,9 +15,9 @@ export class ProductSelector {
         this.variants = variants;
 
         this.options = options;
-        options.forEach((values, key) => {
-            this.selectedOptions.push({ option: key, value: values[0] });
-        });
+        this.variants[0].options.forEach((option) =>
+            this.selectedOptions.push({ option: option.option, value: option.value }),
+        );
 
         this.validVariants = new SvelteSet();
         for (const variant of this.variants) {
