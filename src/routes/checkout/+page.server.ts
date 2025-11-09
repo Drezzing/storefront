@@ -64,7 +64,6 @@ export const load = async ({ cookies }) => {
     const shippableProducts: { [variant: string]: boolean } = {};
     for (const item of cartInfo.cart.items) {
         if (item.variant) {
-            console.log(item.variant);
             const productTitle = `${item.variant.product!.title} (${item.variant.title})`;
             shippableProducts[productTitle] = isVariantShippable(item.variant);
         }
