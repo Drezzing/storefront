@@ -2,11 +2,17 @@ import { fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 
-import env from "$lib/env/public";
 import { handleError } from "$lib/error.js";
 import { getPriceDetails, type CheckoutData } from "$lib/medusa/checkout.js";
 import { checkCartExists, medusa } from "$lib/medusa/medusa.js";
-import { shippingFormSchema, userInfoFormSchema, type ShippingFormType } from "$lib/schemas/checkout";
+import {
+    shippingFormSchema,
+    shippingManualSchema,
+    shippingMondialRelayHomeSchema,
+    shippingMondialRelayParcelSchema,
+    userInfoFormSchema,
+} from "$lib/schemas/checkout";
+import { aesEncrypt } from "$lib/utils.js";
 
 export const prerender = false;
 
@@ -18,8 +24,7 @@ export const load = async ({ cookies }) => {
         return {
             cart: false,
             userInfoForm: null,
-            shippingForm: null,
-            shippingOptions: null,
+            shipping: null,
             priceDetails: null,
         } satisfies CheckoutData;
     }
@@ -30,9 +35,17 @@ export const load = async ({ cookies }) => {
 
     const shippingOptions = so.shipping_options.map((option) => {
         const optionPrice = (option.price_incl_tax ?? 0) / 100;
+        if (option.data === undefined || typeof option.data.id !== "string") {
+            return handleError(500, "CHECKOUT_LOAD_ACTION.SHIPPING_FULFILMENT_ID_MISSING", {
+                id: option.id,
+                name: option.name,
+                data: option.data,
+            });
+        }
         return {
             id: option.id!,
             name: `${option.name} - ${optionPrice ? `${optionPrice.toFixed(2)}€` : "Gratuite"}`,
+            fulfillment_id: option.data.id,
         };
     });
 
@@ -48,19 +61,20 @@ export const load = async ({ cookies }) => {
                 profile: undefined,
             },
         }),
-        shippingForm: await superValidate(zod4(shippingFormSchema), {
-            id: "shipping",
-            defaults: {
-                method: env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"),
-                address: undefined,
-                complement: undefined,
-                city: undefined,
-                postal_code: undefined,
-                // department: undefined,
-                // country: undefined,
+        shipping: {
+            forms: {
+                manualMethodForm: await superValidate(zod4(shippingManualSchema), {
+                    id: "shipping-method-manual",
+                }),
+                parcelShippingMethodForm: await superValidate(zod4(shippingMondialRelayParcelSchema), {
+                    id: "shipping-method-mondial-relay-parcel",
+                }),
+                homeShippingMethodForm: await superValidate(zod4(shippingMondialRelayHomeSchema), {
+                    id: "shipping-method-mondial-relay-home",
+                }),
             },
-        }),
-        shippingOptions,
+            shippingOptions: shippingOptions,
+        },
         priceDetails: getPriceDetails(cartInfo.cart),
     } satisfies CheckoutData;
 };
@@ -107,6 +121,7 @@ export const actions = {
 
     shipping: async (event) => {
         const shippingForm = await superValidate(event, zod4(shippingFormSchema));
+
         if (!shippingForm.valid) {
             return fail(400, {
                 shippingForm,
@@ -129,30 +144,15 @@ export const actions = {
             }),
         ];
 
-        if (shippingForm.data.method !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID")) {
-            // const country_code = cartInfo.cart.region.countries.find(
-            //     (country) => country.name === form.data.country?.toUpperCase(),
-            // );
-
-            const shippingAddress = shippingForm.data as Required<ShippingFormType>;
-            const shppingUpdate = medusa.carts
-                .update(cartInfo.cart.id, {
-                    shipping_address: {
-                        address_1: shippingAddress.address,
-                        address_2: shippingAddress.complement,
-                        city: shippingAddress.city,
-                        postal_code: shippingAddress.postal_code,
-                        country_code: "fr",
-                    },
-                })
-                .catch((err) => {
-                    return handleError(500, "CHECKOUT_SHIPPING_ACTION.UPDATE_SHIPPING_ADDRESS_FAILED", {
-                        error: err.response.data,
-                    });
-                });
-            promises.push(shppingUpdate);
+        if (shippingForm.data.fulfillment_id != "manual-fulfillment") {
+            const shippingUpdate = medusa.carts.update(cartInfo.cart.id, {
+                context: {
+                    ...cartInfo.cart.context,
+                    shipping_data: aesEncrypt(JSON.stringify(shippingForm.data)),
+                },
+            });
+            promises.push(shippingUpdate);
         }
-
         const [cartUpdated] = await Promise.all(promises);
 
         return { shippingForm, success: true, priceDetails: getPriceDetails(cartUpdated.cart) };

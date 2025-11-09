@@ -1,6 +1,11 @@
 import type { Infer, SuperValidated } from "sveltekit-superforms";
 
-import type { ShippingFormSchema, UserInfoFormSchema } from "$lib/schemas/checkout";
+import type {
+    ShippingManualFormSchema,
+    ShippingMondialRelayHomeSchema,
+    ShippingMondialRelayParcelSchema,
+    UserInfoFormSchema,
+} from "$lib/schemas/checkout";
 
 import type { MedusaCart } from "./medusa";
 import type { ShippingOption } from "./shipping";
@@ -25,14 +30,19 @@ export type CheckoutData =
     | {
           cart: true;
           userInfoForm: SuperValidated<Infer<UserInfoFormSchema>>;
-          shippingForm: SuperValidated<Infer<ShippingFormSchema>>;
-          shippingOptions: ShippingOption[];
+          shipping: {
+              forms: {
+                  manualMethodForm: SuperValidated<Infer<ShippingManualFormSchema>>;
+                  parcelShippingMethodForm: SuperValidated<Infer<ShippingMondialRelayParcelSchema>>;
+                  homeShippingMethodForm: SuperValidated<Infer<ShippingMondialRelayHomeSchema>>;
+              };
+              shippingOptions: ShippingOption[];
+          };
           priceDetails: PriceDetails;
       }
     | {
           cart: false;
           userInfoForm: null;
-          shippingForm: null;
-          shippingOptions: null;
+          shipping: null;
           priceDetails: null;
       };

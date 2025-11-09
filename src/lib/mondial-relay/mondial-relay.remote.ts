@@ -94,7 +94,5 @@ export const getParcelFromPos = query(mondialRelayPositionSearchSchema, async ({
         return [];
     }
 
-    console.log(results);
-
     return results.PointsRelais.PointRelais_Details;
 });

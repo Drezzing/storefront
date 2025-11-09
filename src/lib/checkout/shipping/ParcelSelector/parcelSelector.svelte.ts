@@ -1,5 +1,6 @@
-import type { MondialRelayPointRelay } from "$lib/mondial-relay/types";
 import { SvelteMap } from "svelte/reactivity";
+
+import type { MondialRelayPointRelay } from "$lib/mondial-relay/types";
 
 export type LongLat = {
     lon: number;

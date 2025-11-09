@@ -1,11 +1,10 @@
 <script lang="ts">
-    import LocateIcon from "@lucide/svelte/icons/locate";
     import SearchIcon from "@lucide/svelte/icons/search";
     import maplibregl from "maplibre-gl";
     import { Debounced } from "runed";
     import { MapLibre, Marker, NavigationControl, Popup, ScaleControl } from "svelte-maplibre-gl";
 
-    import { ParcelSelector } from "$lib/components/ParcelSelector/parcelSelector.svelte.js";
+    import { ParcelSelector } from "$lib/checkout/shipping/ParcelSelector/parcelSelector.svelte.js";
     import Button from "$lib/components/ui/button/button.svelte";
     import Input from "$lib/components/ui/input/input.svelte";
     import Label from "$lib/components/ui/label/label.svelte";
@@ -39,13 +38,6 @@
 
     let hoverParcel = $state<string | null>(null);
 
-    // $inspect("raw data", inputData);
-    // $inspect("debounced data", inputDataDebounced.current);
-    // $inspect("raw position", parcelSelector.currPos);
-    // $inspect("debounced position", currPosDebounced.current);
-    // $inspect("parcels", parcelSelector.parcels);
-    // $inspect("selected", parcelSelector.selected);
-
     const handleClick = (e: MouseEvent) => {
         if (e.target) {
             const targetElId = (e.target as HTMLElement).id;
@@ -68,7 +60,7 @@
     </tr>
 {/snippet}
 
-<div class="mx-8 flex flex-col gap-4">
+<div class="flex flex-col gap-4">
     <div class="flex flex-col items-start gap-4 md:flex-row md:items-end">
         <div class="w-full grow space-y-2">
             <Label for="ville">Ville</Label>
@@ -141,22 +133,23 @@
                 placeholder="Code postal"
             />
         </div>
-        <div class="flex flex-row gap-1">
-            <Button
-                size="icon"
-                class="w-auto px-2.5"
-                onclick={async () => parcelSelector.addParcels(await getParcelFromCity(inputData))}
-                ><SearchIcon class="hidden md:block" />
-                <p class="md:hidden">Rechercher</p></Button
-            >
+        <Button
+            size="icon"
+            class="w-auto px-2.5"
+            onclick={async () => parcelSelector.addParcels(await getParcelFromCity(inputData))}
+            ><SearchIcon class="hidden md:block" />
+            <p class="md:hidden">Rechercher</p></Button
+        >
+        <!-- <div class="flex flex-row gap-1">
             <Button size="icon"><LocateIcon /></Button>
-        </div>
+        </div> -->
     </div>
     <div class="flex h-full flex-col-reverse gap-2 md:flex-row">
         <div class="max-h-64 w-full overflow-y-auto md:max-h-96 md:w-2/3">
             <div class="pr-2 pl-1">
                 {#each parcelSelector.parcels as [, parcel], i (parcel.Num)}
                     <button
+                        type="button"
                         class={cn(
                             "my-1 w-full cursor-pointer rounded px-2 py-1 text-left",
                             hoverParcel === parcel.Num ? "bg-gray-100" : "bg-white",

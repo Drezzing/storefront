@@ -7,21 +7,24 @@
     import { Address, Elements, PaymentElement } from "svelte-stripe";
 
     import { goto } from "$app/navigation";
-    import type { ShippingFormType, UserInfoFormType } from "$lib/schemas/checkout";
     import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import env from "$lib/env/public";
     import { displayRemoteFunctionError } from "$lib/error";
+    import type { ShippingMondialRelayHomeType, UserInfoFormType } from "$lib/schemas/checkout";
     import { getClientSecret, submitConfirmationToken } from "./checkout.remote";
 
     let {
-        userData,
-        shippingData,
+        userInfo,
+        userShippingAddress,
     }: {
-        userData: UserInfoFormType;
-        shippingData: ShippingFormType;
+        userInfo: UserInfoFormType;
+        userShippingAddress: ShippingMondialRelayHomeType | undefined;
     } = $props();
 
-    let userName = $derived(userData.firstName + " " + userData.lastName);
+    let defaultedUserInfo: UserInfoFormType = $derived(
+        userInfo ?? { firstName: "", lastName: "", mail: "", profile: "Prep'Isima 1" },
+    );
+    let userName = $derived(defaultedUserInfo.firstName + " " + defaultedUserInfo.lastName);
 
     let stripeSDK: Stripe | null = $state(null);
     let clientSecret: string | undefined = $state(undefined);
@@ -73,7 +76,7 @@
             params: {
                 return_url: env.get("PUBLIC_BASE_URL") + "/cart/complete",
                 payment_method_data: {
-                    billing_details: { email: userData.mail, name: userData.firstName + " " + userData.lastName },
+                    billing_details: { email: defaultedUserInfo.mail, name: userName },
                 },
             },
         });
@@ -135,7 +138,7 @@
         theme="flat"
         bind:elements
     >
-        {#key [shippingData, userName]}
+        {#key [userShippingAddress, userName]}
             <Address
                 fields={{ phone: "never" }}
                 mode="billing"
@@ -144,10 +147,10 @@
                 defaultValues={{
                     name: userName,
                     address: {
-                        line1: shippingData.address,
-                        line2: shippingData.complement,
-                        postal_code: shippingData.postal_code,
-                        city: shippingData.city,
+                        line1: userShippingAddress?.address,
+                        line2: userShippingAddress?.complement,
+                        postal_code: userShippingAddress?.postal_code,
+                        city: userShippingAddress?.city,
                         country: "FR",
                     },
                 }}

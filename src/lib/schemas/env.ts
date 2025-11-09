@@ -20,6 +20,7 @@ export const privateEnvSchema = z.object({
 
     MONDIAL_RELAY_ENSEIGNE: z.string(),
     MONDIAN_RELAY_API1_PRIVATE_KEY: z.string(),
+    SHIPPING_AES_KEY: z.string().check(z.length(32)),
 
     DISCORD_WEBHOOK: z.url(),
 
