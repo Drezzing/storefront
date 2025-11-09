@@ -1,7 +1,9 @@
 import { fail } from "@sveltejs/kit";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
+import crypto from "crypto";
 
+import env from "$lib/env/private";
 import { handleError } from "$lib/error.js";
 import { getPriceDetails, type CheckoutData } from "$lib/medusa/checkout.js";
 import { checkCartExists, medusa } from "$lib/medusa/medusa.js";
@@ -12,9 +14,18 @@ import {
     shippingMondialRelayParcelSchema,
     userInfoFormSchema,
 } from "$lib/schemas/checkout";
-import { aesEncrypt } from "$lib/utils.js";
 
 export const prerender = false;
+
+const aesEncrypt = (text: string) => {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(env.get("SHIPPING_AES_KEY")), iv);
+
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+    return iv.toString("hex") + ":" + encrypted.toString("hex");
+};
 
 export const load = async ({ cookies }) => {
     const cartId = cookies.get("panier");

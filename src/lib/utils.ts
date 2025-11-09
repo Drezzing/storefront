@@ -1,26 +1,14 @@
 import { type ClassValue, clsx } from "clsx";
-import * as crypto from "crypto";
 import { cubicOut } from "svelte/easing";
 import type { TransitionConfig } from "svelte/transition";
 import { twMerge } from "tailwind-merge";
 
-import env from "$lib/env/private";
 import { dummyQuery } from "$lib/utils.remote";
 
 // Remote functions currently invalidate load function if no refresh is specified,
 // this helper forces an empty refresh so load function isn't re-run
 export const forceNoRefresh = async () => {
     await dummyQuery().refresh();
-};
-
-export const aesEncrypt = (text: string) => {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(env.get("SHIPPING_AES_KEY")), iv);
-
-    let encrypted = cipher.update(text);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-
-    return iv.toString("hex") + ":" + encrypted.toString("hex");
 };
 
 export function cn(...inputs: ClassValue[]) {
