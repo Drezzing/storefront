@@ -1,12 +1,13 @@
 import { fail } from "@sveltejs/kit";
+import crypto from "crypto";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
-import crypto from "crypto";
 
 import env from "$lib/env/private";
 import { handleError } from "$lib/error.js";
 import { getPriceDetails, type CheckoutData } from "$lib/medusa/checkout.js";
 import { checkCartExists, medusa } from "$lib/medusa/medusa.js";
+import { isVariantShippable } from "$lib/medusa/shipping.js";
 import {
     shippingFormSchema,
     shippingManualSchema,
@@ -60,6 +61,15 @@ export const load = async ({ cookies }) => {
         };
     });
 
+    const shippableProducts: { [variant: string]: boolean } = {};
+    for (const item of cartInfo.cart.items) {
+        if (item.variant) {
+            console.log(item.variant);
+            const productTitle = `${item.variant.product!.title} (${item.variant.title})`;
+            shippableProducts[productTitle] = isVariantShippable(item.variant);
+        }
+    }
+
     return {
         cart: true,
         // @ts-expect-error undefined to force select on placeholder
@@ -85,6 +95,7 @@ export const load = async ({ cookies }) => {
                 }),
             },
             shippingOptions: shippingOptions,
+            shippableProducts: shippableProducts,
         },
         priceDetails: getPriceDetails(cartInfo.cart),
     } satisfies CheckoutData;

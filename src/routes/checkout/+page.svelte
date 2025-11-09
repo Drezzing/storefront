@@ -70,6 +70,7 @@
                             <ShippingForm
                                 forms={checkoutData.shipping.forms}
                                 options={checkoutData.shipping.shippingOptions}
+                                shippableProducts={checkoutData.shipping.shippableProducts}
                             />
                         </Accordion.Content>
                     </Accordion.Item>

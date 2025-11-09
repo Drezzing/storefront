@@ -37,6 +37,7 @@ export type CheckoutData =
                   homeShippingMethodForm: SuperValidated<Infer<ShippingMondialRelayHomeSchema>>;
               };
               shippingOptions: ShippingOption[];
+              shippableProducts: Record<string, boolean>;
           };
           priceDetails: PriceDetails;
       }
