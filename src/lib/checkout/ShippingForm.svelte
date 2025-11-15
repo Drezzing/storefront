@@ -45,7 +45,11 @@
         </Select.Trigger>
         <Select.Content>
             {#each options as option (option.id)}
-                <Select.Item value={option.id} label={option.name} />
+                <Select.Item
+                    value={option.id}
+                    label={`${option.name} - ${option.disabled ? "Non disponible" : option.price}`}
+                    disabled={option.disabled}
+                />
             {/each}
         </Select.Content>
     </Select.Root>

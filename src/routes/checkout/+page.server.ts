@@ -6,7 +6,7 @@ import { zod4 } from "sveltekit-superforms/adapters";
 import env from "$lib/env/private";
 import { handleError } from "$lib/error.js";
 import { getPriceDetails, type CheckoutData } from "$lib/medusa/checkout.js";
-import { checkCartExists, medusa } from "$lib/medusa/medusa.js";
+import { checkCartExists, checkShippingOptionExists, medusa } from "$lib/medusa/medusa.js";
 import { isVariantShippable } from "$lib/medusa/shipping.js";
 import {
     shippingFormSchema,
@@ -56,8 +56,10 @@ export const load = async ({ cookies }) => {
         }
         return {
             id: option.id!,
-            name: `${option.name} - ${optionPrice ? `${optionPrice.toFixed(2)}€` : "Gratuite"}`,
+            name: option.name!,
+            price: optionPrice ? `${optionPrice.toFixed(2)}€` : "Gratuite",
             fulfillment_id: option.data.id,
+            disabled: optionPrice < 0,
         };
     });
 
@@ -151,10 +153,22 @@ export const actions = {
         }
 
         const cartId = event.cookies.get("panier");
-        const cartInfo = await checkCartExists(cartId);
+        const [cartInfo, shippingOptionInfo] = await Promise.all([
+            checkCartExists(cartId),
+            checkShippingOptionExists(shippingForm.data.method),
+        ]);
 
         if (cartInfo.err) {
-            return handleError(500, "CHECKOUT_SHIPPING_ACTION.CART_NOT_FOUND");
+            return handleError(404, "CHECKOUT_SHIPPING_ACTION.CART_NOT_FOUND");
+        }
+
+        if (shippingOptionInfo.err) {
+            return handleError(404, "CHECKOUT_SHIPPING_ACTION.SHIPPING_OPTION_NOT_FOUND");
+        }
+
+        // if < 0, means this cart only has non-shippable products
+        if (shippingOptionInfo.shipping_option.amount === null || shippingOptionInfo.shipping_option.amount < 0) {
+            return handleError(400, "CHECKOUT_SHIPPING_ACTION.SHIPPING_OPTION_NOT_AVAILABLE");
         }
 
         const promises = [

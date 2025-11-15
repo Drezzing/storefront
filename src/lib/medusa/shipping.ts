@@ -3,7 +3,9 @@ import type { MedusaVariant } from "./medusa";
 export type ShippingOption = {
     id: string;
     name: string;
+    price: string;
     fulfillment_id: string;
+    disabled: boolean;
 };
 
 export const isVariantShippable = (variant: MedusaVariant): boolean => {
