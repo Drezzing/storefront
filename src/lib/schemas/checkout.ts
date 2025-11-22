@@ -76,7 +76,7 @@ export const shippingMondialRelayHomeSchema = z.object({
     phone: z.union(
         [
             z.string().check(z.regex(/\+33[1-9][0-9]{8}$/)), // France
-            z.string().check(z.regex(/\+377[0-9]{5,9}$$/)), // Monaco
+            z.string().check(z.regex(/\+377[0-9]{5,9}$/)), // Monaco
             z.string().check(z.regex(/\+262[1-9][0-9]{6}$/)), // Réunion + Mayotte
             z.string().check(z.regex(/\+590[1-9][0-9]{6}$/)), // Guadeloupe
             z.string().check(z.regex(/\+594[1-9][0-9]{8}$/)), // Guyane
