@@ -10,7 +10,11 @@
     import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
     import env from "$lib/env/public";
     import { displayRemoteFunctionError } from "$lib/error";
-    import type { ShippingMondialRelayHomeType, UserInfoFormType } from "$lib/schemas/checkout";
+    import {
+        userInfoFormSchema,
+        type ShippingMondialRelayHomeType,
+        type UserInfoFormType,
+    } from "$lib/schemas/checkout";
     import { getClientSecret, submitConfirmationToken } from "./checkout.remote";
 
     let {
@@ -22,7 +26,12 @@
     } = $props();
 
     let defaultedUserInfo: UserInfoFormType = $derived(
-        userInfo ?? { firstName: "", lastName: "", mail: "", profile: "Prep'Isima 1" },
+        userInfo ?? {
+            firstName: "",
+            lastName: "",
+            mail: "",
+            profile: Object.values(userInfoFormSchema.shape.profile.def.entries)[0],
+        },
     );
     let userName = $derived(defaultedUserInfo.firstName + " " + defaultedUserInfo.lastName);
 
