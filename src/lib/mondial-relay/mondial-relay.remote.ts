@@ -40,7 +40,7 @@ export const getCityFromName = query(mondialRelayParcelSearchSchema, async ({ vi
         Ville: normalizeText(ville),
         CP: cp,
         NbResult: "15",
-        PrivateKey: env.get("MONDIAN_RELAY_API1_PRIVATE_KEY"),
+        PrivateKey: env.get("MONDIAL_RELAY_API1_PRIVATE_KEY"),
     };
     const results = (await executeApiCall(args, "WSI2_RechercheCP")) as SearchZipCodeResults;
 
@@ -58,7 +58,7 @@ export const getParcelFromCity = query(mondialRelayParcelSearchSchema, async ({ 
         Ville: normalizeText(ville),
         CP: cp,
         NombreResultats: "15",
-        PrivateKey: env.get("MONDIAN_RELAY_API1_PRIVATE_KEY"),
+        PrivateKey: env.get("MONDIAL_RELAY_API1_PRIVATE_KEY"),
     };
 
     const results = (await executeApiCall(args, "WSI4_PointRelais_Recherche")) as SearchParcelResults;
@@ -85,7 +85,7 @@ export const getParcelFromPos = query(mondialRelayPositionSearchSchema, async ({
         Latitude: formatNumber(lat),
         Longitude: formatNumber(lon),
         NombreResultats: "5",
-        PrivateKey: env.get("MONDIAN_RELAY_API1_PRIVATE_KEY"),
+        PrivateKey: env.get("MONDIAL_RELAY_API1_PRIVATE_KEY"),
     };
 
     // @ts-expect-error missing lat/lon type in lib
