@@ -22,10 +22,10 @@
 
         untrack(() => (value = String(Number(value) + 1)));
 
-        if (form.userInfoForm) {
+        if (form.userInfoForm && form.userInfoForm.valid) {
             userInfo = form.userInfoForm.data;
             untrack(() => (currentState = Math.max(currentState, 1)));
-        } else if (form.shippingForm.valid && form.priceDetails) {
+        } else if (form.shippingForm && form.shippingForm.valid && form.priceDetails) {
             if (form.shippingForm.data.fulfillment_id === "mondial-relay-home") {
                 userShippingAddress = form.shippingForm.data;
             }
