@@ -166,9 +166,18 @@ export const actions = {
             return handleError(404, "CHECKOUT_SHIPPING_ACTION.SHIPPING_OPTION_NOT_FOUND");
         }
 
+        // if null and not calculated, means something probably went wrong
+        const isReallyNull =
+            shippingOptionInfo.shipping_option.amount === null &&
+            shippingOptionInfo.shipping_option.price_type != "calculated";
+
         // if < 0, means this cart only has non-shippable products
-        if (shippingOptionInfo.shipping_option.amount === null || shippingOptionInfo.shipping_option.amount < 0) {
-            return handleError(400, "CHECKOUT_SHIPPING_ACTION.SHIPPING_OPTION_NOT_AVAILABLE");
+        const isNegative = (shippingOptionInfo.shipping_option.amount || 0) < 0;
+        if (isReallyNull || isNegative) {
+            return handleError(400, "CHECKOUT_SHIPPING_ACTION.SHIPPING_OPTION_NOT_AVAILABLE", {
+                id: shippingOptionInfo.shipping_option.id,
+                name: shippingOptionInfo.shipping_option.name,
+            });
         }
 
         const promises = [
