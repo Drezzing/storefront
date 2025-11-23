@@ -1,168 +1,69 @@
 <script lang="ts">
-    import Check from "@lucide/svelte/icons/check";
-    import ChevronRight from "@lucide/svelte/icons/chevron-right";
-    import LoaderCircle from "@lucide/svelte/icons/loader-circle";
-    import X from "@lucide/svelte/icons/x";
-    import { onMount } from "svelte";
-    import { toast } from "svelte-sonner";
-    import { fly } from "svelte/transition";
-    import { superForm, type SuperValidated, type Infer } from "sveltekit-superforms";
-    import { zod4Client } from "sveltekit-superforms/adapters";
-
-    import { ButtonStateEnum, StateButton } from "$lib/components/StateButton";
-    import * as Form from "$lib/components/ui/form/index.js";
-    import { Input } from "$lib/components/ui/input/index.js";
+    import Label from "$lib/components/ui/label/label.svelte";
     import * as Select from "$lib/components/ui/select";
-    import env from "$lib/env/public";
+    import type { CheckoutData } from "$lib/medusa/checkout";
     import type { ShippingOption } from "$lib/medusa/shipping";
-    import { shippingFormSchema, type ShippingFormSchema } from "$lib/schemas/checkout";
-    import { cn } from "$lib/utils";
+    import HomeShipping from "./shipping/HomeShipping.svelte";
+    import ManualShipping from "./shipping/ManualShipping.svelte";
+    import ParcelShipping from "./shipping/ParcelShipping.svelte";
 
     const {
-        data = $bindable(),
+        forms = $bindable(),
         options,
-    }: { data: SuperValidated<Infer<ShippingFormSchema>>; options: ShippingOption[] } = $props();
+        shippableProducts,
+    }: {
+        forms: Exclude<CheckoutData["shipping"], null>["forms"];
+        options: ShippingOption[];
+        shippableProducts: Record<string, boolean>;
+    } = $props();
 
-    let submitState = $state(ButtonStateEnum.Idle);
-
-    const form = superForm(data, {
-        validators: zod4Client(shippingFormSchema),
-        resetForm: false,
-        invalidateAll: false,
-        onSubmit() {
-            submitState = ButtonStateEnum.Updating;
-        },
-        onUpdated({ form }) {
-            if (!form.valid) {
-                submitState = ButtonStateEnum.Fail;
-                setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
-            }
-        },
-        onError({ result }) {
-            const message = result.error.message || "Erreur inconnue";
-            toast.error("Une erreur est survenue", {
-                description: "Code erreur : " + message,
-            });
-
-            submitState = ButtonStateEnum.Fail;
-            setTimeout(() => (submitState = ButtonStateEnum.Idle), 2500);
-        },
-        onResult() {
-            submitState = ButtonStateEnum.Idle;
-        },
-    });
-    const { form: formData, enhance } = form;
-    const shippingFormOpen = $derived($formData.method !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"));
-
-    onMount(() => {
-        const select: HTMLButtonElement | null = document.querySelector("form[id='shipping'] > * > button");
-        if (select) {
-            select.focus();
-        }
-    });
+    let method = $state<string>();
+    const selectedOption = $derived(options.find((option) => option.id === method));
+    const hasUnshippable = $derived(Object.values(shippableProducts).some((shippable) => !shippable));
 </script>
 
-<form
-    id="shipping"
-    method="POST"
-    action="?/shipping"
-    class={cn("grid grid-rows-3 p-2", shippingFormOpen ? "grid-rows-[auto_auto_auto]" : "grid-rows-[auto_auto]")}
-    use:enhance
->
-    <Form.Field {form} name="method">
-        <Form.Control>
-            {#snippet children({ props })}
-                <Form.Label>Mode de livraison</Form.Label>
-                <Select.Root type="single" bind:value={$formData.method} name={props.name}>
-                    <Select.Trigger {...props} class="w-full">
-                        {$formData.method
-                            ? options.find((option) => option.id === $formData.method)?.name
-                            : "Mode de livraison"}
-                    </Select.Trigger>
-                    <Select.Content>
-                        {#each options as option (option.id)}
-                            <Select.Item value={option.id} label={option.name} />
-                        {/each}
-                    </Select.Content>
-                </Select.Root>
-            {/snippet}
-        </Form.Control>
-        <Form.FieldErrors />
-    </Form.Field>
-
-    {#if shippingFormOpen}
-        <div transition:fly={{ duration: 250 }}>
-            <Form.Field {form} name="address" class="mt-4 mb-4">
-                <Form.Control>
-                    {#snippet children({ props })}
-                        <Form.Label>Adresse</Form.Label>
-                        <Input {...props} bind:value={$formData.address} placeholder="123 rue exemple" />
-                    {/snippet}
-                </Form.Control>
-                <Form.FieldErrors />
-            </Form.Field>
-
-            <Form.Field {form} name="complement" class="mb-4">
-                <Form.Control>
-                    {#snippet children({ props })}
-                        <Form.Label>Complément (Optionel)</Form.Label>
-                        <Input {...props} bind:value={$formData.complement} placeholder="Appartement A123" />
-                    {/snippet}
-                </Form.Control>
-                <Form.FieldErrors />
-            </Form.Field>
-
-            <div class="space-y-4 sm:grid sm:grid-cols-[70%_auto] sm:space-y-0 sm:gap-x-2">
-                <Form.Field {form} name="city">
-                    <Form.Control>
-                        {#snippet children({ props })}
-                            <Form.Label>Ville</Form.Label>
-                            <Input {...props} bind:value={$formData.city} placeholder="Paris" />
-                        {/snippet}
-                    </Form.Control>
-                    <Form.FieldErrors />
-                </Form.Field>
-
-                <Form.Field {form} name="postal_code">
-                    <Form.Control>
-                        {#snippet children({ props })}
-                            <Form.Label>Code postal</Form.Label>
-                            <Input {...props} bind:value={$formData.postal_code} placeholder="75000" />
-                        {/snippet}
-                    </Form.Control>
-                    <Form.FieldErrors />
-                </Form.Field>
-            </div>
-
-            <!-- <Form.Field {form} name="country">
-                <Form.Control>
-                    {#snippet children({ attrs }: { attrs: object })}
-                        <Form.Label>Pays</Form.Label>
-                        <Input {...attrs} bind:value={$formData.country} placeholder="France" />
-                    {/snippet}
-                </Form.Control>
-                <Form.FieldErrors />
-            </Form.Field> -->
+{#snippet warnUnshippable()}
+    {#if hasUnshippable}
+        <div class="mt-4 rounded bg-[#ffedcc] px-4 py-2 outline-2 outline-[#f0b37e]">
+            <p>Les produits suivants ne sont pas disponibles à la livraison :</p>
+            <ul>
+                {#each Object.entries(shippableProducts) as [product, shippable] (product)}
+                    {#if !shippable}
+                        <li>- {product}</li>
+                    {/if}
+                {/each}
+            </ul>
         </div>
     {/if}
+{/snippet}
 
-    <div class="mt-4 w-16 justify-self-end">
-        <StateButton state={submitState} type="formSubmit">
-            {#snippet idle()}
-                <ChevronRight strokeWidth={1.5} />
-            {/snippet}
-
-            {#snippet updating()}
-                <LoaderCircle class="animate-spin"></LoaderCircle>
-            {/snippet}
-
-            {#snippet success()}
-                <Check />
-            {/snippet}
-
-            {#snippet fail()}
-                <X />
-            {/snippet}
-        </StateButton>
-    </div>
-</form>
+<div class="space-y-2 px-2">
+    <Label for="method">Mode de livraison</Label>
+    <Select.Root type="single" bind:value={method}>
+        <Select.Trigger class="w-full" id="method">
+            {selectedOption ? selectedOption.name : "Mode de livraison"}
+        </Select.Trigger>
+        <Select.Content>
+            {#each options as option (option.id)}
+                <Select.Item
+                    value={option.id}
+                    label={`${option.name} - ${option.disabled ? "Non disponible" : option.price}`}
+                    disabled={option.disabled}
+                />
+            {/each}
+        </Select.Content>
+    </Select.Root>
+    {#if selectedOption}
+        {#if selectedOption.fulfillment_id === "manual-fulfillment"}
+            <ManualShipping data={forms.manualMethodForm} method={selectedOption.id} />
+        {:else if selectedOption?.fulfillment_id === "mondial-relay-point-relais"}
+            {@render warnUnshippable()}
+            <ParcelShipping data={forms.parcelShippingMethodForm} method={selectedOption.id} />
+        {:else if selectedOption?.fulfillment_id === "mondial-relay-home"}
+            {@render warnUnshippable()}
+            <HomeShipping data={forms.homeShippingMethodForm} method={selectedOption.id} />
+        {:else}
+            <p>Something went wrong</p>
+        {/if}
+    {/if}
+</div>

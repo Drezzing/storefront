@@ -1,7 +1,5 @@
 import { z } from "zod/v4-mini";
 
-import env from "$lib/env/public";
-
 const nameRegex = z.regex(/^([a-zA-Zà-žÀ-Ž\- ']*)$/g, { error: "Contient des caractères non-autorisé" });
 
 export const userInfoFormSchema = z.object({
@@ -34,53 +32,71 @@ export const userInfoFormSchema = z.object({
     ),
 });
 
-export const shippingFormSchema = z
-    .object({
-        method: z.string(),
-        address: z.optional(z.string()),
-        complement: z.optional(z.string()),
-        city: z.optional(z.string()),
-        postal_code: z.optional(z.string()),
-        // department: z.optional(z.string()),
-        // country: z.optional(z.string()),
-    })
-    .check((ctx) => {
-        if (!ctx.value.method) {
-            ctx.issues.push({
-                code: "custom",
-                input: ctx.value.method,
-                path: ["method"],
-                message: "Le mode de livraison est requis",
-            });
-            return;
-        }
+const baseShippingForm = z.object({
+    method: z.string(),
+});
 
-        if (ctx.value.method !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID")) {
-            if (!ctx.value.address)
-                ctx.issues.push({
-                    code: "custom",
-                    input: ctx.value.address,
-                    path: ["address"],
-                    message: "L'adresse est requise",
-                });
-            if (!ctx.value.city)
-                ctx.issues.push({
-                    code: "custom",
-                    input: ctx.value.city,
-                    path: ["city"],
-                    message: "La ville est requise",
-                });
-            if (!ctx.value.postal_code)
-                ctx.issues.push({
-                    code: "custom",
-                    input: ctx.value.postal_code,
-                    path: ["postal_code"],
-                    message: "Le code postal est requis",
-                });
-            // if (!data.country)
-            //     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["country"], message: "Le pays est requis" });
-        }
-    });
+export const shippingManualSchema = z.object({
+    ...baseShippingForm.shape,
+    fulfillment_id: z.literal("manual-fulfillment"),
+});
+
+export const shippingMondialRelayParcelSchema = z.object({
+    ...baseShippingForm.shape,
+    fulfillment_id: z.literal("mondial-relay-point-relais"),
+    parcel_id: z.string({ error: "Le point relais est requis" }),
+});
+
+export const shippingMondialRelayHomeSchema = z.object({
+    ...baseShippingForm.shape,
+    fulfillment_id: z.literal("mondial-relay-home"),
+    address: z
+        .string({ error: "L'adresse est requise" })
+        .check(
+            z.minLength(5, { error: "L'adresse doit faire au moins 5 caractères" }),
+            z.maxLength(40, { error: "L'adresse ne doit pas faire plus de 40 caractères" }),
+            z.regex(/^[0-9A-Za-zÀ-ÖØ-öø-ÿ_\-'.,\s]*$/g, { error: "Contient des caractères non-autorisé" }),
+        ),
+    complement: z.optional(
+        z
+            .string()
+            .check(
+                z.maxLength(30, { error: "Le complément ne doit pas faire plus de 30 caractères" }),
+                z.regex(/^[A-Za-zÀ-ÖØ-öø-ÿ_\-'.,\s]*$/g, { error: "Contient des caractères non-autorisé" }),
+            ),
+    ),
+    city: z
+        .string()
+        .check(
+            z.minLength(2, { error: "La ville doit faire au moins 2 caractères" }),
+            z.maxLength(30, { error: "La ville ne doit pas faire plus de 30 caractères" }),
+            z.regex(/^[A-Za-zÀ-ÖØ-öø-ÿ_\-'.,\s]*$/g, { error: "Contient des caractères non-autorisé" }),
+        ),
+    postal_code: z.string().check(z.regex(/^[0-9]{5}$/g, { error: "Le code postal est invalide" })),
+    phone: z.union(
+        [
+            z.string().check(z.regex(/\+33[1-9][0-9]{8}$/)), // France
+            z.string().check(z.regex(/\+377[0-9]{5,9}$/)), // Monaco
+            z.string().check(z.regex(/\+262[1-9][0-9]{6}$/)), // Réunion + Mayotte
+            z.string().check(z.regex(/\+590[1-9][0-9]{6}$/)), // Guadeloupe
+            z.string().check(z.regex(/\+594[1-9][0-9]{8}$/)), // Guyane
+            z.string().check(z.regex(/\+596[1-9][0-9]{8}$/)), // Martinique
+        ],
+        { error: "Le numéro de téléphone est invalide" },
+    ),
+});
+
+export const shippingFormSchema = z.discriminatedUnion("fulfillment_id", [
+    shippingManualSchema,
+    shippingMondialRelayParcelSchema,
+    shippingMondialRelayHomeSchema,
+]);
+
+export type ShippingManualFormSchema = typeof shippingManualSchema;
+export type ShippingMondialRelayParcelSchema = typeof shippingMondialRelayParcelSchema;
+
+export type ShippingMondialRelayHomeSchema = typeof shippingMondialRelayHomeSchema;
+export type ShippingMondialRelayHomeType = z.infer<ShippingMondialRelayHomeSchema>;
 
 export const confirmationTokenData = z.object({
     confirmationToken: z.string(),
@@ -88,6 +104,3 @@ export const confirmationTokenData = z.object({
 
 export type UserInfoFormSchema = typeof userInfoFormSchema;
 export type UserInfoFormType = z.infer<UserInfoFormSchema>;
-
-export type ShippingFormSchema = typeof shippingFormSchema;
-export type ShippingFormType = z.infer<ShippingFormSchema>;

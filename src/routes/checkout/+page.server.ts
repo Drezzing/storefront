@@ -1,14 +1,32 @@
 import { fail } from "@sveltejs/kit";
+import crypto from "crypto";
 import { superValidate } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 
-import env from "$lib/env/public";
+import env from "$lib/env/private";
 import { handleError } from "$lib/error.js";
 import { getPriceDetails, type CheckoutData } from "$lib/medusa/checkout.js";
-import { checkCartExists, medusa } from "$lib/medusa/medusa.js";
-import { shippingFormSchema, userInfoFormSchema, type ShippingFormType } from "$lib/schemas/checkout";
+import { checkCartExists, checkShippingOptionExists, medusa } from "$lib/medusa/medusa.js";
+import { isVariantShippable } from "$lib/medusa/shipping.js";
+import {
+    shippingFormSchema,
+    shippingManualSchema,
+    shippingMondialRelayHomeSchema,
+    shippingMondialRelayParcelSchema,
+    userInfoFormSchema,
+} from "$lib/schemas/checkout";
 
 export const prerender = false;
+
+const aesEncrypt = (text: string) => {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(env.get("SHIPPING_AES_KEY")), iv);
+
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+    return iv.toString("hex") + ":" + encrypted.toString("hex");
+};
 
 export const load = async ({ cookies }) => {
     const cartId = cookies.get("panier");
@@ -18,8 +36,7 @@ export const load = async ({ cookies }) => {
         return {
             cart: false,
             userInfoForm: null,
-            shippingForm: null,
-            shippingOptions: null,
+            shipping: null,
             priceDetails: null,
         } satisfies CheckoutData;
     }
@@ -30,11 +47,29 @@ export const load = async ({ cookies }) => {
 
     const shippingOptions = so.shipping_options.map((option) => {
         const optionPrice = (option.price_incl_tax ?? 0) / 100;
+        if (option.data === undefined || typeof option.data.id !== "string") {
+            return handleError(500, "CHECKOUT_LOAD_ACTION.SHIPPING_FULFILMENT_ID_MISSING", {
+                id: option.id,
+                name: option.name,
+                data: option.data,
+            });
+        }
         return {
             id: option.id!,
-            name: `${option.name} - ${optionPrice ? `${optionPrice.toFixed(2)}€` : "Gratuite"}`,
+            name: option.name!,
+            price: optionPrice ? `${optionPrice.toFixed(2)}€` : "Gratuite",
+            fulfillment_id: option.data.id,
+            disabled: optionPrice < 0,
         };
     });
+
+    const shippableProducts: { [variant: string]: boolean } = {};
+    for (const item of cartInfo.cart.items) {
+        if (item.variant) {
+            const productTitle = `${item.variant.product!.title} (${item.variant.title})`;
+            shippableProducts[productTitle] = isVariantShippable(item.variant);
+        }
+    }
 
     return {
         cart: true,
@@ -48,19 +83,21 @@ export const load = async ({ cookies }) => {
                 profile: undefined,
             },
         }),
-        shippingForm: await superValidate(zod4(shippingFormSchema), {
-            id: "shipping",
-            defaults: {
-                method: env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID"),
-                address: undefined,
-                complement: undefined,
-                city: undefined,
-                postal_code: undefined,
-                // department: undefined,
-                // country: undefined,
+        shipping: {
+            forms: {
+                manualMethodForm: await superValidate(zod4(shippingManualSchema), {
+                    id: "shipping-method-manual",
+                }),
+                parcelShippingMethodForm: await superValidate(zod4(shippingMondialRelayParcelSchema), {
+                    id: "shipping-method-mondial-relay-parcel",
+                }),
+                homeShippingMethodForm: await superValidate(zod4(shippingMondialRelayHomeSchema), {
+                    id: "shipping-method-mondial-relay-home",
+                }),
             },
-        }),
-        shippingOptions,
+            shippingOptions: shippingOptions,
+            shippableProducts: shippableProducts,
+        },
         priceDetails: getPriceDetails(cartInfo.cart),
     } satisfies CheckoutData;
 };
@@ -107,6 +144,7 @@ export const actions = {
 
     shipping: async (event) => {
         const shippingForm = await superValidate(event, zod4(shippingFormSchema));
+
         if (!shippingForm.valid) {
             return fail(400, {
                 shippingForm,
@@ -115,10 +153,31 @@ export const actions = {
         }
 
         const cartId = event.cookies.get("panier");
-        const cartInfo = await checkCartExists(cartId);
+        const [cartInfo, shippingOptionInfo] = await Promise.all([
+            checkCartExists(cartId),
+            checkShippingOptionExists(shippingForm.data.method),
+        ]);
 
         if (cartInfo.err) {
-            return handleError(500, "CHECKOUT_SHIPPING_ACTION.CART_NOT_FOUND");
+            return handleError(404, "CHECKOUT_SHIPPING_ACTION.CART_NOT_FOUND");
+        }
+
+        if (shippingOptionInfo.err) {
+            return handleError(404, "CHECKOUT_SHIPPING_ACTION.SHIPPING_OPTION_NOT_FOUND");
+        }
+
+        // if null and not calculated, means something probably went wrong
+        const isReallyNull =
+            shippingOptionInfo.shipping_option.amount === null &&
+            shippingOptionInfo.shipping_option.price_type != "calculated";
+
+        // if < 0, means this cart only has non-shippable products
+        const isNegative = (shippingOptionInfo.shipping_option.amount || 0) < 0;
+        if (isReallyNull || isNegative) {
+            return handleError(400, "CHECKOUT_SHIPPING_ACTION.SHIPPING_OPTION_NOT_AVAILABLE", {
+                id: shippingOptionInfo.shipping_option.id,
+                name: shippingOptionInfo.shipping_option.name,
+            });
         }
 
         const promises = [
@@ -129,30 +188,15 @@ export const actions = {
             }),
         ];
 
-        if (shippingForm.data.method !== env.get("PUBLIC_MEDUSA_DEFAULT_SHIPPING_ID")) {
-            // const country_code = cartInfo.cart.region.countries.find(
-            //     (country) => country.name === form.data.country?.toUpperCase(),
-            // );
-
-            const shippingAddress = shippingForm.data as Required<ShippingFormType>;
-            const shppingUpdate = medusa.carts
-                .update(cartInfo.cart.id, {
-                    shipping_address: {
-                        address_1: shippingAddress.address,
-                        address_2: shippingAddress.complement,
-                        city: shippingAddress.city,
-                        postal_code: shippingAddress.postal_code,
-                        country_code: "fr",
-                    },
-                })
-                .catch((err) => {
-                    return handleError(500, "CHECKOUT_SHIPPING_ACTION.UPDATE_SHIPPING_ADDRESS_FAILED", {
-                        error: err.response.data,
-                    });
-                });
-            promises.push(shppingUpdate);
+        if (shippingForm.data.fulfillment_id != "manual-fulfillment") {
+            const shippingUpdate = medusa.carts.update(cartInfo.cart.id, {
+                context: {
+                    ...cartInfo.cart.context,
+                    shipping_data: aesEncrypt(JSON.stringify(shippingForm.data)),
+                },
+            });
+            promises.push(shippingUpdate);
         }
-
         const [cartUpdated] = await Promise.all(promises);
 
         return { shippingForm, success: true, priceDetails: getPriceDetails(cartUpdated.cart) };

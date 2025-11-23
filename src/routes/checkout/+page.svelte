@@ -6,6 +6,7 @@
     import UserInfoForm from "$lib/checkout/UserInfoForm.svelte";
     import * as Accordion from "$lib/components/ui/accordion";
     import { Separator } from "$lib/components/ui/separator/index";
+    import type { ShippingMondialRelayHomeType, UserInfoFormType } from "$lib/schemas/checkout.js";
 
     let { data, form } = $props();
     const checkoutData = $state(data);
@@ -13,16 +14,21 @@
     let value = $state("0");
     let currentState = $state(0);
 
+    let userInfo = $state<UserInfoFormType>();
+    let userShippingAddress = $state<ShippingMondialRelayHomeType>();
+
     $effect(() => {
         if (!form || !form.success || !checkoutData.cart) return;
 
         untrack(() => (value = String(Number(value) + 1)));
 
-        if (form.userInfoForm) {
-            checkoutData.userInfoForm = form.userInfoForm;
+        if (form.userInfoForm && form.userInfoForm.valid) {
+            userInfo = form.userInfoForm.data;
             untrack(() => (currentState = Math.max(currentState, 1)));
-        } else if (form.shippingForm && form.priceDetails) {
-            checkoutData.shippingForm = form.shippingForm;
+        } else if (form.shippingForm && form.shippingForm.valid && form.priceDetails) {
+            if (form.shippingForm.data.fulfillment_id === "mondial-relay-home") {
+                userShippingAddress = form.shippingForm.data;
+            }
             checkoutData.priceDetails = form.priceDetails;
             untrack(() => (currentState = Math.max(currentState, 2)));
         }
@@ -38,13 +44,15 @@
     <meta name="robots" content="noindex,nofollow" />
 </svelte:head>
 
-<div class="px-4 sm:px-6 md:mx-auto md:max-w-[1350px] md:px-8">
+<div class="px-4 sm:px-6 lg:mx-auto lg:max-w-[1350px] lg:px-8">
     <h1 class="text-2xl font-bold">Commander</h1>
 
     <Separator class="my-4" />
     {#if checkoutData.cart}
-        <div class="flex flex-col items-start justify-center gap-4 md:flex-row lg:gap-8">
-            <div class="w-full grow space-y-4 md:w-auto">
+        <div
+            class="flex flex-col items-start justify-center gap-4 lg:grid lg:grid-cols-[1fr_auto] lg:flex-row lg:gap-8"
+        >
+            <div class="w-full grow space-y-4 lg:w-auto">
                 <Accordion.Root type="single" bind:value>
                     <Accordion.Item value="0">
                         <Accordion.Trigger>Informations</Accordion.Trigger>
@@ -60,8 +68,9 @@
                         >
                         <Accordion.Content>
                             <ShippingForm
-                                bind:data={checkoutData.shippingForm}
-                                options={checkoutData.shippingOptions}
+                                forms={checkoutData.shipping.forms}
+                                options={checkoutData.shipping.shippingOptions}
+                                shippableProducts={checkoutData.shipping.shippableProducts}
                             />
                         </Accordion.Content>
                     </Accordion.Item>
@@ -72,18 +81,15 @@
                             >Paiement</Accordion.Trigger
                         >
                         <Accordion.Content>
-                            <StripeForm
-                                userData={checkoutData.userInfoForm.data}
-                                shippingData={checkoutData.shippingForm.data}
-                            />
+                            <StripeForm userInfo={userInfo!} {userShippingAddress} />
                         </Accordion.Content>
                     </Accordion.Item>
                 </Accordion.Root>
             </div>
 
-            <div class="w-full rounded md:sticky md:top-[72px] md:w-[min(24rem,40vw)] lg:w-96">
+            <div class="w-full rounded lg:sticky lg:top-[72px] lg:w-80 xl:w-96">
                 <h2 class="text-xl font-semibold">Votre commande</h2>
-                <div class="grid grid-cols-2">
+                <div class="grid w-full grid-cols-2">
                     <p class="mt-2 text-black/75">Commande</p>
                     <p class="mt-2 justify-self-end text-black/75">
                         {(checkoutData.priceDetails.order / 100).toFixed(2)}€

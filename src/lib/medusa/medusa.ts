@@ -7,6 +7,7 @@ import type {
     StoreOrdersRes,
     StoreProductsRes,
     StoreVariantsRes,
+    AdminShippingOptionsRes,
 } from "@medusajs/medusa";
 import Medusa from "@medusajs/medusa-js";
 
@@ -30,6 +31,7 @@ export type MedusaProduct = StoreProductsRes["product"];
 export type MedusaProductVariant = StoreVariantsRes["variant"];
 export type MedusaLineItemVariant = MedusaCart["items"][0]["variant"]; // I hate everything about this but it works
 export type MedusaVariant = MedusaProductVariant | MedusaLineItemVariant;
+export type MedusaShippingOption = AdminShippingOptionsRes["shipping_option"];
 
 const checkEntityExist = async <K extends string, V>(
     id: string | undefined,
@@ -73,4 +75,10 @@ export const checkOrderExists = async (id?: string) => {
     } else {
         return checkEntityExist<"order", MedusaOrder>(id, "order", (id: string) => medusa.orders.retrieve(id));
     }
+};
+
+export const checkShippingOptionExists = async (id?: string) => {
+    return checkEntityExist<"shipping_option", MedusaShippingOption>(id, "shipping_option", (id: string) =>
+        medusa.admin.shippingOptions.retrieve(id),
+    );
 };
