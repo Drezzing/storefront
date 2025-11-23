@@ -23,7 +23,7 @@
         userShippingAddress,
         clientSecretQuery,
     }: {
-        userInfo: UserInfoFormType;
+        userInfo: UserInfoFormType | undefined;
         userShippingAddress: ShippingMondialRelayHomeType | undefined;
         clientSecretQuery: RemoteQuery<ClientSecretQuery> | undefined;
     } = $props();

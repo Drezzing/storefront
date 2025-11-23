@@ -85,7 +85,7 @@
                             >Paiement</Accordion.Trigger
                         >
                         <Accordion.Content>
-                            <StripeForm userInfo={userInfo!} {userShippingAddress} clientSecretQuery={clientSecret} />
+                            <StripeForm {userInfo} {userShippingAddress} clientSecretQuery={clientSecret} />
                         </Accordion.Content>
                     </Accordion.Item>
                 </Accordion.Root>
