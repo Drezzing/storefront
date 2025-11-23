@@ -2,6 +2,7 @@
     import LoaderCircle from "@lucide/svelte/icons/loader-circle";
     import X from "@lucide/svelte/icons/x";
     import { loadStripe, type Stripe, type StripeElements } from "@stripe/stripe-js";
+    import type { RemoteQuery } from "@sveltejs/kit";
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import { Address, Elements, PaymentElement } from "svelte-stripe";
@@ -15,14 +16,16 @@
         type ShippingMondialRelayHomeType,
         type UserInfoFormType,
     } from "$lib/schemas/checkout";
-    import { getClientSecret, submitConfirmationToken } from "./checkout.remote";
+    import { submitConfirmationToken, type ClientSecretQuery } from "./checkout.remote";
 
     let {
         userInfo,
         userShippingAddress,
+        clientSecretQuery,
     }: {
         userInfo: UserInfoFormType;
         userShippingAddress: ShippingMondialRelayHomeType | undefined;
+        clientSecretQuery: RemoteQuery<ClientSecretQuery> | undefined;
     } = $props();
 
     let defaultedUserInfo: UserInfoFormType = $derived(
@@ -36,40 +39,34 @@
     let userName = $derived(defaultedUserInfo.firstName + " " + defaultedUserInfo.lastName);
 
     let stripeSDK: Stripe | null = $state(null);
-    let clientSecret: string | undefined = $state(undefined);
+    let clientSecret: string | undefined = $derived(clientSecretQuery?.current?.client_secret);
+    let elements: StripeElements | undefined = $state();
+    let stripeReady = $derived(clientSecret != undefined && stripeSDK != undefined && elements != undefined);
 
     onMount(async () => {
-        [clientSecret, stripeSDK] = await Promise.all([
-            loadClientSecret(),
-            loadStripe(env.get("PUBLIC_STRIPE_API_KEY")),
-        ]);
+        const stripeSDKPromise = loadStripe(env.get("PUBLIC_STRIPE_API_KEY"));
+        stripeSDKPromise.catch(() =>
+            toast.error("Une erreur est survenue", { description: "Impossible de charger Stripe." }),
+        );
+
+        stripeSDK = await stripeSDKPromise;
     });
 
-    const loadClientSecret = async () => {
-        if (clientSecret) {
-            return clientSecret;
-        }
-        try {
-            const response = await getClientSecret();
-            return response.client_secret;
-        } catch (e) {
-            displayRemoteFunctionError(e);
-            throw e;
-        }
-    };
-
-    let elements: StripeElements | undefined = $state();
     let validateButtonState = $state(ButtonStateEnum.Idle);
 
     const submitCheckout = async (e: Event) => {
         e.preventDefault();
         validateButtonState = ButtonStateEnum.Updating;
 
-        if (!stripeSDK || !elements) {
+        await clientSecretQuery?.catch((err) => {
+            displayRemoteFunctionError(err);
+        });
+
+        if (!stripeSDK || !clientSecret || !elements) {
             validateButtonState = ButtonStateEnum.Fail;
             setTimeout(() => (validateButtonState = ButtonStateEnum.Idle), 2500);
             return toast.error("Une erreur est survenue.", {
-                description: "Impossible de charger Stripe.",
+                description: "Module Stripe non chargé.",
             });
         }
 
@@ -137,7 +134,7 @@
 
 <form class="px-2" onsubmit={submitCheckout}>
     <Elements
-        stripe={stripeSDK}
+        stripe={clientSecret === undefined ? null : stripeSDK}
         {clientSecret}
         locale="fr-FR"
         rules={{
@@ -176,7 +173,7 @@
     </Elements>
 
     <div class="mt-4 w-32 justify-self-center">
-        <StateButton state={validateButtonState} type="submit">
+        <StateButton state={validateButtonState} type="submit" disabled={!stripeReady}>
             {#snippet idle()}
                 <p>Valider</p>
             {/snippet}

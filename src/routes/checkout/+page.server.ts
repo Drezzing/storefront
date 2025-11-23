@@ -199,6 +199,10 @@ export const actions = {
         }
         const [cartUpdated] = await Promise.all(promises);
 
-        return { shippingForm, success: true, priceDetails: getPriceDetails(cartUpdated.cart) };
+        return {
+            shippingForm,
+            success: true,
+            priceDetails: getPriceDetails(cartUpdated.cart),
+        };
     },
 };

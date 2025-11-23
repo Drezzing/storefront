@@ -10,7 +10,11 @@ import { stripe } from "$lib/payment/stripe.js";
 import { confirmationTokenData } from "$lib/schemas/checkout";
 import { forceNoRefresh } from "$lib/utils";
 
-export const getClientSecret = query(async () => {
+export type ClientSecretQuery = {
+    client_secret: string;
+};
+
+export const getClientSecret = query(async (): Promise<ClientSecretQuery> => {
     const request = getRequestEvent();
 
     const cartInfo = await checkCartExists(request.cookies.get("panier"));

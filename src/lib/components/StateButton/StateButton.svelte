@@ -12,6 +12,7 @@
         state: ButtonStateEnum;
         class?: ClassValue;
         type?: "submit" | "reset" | "button" | "formSubmit";
+        disabled?: boolean;
         onclick?: ButtonProps["onclick"];
         idle?: Snippet<[]>;
         updating?: Snippet<[]>;
@@ -19,7 +20,17 @@
         fail?: Snippet<[]>;
     };
 
-    let { state, class: className, type = "button", onclick, idle, updating, success, fail }: Props = $props();
+    let {
+        state,
+        class: className,
+        type = "button",
+        disabled = false,
+        onclick,
+        idle,
+        updating,
+        success,
+        fail,
+    }: Props = $props();
 
     let variant = $derived.by((): ButtonVariant => {
         switch (state) {
@@ -52,7 +63,7 @@
         {type}
         {variant}
         {onclick}
-        disabled={state !== ButtonStateEnum.Idle}
+        disabled={state !== ButtonStateEnum.Idle || disabled}
         class={cn("h-12 transition-colors motion-reduce:transition-none", className)}
     >
         <div class="flex items-center gap-3">
@@ -64,7 +75,7 @@
         type="submit"
         {variant}
         {onclick}
-        disabled={state !== ButtonStateEnum.Idle}
+        disabled={state !== ButtonStateEnum.Idle || disabled}
         class={cn("h-12 transition-colors motion-reduce:transition-none", className)}
     >
         <div class="flex items-center gap-3">

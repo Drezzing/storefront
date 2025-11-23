@@ -1,6 +1,8 @@
 <script lang="ts">
+    import type { RemoteQuery } from "@sveltejs/kit";
     import { untrack } from "svelte";
 
+    import { getClientSecret, type ClientSecretQuery } from "$lib/checkout/checkout.remote.js";
     import ShippingForm from "$lib/checkout/ShippingForm.svelte";
     import StripeForm from "$lib/checkout/StripeForm.svelte";
     import UserInfoForm from "$lib/checkout/UserInfoForm.svelte";
@@ -16,6 +18,7 @@
 
     let userInfo = $state<UserInfoFormType>();
     let userShippingAddress = $state<ShippingMondialRelayHomeType>();
+    let clientSecret = $state<RemoteQuery<ClientSecretQuery> | undefined>();
 
     $effect(() => {
         if (!form || !form.success || !checkoutData.cart) return;
@@ -30,6 +33,7 @@
                 userShippingAddress = form.shippingForm.data;
             }
             checkoutData.priceDetails = form.priceDetails;
+            untrack(() => (clientSecret = getClientSecret()));
             untrack(() => (currentState = Math.max(currentState, 2)));
         }
     });
@@ -81,7 +85,7 @@
                             >Paiement</Accordion.Trigger
                         >
                         <Accordion.Content>
-                            <StripeForm userInfo={userInfo!} {userShippingAddress} />
+                            <StripeForm userInfo={userInfo!} {userShippingAddress} clientSecretQuery={clientSecret} />
                         </Accordion.Content>
                     </Accordion.Item>
                 </Accordion.Root>
