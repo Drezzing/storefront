@@ -40,8 +40,6 @@
     </section>
 
     <div class="space-y-4">
-        <a href="/cgv" class="underline">Conditions particulière de vente</a>
-
         <section class="-mx-4 bg-[#EEEEEE] px-4 py-2">
             <div class="flex items-center justify-between">
                 <ProductFilterPanel {filter} filterType="category" />
