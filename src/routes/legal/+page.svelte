@@ -14,7 +14,7 @@
 <article class="max-w-[1024px] px-4 md:px-8 lg:m-auto">
     <div class="mb-10 space-y-4 text-center">
         <h1 class="text-3xl font-bold">Mentions légales</h1>
-        <p class="italic">Mis à jour le: 28/08/2024</p>
+        <p class="italic">Mis à jour le: 24/11/2025</p>
     </div>
 
     <h2 class="mb-4 text-xl font-bold">Identification de l'éditeur et de l'hébergeur du site</h2>
@@ -102,6 +102,14 @@
                         href="https://stripe.com/fr/privacy">https://stripe.com/fr/privacy</a
                     >
                 </li>
+                <li>
+                    - MONDIAL RELAY (SASU) : <a
+                        class="underline"
+                        target="_blank"
+                        href="https://www.mondialrelay.fr/mentions-legales/"
+                        >https://www.mondialrelay.fr/mentions-legales/</a
+                    >
+                </li>
             </ul>
 
             <h3 class="pt-2 font-bold">Obligations</h3>
@@ -154,7 +162,7 @@
                     <tbody>
                         <tr>
                             <td class="border border-gray-300 px-2 py-2 lg:px-4"
-                                >Nom, Prénom, Date de naissance, Adresse courriel, Adresse de facturation</td
+                                >Nom, Prénom, Adresse courriel, Adresse de facturation</td
                             >
                             <td class="border border-gray-300 px-2 py-2 lg:px-4">Facturer les clients</td>
                             <td class="border border-gray-300 px-2 py-2 lg:px-4"
@@ -162,9 +170,7 @@
                             >
                         </tr>
                         <tr>
-                            <td class="border border-gray-300 px-2 py-2 lg:px-4"
-                                >Nom, Prénom, Date de naissance, Adresse courriel</td
-                            >
+                            <td class="border border-gray-300 px-2 py-2 lg:px-4">Nom, Prénom, Adresse courriel</td>
                             <td class="border border-gray-300 px-2 py-2 lg:px-4"
                                 >Suivre les adhésions et garantir ses bénéfices</td
                             >
@@ -172,7 +178,7 @@
                         </tr>
                         <tr>
                             <td class="border border-gray-300 px-2 py-2 lg:px-4"
-                                >Nom, Prénom, Date de naissance, Adresse courriel</td
+                                >Nom, Prénom, Adresse courriel, Adresse de livraison</td
                             >
                             <td class="border border-gray-300 px-2 py-2 lg:px-4">Livrer les clients</td>
                             <td class="border border-gray-300 px-2 py-2 lg:px-4">Jusqu'à 3 mois après la livraison</td>
