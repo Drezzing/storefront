@@ -1,6 +1,6 @@
 {
     "name": "drezzing-frontend",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "description": "Frontend of Drezzing's website, built with SvelteKit and shadcn-svelte.",
     "author": "Drezzing (https://drezzing.fr)",
     "type": "module",
