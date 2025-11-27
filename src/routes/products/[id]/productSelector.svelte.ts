@@ -21,7 +21,7 @@ export class ProductSelector {
 
         this.validVariants = new SvelteSet();
         for (const variant of this.variants) {
-            const combinationKey = this.createOptionKey(variant.options.values().toArray());
+            const combinationKey = this.createOptionKey(Array.from(variant.options.values()));
             this.validVariants.add(combinationKey);
         }
     }
@@ -52,7 +52,7 @@ export class ProductSelector {
             );
         });
 
-        const variantOptions = selectedVariant.options.values().toArray();
+        const variantOptions = Array.from(selectedVariant.options.values());
 
         for (let i = 0; i < variantOptions.length; i++) {
             const currentOption = variantOptions[i];
