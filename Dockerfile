@@ -1,4 +1,4 @@
-FROM node:22.15.0-alpine AS builder
+FROM node:22.21.1-alpine3.22 AS builder
 WORKDIR /frontend
 
 RUN npm i -g bun@1.2.13
@@ -14,11 +14,10 @@ RUN npm run build
 RUN rm -rf node_modules && bun install --frozen-lockfile --production
 
 
-FROM node:22.15.0-alpine
+FROM node:22.21.1-alpine3.22
 WORKDIR /frontend
 
 COPY --from=builder /frontend/build build/
-COPY --from=builder /frontend/dist dist/
 COPY --from=builder /frontend/node_modules node_modules/
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
