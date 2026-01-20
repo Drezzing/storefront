@@ -1,16 +1,8 @@
 import { ProductFilter } from "$lib/components/ProductFilter/productFilter.svelte";
 import type { FilterProducts } from "$lib/components/ProductFilter/utils";
-import type { MedusaProduct, MedusaVariant } from "$lib/medusa/medusa";
-
-export const SIZE_MAP: Record<string, number> = {
-    xs: 1,
-    s: 2,
-    m: 3,
-    l: 4,
-    xl: 5,
-    xxl: 6,
-    "3xl": 7,
-};
+import { handleError } from "$lib/error";
+import { medusa, type MedusaProduct, type MedusaVariant } from "$lib/medusa/medusa";
+import { SIZE_MAP } from "$lib/public/products";
 
 export const isVariantSoldout = (variant: MedusaVariant) => {
     return Boolean(variant.manage_inventory) && (variant.inventory_quantity || 0) <= 0;
@@ -58,4 +50,22 @@ export const getProducts = (products: MedusaProduct[]): FilterProducts => {
             prices,
         };
     });
+};
+
+/**
+ * Get the most recent products
+ * @param limit Number of products to retrieve
+ * @returns Array of recent products
+ */
+export const getRecentProducts = async (limit: number) => {
+    const recentProducts = await medusa.products.list({ order: "-created_at", limit });
+    if (recentProducts.count <= 0) {
+        return handleError(404, "GET_RECENT_PRODUCTS.PRODUCTS_NOT_FOUND");
+    }
+
+    return recentProducts.products.map((product) => ({
+        title: product.title ?? "",
+        handle: product.handle ?? "",
+        thumbnail: product.thumbnail ?? "https://placehold.co/600",
+    }));
 };
