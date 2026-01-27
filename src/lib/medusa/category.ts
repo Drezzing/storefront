@@ -15,7 +15,6 @@ export const getCategories = async () => {
             return handleError(500, "GET_CATEGORIES.CATEGORY_LIST_FAILED", { error: err.response.data });
         });
 
-    // console.log("Fetched categories:", categories);
     const categoryMap = new Map<string, { handle: string; title: string; thumbnail: string }[]>();
 
     // maybe flatten before getting thumbnails
