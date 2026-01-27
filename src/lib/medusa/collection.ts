@@ -1,6 +1,8 @@
+import env from "$lib/env/private";
 import { handleError } from "$lib/error";
-import { medusa, type MedusaCollection } from "./medusa";
-import { getThumbnail } from "./utils";
+import { medusa, type MedusaCollection } from "$lib/medusa/medusa";
+import { transformProductsForFiltering } from "$lib/medusa/product";
+import { getThumbnail } from "$lib/medusa/utils";
 
 export const isCollectionPrivate = (collection: MedusaCollection) => {
     return Boolean(collection.metadata["private"]) === true;
@@ -61,5 +63,44 @@ export const getCollections = async () => {
 
     return {
         collections: collectionsWithThumbnails,
+    };
+};
+
+export const getCollectionByHandle = async (handle: string) => {
+    const collections = await medusa.collections.list({ handle: [handle] }).catch((err) => {
+        return handleError(500, "GET_COLLECTION_BY_HANDLE.COLLECTION_LIST_FAILED", { err: err.response.data, handle });
+    });
+
+    if (collections.count <= 0) {
+        return handleError(404, "GET_COLLECTION_BY_HANDLE.COLLECTION_NOT_FOUND", { handle });
+    }
+
+    const collection = collections.collections[0];
+
+    if (isCollectionPrivate(collection)) {
+        return handleError(404, "GET_COLLECTION_BY_HANDLE.COLLECTION_PRIVATE", { handle });
+    }
+
+    const { products } = await medusa.products
+        .list({
+            collection_id: [collection.id],
+            region_id: env.get("MEDUSA_REGION_ID"),
+        })
+        .catch((err) => {
+            return handleError(500, "GET_COLLECTION_BY_HANDLE.PRODUCT_LIST_FAILED", { err: err.response.data, handle });
+        });
+
+    const description = collection.metadata?.["description"] as string | undefined;
+    const cpv = collection.metadata?.["cpv"] as string | undefined;
+    const guideTaille = collection.metadata?.["guide-taille"] as string | undefined;
+
+    return {
+        title: collection.title,
+        handle: collection.handle,
+        thumbnail: await getThumbnail(collection, "GET_COLLECTION_BY_HANDLE"),
+        description: description,
+        cpv: cpv,
+        guideTaille: guideTaille,
+        products: transformProductsForFiltering(products),
     };
 };

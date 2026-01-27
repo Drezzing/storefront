@@ -1,7 +1,7 @@
 import env from "$lib/env/private";
 import { handleError } from "$lib/error";
 import { medusa } from "$lib/medusa/medusa";
-import { getProducts } from "$lib/medusa/product.js";
+import { transformProductsForFiltering } from "$lib/medusa/product.js";
 import { getThumbnail } from "$lib/medusa/utils";
 
 export const prerender = false;
@@ -30,6 +30,6 @@ export const load = async ({ params }) => {
         title: category.name,
         description: category.description,
         thumbnail: await getThumbnail(category, "CATEGORY_LOAD"),
-        products: getProducts(products),
+        products: transformProductsForFiltering(products),
     };
 };

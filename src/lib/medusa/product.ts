@@ -40,7 +40,12 @@ export const getProductOptions = (product: MedusaProduct) => {
     return optionMap;
 };
 
-export const getProducts = (products: MedusaProduct[]): FilterProducts => {
+/**
+ * Transform Medusa products into products suitable for filtering in collections or categories
+ * @param products Array of Medusa products
+ * @returns Array of products suitable for collections or categories
+ */
+export const transformProductsForFiltering = (products: MedusaProduct[]): FilterProducts => {
     return products.map((product) => {
         const options = getProductOptions(product);
         const prices = new Set(product.variants.map((variant) => variant.original_price));
