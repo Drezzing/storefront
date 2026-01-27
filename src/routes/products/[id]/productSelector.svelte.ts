@@ -1,4 +1,4 @@
-import type { StoreVariant } from "$lib/products/products";
+import type { StoreVariant } from "$lib/medusa/product";
 import { error } from "@sveltejs/kit";
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 
