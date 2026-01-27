@@ -4,7 +4,7 @@ import { medusa } from "$lib/medusa/medusa";
 
 export const load = async () => {
     const collections = await medusa.collections.list({ handle: ["isima"] }).catch((err) => {
-        return handleError(500, "COLLECTION_LOAD.COLLECTION_LIST_FAILED", { err: err.response.data });
+        return handleError(500, "COLLECTION_LOAD.COLLECTION_LIST_FAILED", { error: err.response.data });
     });
 
     if (collections.count <= 0) {

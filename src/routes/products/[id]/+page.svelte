@@ -11,7 +11,7 @@
     import * as Carousel from "$lib/components/ui/carousel/index.js";
     import { Separator } from "$lib/components/ui/separator";
     import { displayRemoteFunctionError } from "$lib/error.js";
-    import { SIZE_MAP } from "$lib/medusa/product";
+    import { SIZE_MAP } from "$lib/public/products";
     import * as Tooltip from "$lib/components/ui/tooltip/index.js";
     import { ProductSelector } from "./productSelector.svelte.js";
 

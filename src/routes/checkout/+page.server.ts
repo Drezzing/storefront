@@ -7,7 +7,7 @@ import env from "$lib/env/private";
 import { handleError } from "$lib/error.js";
 import { getPriceDetails, type CheckoutData } from "$lib/medusa/checkout.js";
 import { checkCartExists, checkShippingOptionExists, medusa } from "$lib/medusa/medusa.js";
-import { isVariantShippable } from "$lib/medusa/shipping.js";
+import { getShippableProductsForCart, getShippingOptionsForCart } from "$lib/medusa/shipping.js";
 import {
     shippingFormSchema,
     shippingManualSchema,
@@ -41,35 +41,8 @@ export const load = async ({ cookies }) => {
         } satisfies CheckoutData;
     }
 
-    const so = await medusa.shippingOptions.listCartOptions(cartInfo.cart.id).catch((err) => {
-        return handleError(500, "CHECKOUT_LOAD_ACTION.LIST_CART_OPTIONS_FAILED", { error: err.response.data });
-    });
-
-    const shippingOptions = so.shipping_options.map((option) => {
-        const optionPrice = (option.price_incl_tax ?? 0) / 100;
-        if (option.data === undefined || typeof option.data.id !== "string") {
-            return handleError(500, "CHECKOUT_LOAD_ACTION.SHIPPING_FULFILMENT_ID_MISSING", {
-                id: option.id,
-                name: option.name,
-                data: option.data,
-            });
-        }
-        return {
-            id: option.id!,
-            name: option.name!,
-            price: optionPrice ? `${optionPrice.toFixed(2)}€` : "Gratuite",
-            fulfillment_id: option.data.id,
-            disabled: optionPrice < 0,
-        };
-    });
-
-    const shippableProducts: { [variant: string]: boolean } = {};
-    for (const item of cartInfo.cart.items) {
-        if (item.variant) {
-            const productTitle = `${item.variant.product!.title} (${item.variant.title})`;
-            shippableProducts[productTitle] = isVariantShippable(item.variant);
-        }
-    }
+    const shippingOptions = await getShippingOptionsForCart(cartInfo.cart.id);
+    const shippableProducts = getShippableProductsForCart(cartInfo.cart.items);
 
     return {
         cart: true,

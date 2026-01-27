@@ -1,6 +1,6 @@
 import { SvelteMap, SvelteSet, SvelteURLSearchParams } from "svelte/reactivity";
 
-import { SIZE_MAP } from "$lib/medusa/product";
+import { SIZE_MAP } from "$lib/public/products";
 
 import type { FilterProducts, FilterType } from "./utils";
 
