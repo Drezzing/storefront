@@ -48,7 +48,7 @@ export const getCategories = async () => {
  */
 export const getCategoryByHandle = async (handle: string) => {
     const categories = await medusa.productCategories.list({ handle }).catch((err) => {
-        return handleError(500, "GET_CATEGORY_BY_HANDLE.CATEGORY_LIST_FAILED", { err: err.response.data, handle });
+        return handleError(500, "GET_CATEGORY_BY_HANDLE.CATEGORY_LIST_FAILED", { error: err.response.data, handle });
     });
 
     if (categories.count <= 0) {
@@ -63,7 +63,7 @@ export const getCategoryByHandle = async (handle: string) => {
             region_id: env.get("MEDUSA_REGION_ID"),
         })
         .catch((err) => {
-            return handleError(500, "GET_CATEGORY_BY_HANDLE.PRODUCT_LIST_FAILED", { err: err.response.data, handle });
+            return handleError(500, "GET_CATEGORY_BY_HANDLE.PRODUCT_LIST_FAILED", { error: err.response.data, handle });
         });
 
     return {

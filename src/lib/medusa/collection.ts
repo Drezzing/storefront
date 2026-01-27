@@ -68,7 +68,10 @@ export const getCollections = async () => {
 
 export const getCollectionByHandle = async (handle: string) => {
     const collections = await medusa.collections.list({ handle: [handle] }).catch((err) => {
-        return handleError(500, "GET_COLLECTION_BY_HANDLE.COLLECTION_LIST_FAILED", { err: err.response.data, handle });
+        return handleError(500, "GET_COLLECTION_BY_HANDLE.COLLECTION_LIST_FAILED", {
+            error: err.response.data,
+            handle,
+        });
     });
 
     if (collections.count <= 0) {
@@ -87,7 +90,10 @@ export const getCollectionByHandle = async (handle: string) => {
             region_id: env.get("MEDUSA_REGION_ID"),
         })
         .catch((err) => {
-            return handleError(500, "GET_COLLECTION_BY_HANDLE.PRODUCT_LIST_FAILED", { err: err.response.data, handle });
+            return handleError(500, "GET_COLLECTION_BY_HANDLE.PRODUCT_LIST_FAILED", {
+                error: err.response.data,
+                handle,
+            });
         });
 
     const description = collection.metadata?.["description"] as string | undefined;

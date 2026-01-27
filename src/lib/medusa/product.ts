@@ -99,7 +99,7 @@ export const getProductByHandle = async (handle: string) => {
         .list({ handle: handle, region_id: env.get("MEDUSA_REGION_ID") })
         .catch((err) => {
             return handleError(500, "GET_PRODUCT_BY_HANDLE.PRODUCT_FETCH_ERROR", {
-                ...err.response.data,
+                error: err.response.data,
                 handle: handle,
             });
         });
