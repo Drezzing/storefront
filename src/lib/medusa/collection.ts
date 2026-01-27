@@ -23,7 +23,7 @@ export const getRecentCollections = async (limit: number) => {
     const collections = availableCollections.collections.filter((collection) => !isCollectionPrivate(collection));
     const collectionData = await Promise.all(
         collections.map(async (collection) => {
-            const thumbnail = await getThumbnail(collection, "HOMEPAGE_LOAD");
+            const thumbnail = await getThumbnail(collection, "GET_RECENT_COLLECTIONS");
             return {
                 id: collection.id,
                 title: collection.title,

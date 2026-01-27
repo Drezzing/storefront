@@ -27,7 +27,7 @@ export const getShippingOptionsForCart = async (cartId: string) => {
     const shippingOptions = so.shipping_options.map((option) => {
         const optionPrice = (option.price_incl_tax ?? 0) / 100;
         if (option.data === undefined || typeof option.data.id !== "string") {
-            return handleError(500, "CHECKOUT_LOAD_ACTION.SHIPPING_FULFILMENT_ID_MISSING", {
+            return handleError(500, "GET_SHIPPING_OPTIONS_FOR_CART.SHIPPING_FULFILMENT_ID_MISSING", {
                 id: option.id,
                 name: option.name,
                 data: option.data,
