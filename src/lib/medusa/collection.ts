@@ -36,3 +36,30 @@ export const getRecentCollections = async (limit: number) => {
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         .slice(0, limit);
 };
+
+/**
+ * Get all the public collections
+ * @returns Array of collections with title, handle, and thumbnail
+ */
+export const getCollections = async () => {
+    const collectionsResponse = await medusa.collections.list().catch((err) => {
+        return handleError(500, "GET_COLLECTIONS.COLLECTIONS_LIST_FAILED", { error: err.response.data });
+    });
+
+    const collections = collectionsResponse.collections.filter((collection) => !isCollectionPrivate(collection));
+
+    const collectionsWithThumbnails = await Promise.all(
+        collections.map(async (collection) => {
+            const thumbnail = await getThumbnail(collection, "GET_COLLECTIONS");
+            return {
+                title: collection.title,
+                handle: collection.handle,
+                thumbnail: thumbnail || "https://via.placeholder.com/600x600",
+            };
+        }),
+    );
+
+    return {
+        collections: collectionsWithThumbnails,
+    };
+};
