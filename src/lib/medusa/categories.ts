@@ -10,7 +10,7 @@ export const getCategories = async () => {
     const { product_categories: categories } = await medusa.productCategories
         .list({ parent_category_id: "null" })
         .catch((err) => {
-            return handleError(500, "CATEGORIES_LOAD.COLLECTION_LIST_FAILED", { error: err.response.data });
+            return handleError(500, "GET_CATEGORIES.CATEGORY_LIST_FAILED", { error: err.response.data });
         });
 
     // console.log("Fetched categories:", categories);
@@ -21,7 +21,7 @@ export const getCategories = async () => {
         categories.map(async (category) => {
             const childCategories = await Promise.all(
                 category.category_children.map(async (childCategory) => {
-                    const thumbnail = await getThumbnail(childCategory, "CATEGORIES_LOAD");
+                    const thumbnail = await getThumbnail(childCategory, "GET_CATEGORIES");
                     return {
                         title: childCategory.name,
                         handle: childCategory.handle,
