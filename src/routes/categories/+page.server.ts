@@ -1,4 +1,4 @@
-import { getCategories } from "$lib/medusa/categories";
+import { getCategories } from "$lib/medusa/category";
 
 export const prerender = false;
 

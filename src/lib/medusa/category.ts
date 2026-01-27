@@ -1,5 +1,7 @@
+import env from "$lib/env/private";
 import { handleError } from "$lib/error";
 import { medusa } from "$lib/medusa/medusa";
+import { transformProductsForFiltering } from "$lib/medusa/product";
 import { getThumbnail } from "$lib/medusa/utils";
 
 /**
@@ -37,4 +39,37 @@ export const getCategories = async () => {
     // TODO : make sure categories are sorted in the desired order (using parent_category.rank)
 
     return { categories: categoryMap };
+};
+
+/**
+ * Get category by handle
+ * @param handle Category handle
+ * @returns Category details with products
+ */
+export const getCategoryByHandle = async (handle: string) => {
+    const categories = await medusa.productCategories.list({ handle }).catch((err) => {
+        return handleError(500, "GET_CATEGORY_BY_HANDLE.CATEGORY_LIST_FAILED", { err: err.response.data, handle });
+    });
+
+    if (categories.count <= 0) {
+        return handleError(404, "GET_CATEGORY_BY_HANDLE.CATEGORY_NOT_FOUND", { handle });
+    }
+
+    const category = categories.product_categories[0];
+
+    const { products } = await medusa.products
+        .list({
+            category_id: [category.id],
+            region_id: env.get("MEDUSA_REGION_ID"),
+        })
+        .catch((err) => {
+            return handleError(500, "GET_CATEGORY_BY_HANDLE.PRODUCT_LIST_FAILED", { err: err.response.data, handle });
+        });
+
+    return {
+        title: category.name,
+        description: category.description,
+        thumbnail: await getThumbnail(category, "GET_CATEGORY_BY_HANDLE"),
+        products: transformProductsForFiltering(products),
+    };
 };
