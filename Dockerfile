@@ -1,4 +1,4 @@
-FROM node:22.21.1-alpine3.22 AS builder
+FROM node:22.23.4-alpine3.24 AS builder
 WORKDIR /frontend
 
 RUN npm i -g bun@1.2.13
@@ -14,7 +14,7 @@ RUN npm run build
 RUN rm -rf node_modules && bun install --frozen-lockfile --production
 
 
-FROM node:22.21.1-alpine3.22
+FROM node:22.23.4-alpine3.24
 WORKDIR /frontend
 
 COPY --from=builder /frontend/build build/
